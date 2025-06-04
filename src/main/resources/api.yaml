@@ -1,39 +1,48 @@
 openapi: 3.0.3
 info:
   title: Autotrading Backend API
-  description: API for managing persons and retrieving individual person details.
-  version: 1.0.0
+  description: |
+    API for managing users, accounts, signal sources, and transactions
+    in the autotrading system.
+  version: 1.0.1
 
 servers:
   - url: https://localhost:8080
+    description: Local Development Server
 
 tags:
   - name: Persons
-    description: Operations related to persons
+    description: Operations related to users
+  - name: Accounts
+    description: Operations with user accounts
+  - name: Sources
+    description: Signal sources for autotrading
+  - name: Transactions
+    description: Transactions related to accounts
 
 paths:
+
+  # PERSONS
   /persons:
     post:
-      tags:
-        - Persons
-      summary: Create a new person
+      tags: [Persons]
+      summary: Create a new user
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Person'
+              $ref: '#/components/schemas/PersonCreate'
       responses:
         '201':
-          description: Person created
+          description: User created
 
     get:
-      tags:
-        - Persons
-      summary: Retrieve all persons
+      tags: [Persons]
+      summary: Retrieve all users
       responses:
         '200':
-          description: A list of persons
+          description: List of users
           content:
             application/json:
               schema:
@@ -41,27 +50,25 @@ paths:
                 items:
                   $ref: '#/components/schemas/Person'
         '204':
-          description: No persons found
+          description: No users found
 
     put:
-      tags:
-        - Persons
-      summary: Update a person
+      tags: [Persons]
+      summary: Update user data
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Person'
+              $ref: '#/components/schemas/PersonUpdate'
       responses:
         '204':
-          description: Person updated
+          description: Data updated
 
   /persons/{id}:
     get:
-      tags:
-        - Persons
-      summary: Retrieve a single person with full metadata
+      tags: [Persons]
+      summary: Retrieve full information about a user
       parameters:
         - name: id
           in: path
@@ -71,18 +78,17 @@ paths:
             format: uuid
       responses:
         '200':
-          description: Person details
+          description: Full user information
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/PersonDetails'
         '404':
-          description: Person not found
+          description: User not found
 
     delete:
-      tags:
-        - Persons
-      summary: Delete a person
+      tags: [Persons]
+      summary: Delete a user
       parameters:
         - name: id
           in: path
@@ -92,37 +98,334 @@ paths:
             format: uuid
       responses:
         '204':
-          description: Person deleted
+          description: User deleted
+
+  # ACCOUNTS
+  /accounts:
+    post:
+      tags: [Accounts]
+      summary: Create an account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountCreate'
+      responses:
+        '201':
+          description: Account created
+
+    get:
+      tags: [Accounts]
+      summary: Retrieve all accounts
+      responses:
+        '200':
+          description: List of accounts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Account'
+        '204':
+          description: No accounts found
+
+    put:
+      tags: [Accounts]
+      summary: Update an account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountUpdate'
+      responses:
+        '204':
+          description: Account updated
+
+  /accounts/{id}:
+    get:
+      tags: [Accounts]
+      summary: Get account details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Account details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountDetails'
+        '404':
+          description: Account not found
+
+    delete:
+      tags: [Accounts]
+      summary: Delete an account
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Account deleted
+
+  # SOURCES
+  /sources:
+    post:
+      tags: [Sources]
+      summary: Create a signal source
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SourceCreate'
+      responses:
+        '201':
+          description: Source created
+
+    get:
+      tags: [Sources]
+      summary: Retrieve all sources
+      responses:
+        '200':
+          description: List of sources
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Source'
+        '204':
+          description: No sources found
+
+    put:
+      tags: [Sources]
+      summary: Update a source
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SourceUpdate'
+      responses:
+        '204':
+          description: Source updated
+
+  /sources/{id}:
+    get:
+      tags: [Sources]
+      summary: Get source details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Source details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SourceDetails'
+        '404':
+          description: Source not found
+
+    delete:
+      tags: [Sources]
+      summary: Delete a source
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Source deleted
+
+  # TRANSACTIONS
+  /transactions:
+    post:
+      tags: [Transactions]
+      summary: Create a transaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionCreate'
+      responses:
+        '201':
+          description: Transaction created
+
+    get:
+      tags: [Transactions]
+      summary: Retrieve all transactions
+      responses:
+        '200':
+          description: List of transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transaction'
+        '204':
+          description: No transactions found
+
+  /transactions/{id}:
+    get:
+      tags: [Transactions]
+      summary: Get transaction details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Transaction details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionDetails'
+        '404':
+          description: Transaction not found
 
 components:
   schemas:
+
+    # Persons
     Person:
       type: object
-      required: [first_name, last_name, email, phone_number]
       properties:
-        first_name:
-          type: string
-        last_name:
-          type: string
-        email:
-          type: string
-          format: email
-        phone_number:
-          type: string
-        password:
-          type: string
-          description: Required only for creation
+        id: { type: string, format: uuid }
+        first_name: { type: string }
+        last_name: { type: string }
+        email: { type: string, format: email }
+        phone_number: { type: string }
+
+    PersonCreate:
+      allOf:
+        - $ref: '#/components/schemas/Person'
+        - type: object
+          required: [first_name, last_name, email, phone_number, password]
+          properties:
+            password: { type: string }
+
+    PersonUpdate:
+      allOf:
+        - $ref: '#/components/schemas/Person'
 
     PersonDetails:
       allOf:
         - $ref: '#/components/schemas/Person'
         - type: object
           properties:
-            created_at:
-              type: string
-              format: date-time
-            updated_at:
-              type: string
-              format: date-time
-            reason_update:
-              type: string
+            created_at: { type: string, format: date-time }
+            updated_at: { type: string, format: date-time }
+            reason_update: { type: string }
+
+    # Accounts
+    Account:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        balance: { type: number, format: double }
+        currency: { type: string }
+        number: { type: integer }
+        created_at: { type: string, format: date-time }
+
+    AccountCreate:
+      type: object
+      required: [token_MetaTradeAPI]
+      properties:
+        token_MetaTradeAPI: { type: string }
+
+    AccountUpdate:
+      type: object
+      properties:
+        currency: { type: string }
+        token_MetaTradeAPI: { type: string }
+        reason_update: { type: string }
+
+    AccountDetails:
+      allOf:
+        - $ref: '#/components/schemas/Account'
+        - type: object
+          properties:
+            updated_at: { type: string, format: date-time }
+            reason_update: { type: string }
+
+    # Sources
+    Source:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        platform: { type: string }
+        created_at: { type: string, format: date-time }
+
+    SourceCreate:
+      type: object
+      required: [name, platform, token]
+      properties:
+        name: { type: string }
+        platform: { type: string }
+        token: { type: string }
+
+    SourceUpdate:
+      type: object
+      properties:
+        name: { type: string }
+        platform: { type: string }
+        token: { type: string }
+        reason_update: { type: string }
+
+    SourceDetails:
+      allOf:
+        - $ref: '#/components/schemas/Source'
+        - type: object
+          properties:
+            token: { type: string, description: Token is visible only to admin }
+            updated_at: { type: string, format: date-time }
+            reason_update: { type: string }
+
+    # Transactions
+    Transaction:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        amount: { type: number, format: double }
+        direction: { type: string }
+        created_at: { type: string, format: date-time }
+
+    TransactionCreate:
+      required: [amount, direction]
+      type: object
+      properties:
+        amount: { type: number, format: double }
+        direction: { type: string }
+
+    TransactionDetails:
+      allOf:
+        - $ref: '#/components/schemas/Transaction'
+        - type: object
+          properties:
+            updated_at: { type: string, format: date-time }
+            reason_update: { type: string }
