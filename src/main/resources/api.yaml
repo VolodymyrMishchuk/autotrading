@@ -309,22 +309,25 @@ paths:
 
 components:
   schemas:
-
     # Persons
     Person:
       type: object
       properties:
         id: { type: string, format: uuid }
+        type: { type: string }
         first_name: { type: string }
         last_name: { type: string }
         email: { type: string, format: email }
         phone_number: { type: string }
+        role:
+          type: string
+          enum: [USER, ADMIN, SUPERADMIN]
 
     PersonCreate:
       allOf:
         - $ref: '#/components/schemas/Person'
         - type: object
-          required: [first_name, last_name, email, phone_number, password]
+          required: [type, first_name, last_name, email, phone_number, password]
           properties:
             password: { type: string }
 
@@ -339,7 +342,6 @@ components:
           properties:
             created_at: { type: string, format: date-time }
             updated_at: { type: string, format: date-time }
-            reason_update: { type: string }
 
     # Accounts
     Account:
@@ -350,19 +352,28 @@ components:
         currency: { type: string }
         number: { type: integer }
         created_at: { type: string, format: date-time }
+        person_id: { type: string, format: uuid }
+        source_id: { type: string, format: uuid }
+        status:
+          type: string
+          enum: [ACTIVE, DEACTIVATED]
 
     AccountCreate:
       type: object
       required: [token_MetaTradeAPI]
       properties:
         token_MetaTradeAPI: { type: string }
+        source_id: { type: string, format: uuid }
+        person_id: { type: string, format: uuid }
 
     AccountUpdate:
       type: object
       properties:
         currency: { type: string }
         token_MetaTradeAPI: { type: string }
-        reason_update: { type: string }
+        status:
+          type: string
+          enum: [ACTIVE, DEACTIVATED]
 
     AccountDetails:
       allOf:
@@ -370,7 +381,6 @@ components:
         - type: object
           properties:
             updated_at: { type: string, format: date-time }
-            reason_update: { type: string }
 
     # Sources
     Source:
@@ -395,7 +405,6 @@ components:
         name: { type: string }
         platform: { type: string }
         token: { type: string }
-        reason_update: { type: string }
 
     SourceDetails:
       allOf:
@@ -404,23 +413,24 @@ components:
           properties:
             token: { type: string, description: Token is visible only to admin }
             updated_at: { type: string, format: date-time }
-            reason_update: { type: string }
 
     # Transactions
     Transaction:
       type: object
       properties:
         id: { type: string, format: uuid }
-        amount: { type: number, format: double }
+        amount: { type: number, format: double, minimum: 0 }
         direction: { type: string }
         created_at: { type: string, format: date-time }
 
     TransactionCreate:
-      required: [amount, direction]
+      required: [amount, direction, account_id, source_id]
       type: object
       properties:
-        amount: { type: number, format: double }
+        amount: { type: number, format: double, minimum: 0 }
         direction: { type: string }
+        account_id: { type: string, format: uuid }
+        source_id: { type: string, format: uuid }
 
     TransactionDetails:
       allOf:
@@ -428,4 +438,3 @@ components:
         - type: object
           properties:
             updated_at: { type: string, format: date-time }
-            reason_update: { type: string }
