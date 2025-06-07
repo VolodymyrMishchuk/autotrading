@@ -61,11 +61,58 @@ paths:
         '401':
           description: Invalid credentials
 
+  /auth/request-password-reset:
+    post:
+      tags: [Auth]
+      summary: Request password reset email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        '200':
+          description: Password reset link sent if email exists
+        '400':
+          description: Invalid input
+
+  /auth/reset-password:
+    post:
+      tags: [Auth]
+      summary: Reset password using token
+      security: [ { bearerAuth: [ ] } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, new_password]
+              properties:
+                token:
+                  type: string
+                  description: Reset token from email
+                new_password:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: Password successfully reset
+        '400':
+          description: Invalid token or password
+
   # PERSONS
   /persons:
     post:
       tags: [Persons]
-      summary: Create a new user
+      summary: Create a new user/admin/super admin
+      security: [ { bearerAuth: [ ] } ]
       requestBody:
         required: true
         content:
@@ -79,6 +126,7 @@ paths:
     get:
       tags: [Persons]
       summary: Retrieve all users
+      security: [ { bearerAuth: [ ] } ]
       responses:
         '200':
           description: List of users
@@ -94,6 +142,7 @@ paths:
     put:
       tags: [Persons]
       summary: Update user data
+      security: [ { bearerAuth: [ ] } ]
       requestBody:
         required: true
         content:
@@ -108,6 +157,7 @@ paths:
     get:
       tags: [Persons]
       summary: Retrieve full information about a user
+      security: [ { bearerAuth: [ ] } ]
       parameters:
         - name: id
           in: path
@@ -128,6 +178,7 @@ paths:
     delete:
       tags: [Persons]
       summary: Delete a user
+      security: [ { bearerAuth: [ ] } ]
       parameters:
         - name: id
           in: path
@@ -144,6 +195,7 @@ paths:
     post:
       tags: [Accounts]
       summary: Create an account
+      security: [ { bearerAuth: [ ] } ]
       requestBody:
         required: true
         content:
@@ -157,6 +209,7 @@ paths:
     get:
       tags: [Accounts]
       summary: Retrieve all accounts
+      security: [ { bearerAuth: [ ] } ]
       responses:
         '200':
           description: List of accounts
@@ -172,6 +225,7 @@ paths:
     put:
       tags: [Accounts]
       summary: Update an account
+      security: [ { bearerAuth: [ ] } ]
       requestBody:
         required: true
         content:
@@ -186,6 +240,7 @@ paths:
     get:
       tags: [Accounts]
       summary: Get account details
+      security: [ { bearerAuth: [ ] } ]
       parameters:
         - name: id
           in: path
@@ -206,6 +261,7 @@ paths:
     delete:
       tags: [Accounts]
       summary: Delete an account
+      security: [ { bearerAuth: [ ] } ]
       parameters:
         - name: id
           in: path
@@ -222,6 +278,7 @@ paths:
     post:
       tags: [Sources]
       summary: Create a signal source
+      security: [ { bearerAuth: [ ] } ]
       requestBody:
         required: true
         content:
@@ -235,6 +292,7 @@ paths:
     get:
       tags: [Sources]
       summary: Retrieve all sources
+      security: [ { bearerAuth: [ ] } ]
       responses:
         '200':
           description: List of sources
@@ -250,6 +308,7 @@ paths:
     put:
       tags: [Sources]
       summary: Update a source
+      security: [ { bearerAuth: [ ] } ]
       requestBody:
         required: true
         content:
@@ -264,6 +323,7 @@ paths:
     get:
       tags: [Sources]
       summary: Get source details
+      security: [ { bearerAuth: [ ] } ]
       parameters:
         - name: id
           in: path
@@ -284,6 +344,7 @@ paths:
     delete:
       tags: [Sources]
       summary: Delete a source
+      security: [ { bearerAuth: [ ] } ]
       parameters:
         - name: id
           in: path
@@ -300,6 +361,7 @@ paths:
     post:
       tags: [Transactions]
       summary: Create a transaction
+      security: [ { bearerAuth: [ ] } ]
       requestBody:
         required: true
         content:
@@ -313,6 +375,7 @@ paths:
     get:
       tags: [Transactions]
       summary: Retrieve all transactions
+      security: [ { bearerAuth: [ ] } ]
       responses:
         '200':
           description: List of transactions
@@ -329,6 +392,7 @@ paths:
     get:
       tags: [Transactions]
       summary: Get transaction details
+      security: [ { bearerAuth: [ ] } ]
       parameters:
         - name: id
           in: path
