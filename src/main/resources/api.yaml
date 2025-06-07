@@ -11,6 +11,8 @@ servers:
     description: Local Development Server
 
 tags:
+  - name: Auth
+    description: Operations for sign up/in
   - name: Persons
     description: Operations related to users
   - name: Accounts
@@ -21,6 +23,43 @@ tags:
     description: Transactions related to accounts
 
 paths:
+
+  # AUTH
+  /auth/signup:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthSignUp'
+      responses:
+        '201':
+          description: User registered successfully
+        '400':
+          description: Invalid input or user already exists
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Authenticate a user and get a token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthLogin'
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthToken'
+        '401':
+          description: Invalid credentials
 
   # PERSONS
   /persons:
@@ -308,7 +347,42 @@ paths:
           description: Transaction not found
 
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
   schemas:
+    # Auth
+    AuthSignUp:
+      type: object
+      required: [first_name, last_name, email, password, phone_number]
+      properties:
+        first_name: { type: string }
+        last_name: { type: string }
+        email: { type: string, format: email }
+        phone_number: { type: string }
+        password: { type: string, format: password }
+
+    AuthLogin:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string, format: password }
+
+    AuthToken:
+      type: object
+      properties:
+        access_token:
+          type: string
+          description: JWT or session token for authenticated access
+        token_type:
+          type: string
+          enum: [bearer]
+          default: bearer
+
     # Persons
     Person:
       type: object
