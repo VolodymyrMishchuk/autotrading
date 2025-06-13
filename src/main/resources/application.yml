@@ -3,8 +3,8 @@ spring:
     name: autotrade
 
   datasource:
-    url: jdbc:postgresql://${DATABASE_HOST:127.0.0.1}:${DATABASE_PORT:5432}/${DATABASE_NAME:loyalty_card}
+    url: jdbc:postgresql://${DATABASE_HOST:127.0.0.1}:${DATABASE_PORT:5432}/${DATABASE_NAME:autotrade}
     username: ${DATABASE_USER:postgres}
     # Use the DATABASE_PASSWORD environment variable if set, otherwise use 'postgres_password'
-    password: postgres_password
+    password: ${DATABASE_PASSWORD:postgres_password}
     driver-class-name: org.postgresql.Driver
