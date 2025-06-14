@@ -1,0 +1,578 @@
+openapi: 3.0.3
+info:
+  title: Autotrading Backend API
+  description: |
+    API for managing users, accounts, signal sources, and transactions
+    in the autotrading system.
+  version: 1.0.1
+
+servers:
+  - url: https://localhost:8080
+    description: Local Development Server
+
+tags:
+  - name: Auth
+    description: Operations for sign up/in
+  - name: Persons
+    description: Operations related to users
+  - name: Accounts
+    description: Operations with user accounts
+  - name: Sources
+    description: Signal sources for autotrading
+  - name: Transactions
+    description: Transactions related to accounts
+
+paths:
+
+  # AUTH
+  /auth/signup:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthSignUp'
+      responses:
+        '201':
+          description: User registered successfully
+        '400':
+          description: Invalid input or user already exists
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Authenticate a user and get a token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthLogin'
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthToken'
+        '401':
+          description: Invalid credentials
+
+  /auth/request-password-reset:
+    post:
+      tags: [Auth]
+      summary: Request password reset email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        '200':
+          description: Password reset link sent if email exists
+        '400':
+          description: Invalid input
+
+  /auth/reset-password:
+    post:
+      tags: [Auth]
+      summary: Reset password using token
+      security: [ { bearerAuth: [ ] } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, new_password]
+              properties:
+                token:
+                  type: string
+                  description: Reset token from email
+                new_password:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: Password successfully reset
+        '400':
+          description: Invalid token or password
+
+  # PERSONS
+  /persons:
+    post:
+      tags: [Persons]
+      summary: Create a new user/admin/super admin
+      security: [ { bearerAuth: [ ] } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PersonCreate'
+      responses:
+        '201':
+          description: User created
+
+    get:
+      tags: [Persons]
+      summary: Retrieve all users
+      security: [ { bearerAuth: [ ] } ]
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Person'
+        '204':
+          description: No users found
+
+    put:
+      tags: [Persons]
+      summary: Update user data
+      security: [ { bearerAuth: [ ] } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PersonUpdate'
+      responses:
+        '204':
+          description: Data updated
+
+  /persons/{id}:
+    get:
+      tags: [Persons]
+      summary: Retrieve full information about a user
+      security: [ { bearerAuth: [ ] } ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Full user information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonDetails'
+        '404':
+          description: User not found
+
+    delete:
+      tags: [Persons]
+      summary: Delete a user
+      security: [ { bearerAuth: [ ] } ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: User deleted
+
+  # ACCOUNTS
+  /accounts:
+    post:
+      tags: [Accounts]
+      summary: Create an account
+      security: [ { bearerAuth: [ ] } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountCreate'
+      responses:
+        '201':
+          description: Account created
+
+    get:
+      tags: [Accounts]
+      summary: Retrieve all accounts
+      security: [ { bearerAuth: [ ] } ]
+      responses:
+        '200':
+          description: List of accounts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Account'
+        '204':
+          description: No accounts found
+
+    put:
+      tags: [Accounts]
+      summary: Update an account
+      security: [ { bearerAuth: [ ] } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountUpdate'
+      responses:
+        '204':
+          description: Account updated
+
+  /accounts/{id}:
+    get:
+      tags: [Accounts]
+      summary: Get account details
+      security: [ { bearerAuth: [ ] } ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Account details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountDetails'
+        '404':
+          description: Account not found
+
+    delete:
+      tags: [Accounts]
+      summary: Delete an account
+      security: [ { bearerAuth: [ ] } ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Account deleted
+
+  # SOURCES
+  /sources:
+    post:
+      tags: [Sources]
+      summary: Create a signal source
+      security: [ { bearerAuth: [ ] } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SourceCreate'
+      responses:
+        '201':
+          description: Source created
+
+    get:
+      tags: [Sources]
+      summary: Retrieve all sources
+      security: [ { bearerAuth: [ ] } ]
+      responses:
+        '200':
+          description: List of sources
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Source'
+        '204':
+          description: No sources found
+
+    put:
+      tags: [Sources]
+      summary: Update a source
+      security: [ { bearerAuth: [ ] } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SourceUpdate'
+      responses:
+        '204':
+          description: Source updated
+
+  /sources/{id}:
+    get:
+      tags: [Sources]
+      summary: Get source details
+      security: [ { bearerAuth: [ ] } ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Source details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SourceDetails'
+        '404':
+          description: Source not found
+
+    delete:
+      tags: [Sources]
+      summary: Delete a source
+      security: [ { bearerAuth: [ ] } ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Source deleted
+
+  # TRANSACTIONS
+  /transactions:
+    post:
+      tags: [Transactions]
+      summary: Create a transaction
+      security: [ { bearerAuth: [ ] } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionCreate'
+      responses:
+        '201':
+          description: Transaction created
+
+    get:
+      tags: [Transactions]
+      summary: Retrieve all transactions
+      security: [ { bearerAuth: [ ] } ]
+      responses:
+        '200':
+          description: List of transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transaction'
+        '204':
+          description: No transactions found
+
+  /transactions/{id}:
+    get:
+      tags: [Transactions]
+      summary: Get transaction details
+      security: [ { bearerAuth: [ ] } ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Transaction details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionDetails'
+        '404':
+          description: Transaction not found
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # Auth
+    AuthSignUp:
+      type: object
+      required: [first_name, last_name, email, password, phone_number]
+      properties:
+        first_name: { type: string }
+        last_name: { type: string }
+        email: { type: string, format: email }
+        phone_number: { type: string }
+        password: { type: string, format: password }
+
+    AuthLogin:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string, format: password }
+
+    AuthToken:
+      type: object
+      properties:
+        access_token:
+          type: string
+          description: JWT or session token for authenticated access
+        token_type:
+          type: string
+          enum: [bearer]
+          default: bearer
+
+    # Persons
+    Person:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        type: { type: string }
+        first_name: { type: string }
+        last_name: { type: string }
+        email: { type: string, format: email }
+        phone_number: { type: string }
+        role:
+          type: string
+          enum: [USER, ADMIN, SUPERADMIN]
+
+    PersonCreate:
+      allOf:
+        - $ref: '#/components/schemas/Person'
+        - type: object
+          required: [type, first_name, last_name, email, phone_number, password]
+          properties:
+            password: { type: string }
+
+    PersonUpdate:
+      allOf:
+        - $ref: '#/components/schemas/Person'
+
+    PersonDetails:
+      allOf:
+        - $ref: '#/components/schemas/Person'
+        - type: object
+          properties:
+            created_at: { type: string, format: date-time }
+            updated_at: { type: string, format: date-time }
+
+    # Accounts
+    Account:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        balance: { type: number, format: double }
+        currency: { type: string }
+        number: { type: integer }
+        created_at: { type: string, format: date-time }
+        person_id: { type: string, format: uuid }
+        source_id: { type: string, format: uuid }
+        status:
+          type: string
+          enum: [ACTIVE, DEACTIVATED]
+
+    AccountCreate:
+      type: object
+      required: [token_MetaTradeAPI]
+      properties:
+        token_MetaTradeAPI: { type: string }
+        source_id: { type: string, format: uuid }
+        person_id: { type: string, format: uuid }
+
+    AccountUpdate:
+      type: object
+      properties:
+        currency: { type: string }
+        token_MetaTradeAPI: { type: string }
+        status:
+          type: string
+          enum: [ACTIVE, DEACTIVATED]
+
+    AccountDetails:
+      allOf:
+        - $ref: '#/components/schemas/Account'
+        - type: object
+          properties:
+            updated_at: { type: string, format: date-time }
+
+    # Sources
+    Source:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        platform: { type: string }
+        created_at: { type: string, format: date-time }
+
+    SourceCreate:
+      type: object
+      required: [name, platform, token]
+      properties:
+        name: { type: string }
+        platform: { type: string }
+        token: { type: string }
+
+    SourceUpdate:
+      type: object
+      properties:
+        name: { type: string }
+        platform: { type: string }
+        token: { type: string }
+
+    SourceDetails:
+      allOf:
+        - $ref: '#/components/schemas/Source'
+        - type: object
+          properties:
+            token: { type: string, description: Token is visible only to admin }
+            updated_at: { type: string, format: date-time }
+
+    # Transactions
+    Transaction:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        amount: { type: number, format: double, minimum: 0 }
+        direction: { type: string }
+        created_at: { type: string, format: date-time }
+
+    TransactionCreate:
+      required: [amount, direction, account_id, source_id]
+      type: object
+      properties:
+        amount: { type: number, format: double, minimum: 0 }
+        direction: { type: string }
+        account_id: { type: string, format: uuid }
+        source_id: { type: string, format: uuid }
+
+    TransactionDetails:
+      allOf:
+        - $ref: '#/components/schemas/Transaction'
+        - type: object
+          properties:
+            updated_at: { type: string, format: date-time }

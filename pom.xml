@@ -8,11 +8,13 @@
 		<version>3.5.0</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
+
 	<groupId>com.mishchuk</groupId>
 	<artifactId>autotrade</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>autotrade</name>
 	<description>Trade Automation Spring Boot</description>
+
 	<url/>
 	<licenses>
 		<license/>
