@@ -41,10 +41,10 @@ components:
         birth_date: { type: string, format: date }
         role:
           type: string
-          enum: [customer, admin, super-admin]
+          enum: [CUSTOMER, ADMIN, SUPER-ADMIN]
         status:
           type: string
-          enum: [active, deactivated]
+          enum: [ACTIVE, DEACTIVATED]
 
     UserCreateRequest:
       type: object
@@ -73,10 +73,10 @@ components:
         birth_date: { type: string, format: date }
         role:
           type: string
-          enum: [customer, admin, super-admin]
+          enum: [CUSTOMER, ADMIN, SUPER-ADMIN]
         status:
           type: string
-          enum: [active, deactivated ]
+          enum: [ACTIVE, DEACTIVATED]
         password: { type: string, format: password }
 
     AuthLogin:
@@ -108,7 +108,7 @@ components:
         source_id: { type: string, format: uuid }
         status:
           type: string
-          enum: [active, deactivated]
+          enum: [ACTIVE, DEACTIVATED]
 
     AccountCreate:
       type: object
@@ -125,7 +125,7 @@ components:
         token_MetaTradeAPI: { type: string }
         status:
           type: string
-          enum: [active, deactivated]
+          enum: [ACTIVE, DEACTIVATED]
 
     Source:
       type: object
@@ -137,7 +137,7 @@ components:
         updated_at: { type: string, format: date-time }
         status:
           type: string
-          enum: [active, deactivated]
+          enum: [ACTIVE, DEACTIVATED]
 
     SourceCreate:
       type: object
