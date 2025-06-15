@@ -1,12 +1,12 @@
 package com.mishchuk.autotrade.controller;
 
 import com.mishchuk.autotrade.controller.dto.*;
+import com.mishchuk.autotrade.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import java.util.UUID;
-import service.AccountService;
 
 @RestController
 @RequestMapping("/accounts")
