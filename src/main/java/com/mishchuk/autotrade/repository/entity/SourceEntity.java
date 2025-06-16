@@ -25,6 +25,9 @@ public class SourceEntity {
     @Column(name = "platform")
     private String platform;
 
+    @Column(name = "status")
+    private String status;
+
     @Column(name = "token")
     private String token;
 
