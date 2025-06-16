@@ -26,7 +26,7 @@ public class Account {
     private String tokenMetaApi;
 
     @Enumerated(EnumType.STRING)
-    private AccountStatus status;
+    private Status status;
 
     private Double balance;
 

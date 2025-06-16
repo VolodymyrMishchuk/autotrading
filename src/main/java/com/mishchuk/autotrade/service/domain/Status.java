@@ -1,5 +1,5 @@
 package com.mishchuk.autotrade.service.domain;
 
-public enum AccountStatus {
+public enum Status {
     ACTIVE, INACTIVE, BLOCKED
 }

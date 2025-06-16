@@ -43,9 +43,9 @@ public class UserMapper {
                 .birthDate(dto.getBirthDate())
                 .phoneNumber(dto.getPhoneNumber())
                 .email(dto.getEmail())
+                .password(dto.getPassword())
                 .role(String.valueOf(dto.getRole()))
                 .status(String.valueOf(dto.getStatus()))
-                .password(dto.getPassword())
                 .build();
     }
 
@@ -58,11 +58,14 @@ public class UserMapper {
 
     public User toUser(UserEntity entity) {
         return User.builder()
-                .id(entity.getId())
-                .username(entity.getUsername())
+                .id(UUID.fromString(entity.getId().toString()))
+                .firstName(entity.getFirstName())
+                .lastName(entity.getLastName())
+                .birthDate(entity.getBirthDay())
+                .phoneNumber(entity.getPhoneNumber())
                 .email(entity.getEmail())
-                .roles(entity.getRoles().stream().map(Role::valueOf).toList())
-                .status(UserStatus.valueOf(entity.getStatus()))
+                .role(String.valueOf(entity.getRole()))
+                .status(String.valueOf(entity.getStatus()))
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build();
@@ -70,12 +73,15 @@ public class UserMapper {
 
     public UserEntity toUserEntity(User user) {
         return UserEntity.builder()
-                .id(user.getId() != null ? UUID.fromString(user.getId()) : null)
-                .username(user.getUsername())
+                .id(user.getId() != null ? user.getId() : null)
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .birthDay(user.getBirthDate())
+                .phoneNumber(user.getPhoneNumber())
                 .email(user.getEmail())
                 .password(user.getPassword())
-                .status(user.getStatus().name())
-                .roles(user.getRoles().stream().map(Enum::name).toList())
+                .role(user.getRole())
+                .status(user.getStatus())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .build();

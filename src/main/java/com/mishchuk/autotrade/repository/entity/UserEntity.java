@@ -1,5 +1,7 @@
 package com.mishchuk.autotrade.repository.entity;
 
+import com.mishchuk.autotrade.service.domain.Role;
+import com.mishchuk.autotrade.service.domain.Status;
 import jakarta.persistence.*;
 
 import java.time.Instant;
@@ -38,10 +40,10 @@ public class UserEntity {
     private String password;
 
     @Column(name = "role")
-    private String role;
+    private Role role;
 
     @Column(name = "status")
-    private String status;
+    private Status status;
 
     @Column(name = "created_at")
     private Instant createdAt;
