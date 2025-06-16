@@ -1,5 +1,6 @@
 package com.mishchuk.autotrade.service.domain;
 
+import com.mishchuk.autotrade.controller.dto.Role;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -7,6 +8,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.Instant;
 import java.util.*;
 
+@Builder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -18,10 +20,17 @@ public class User {
     @Id
     @GeneratedValue
     private UUID id;
-    private String email;
-    private String password;
     private String firstName;
     private String lastName;
+
+    @CreationTimestamp
+    @Column(updatable = false)
+    protected Instant birthDate;
+    private String phoneNumber;
+    private String email;
+    private String password;
+    private String role;
+    private String status;
     private Boolean emailConfirmed = false;
 
     @CreationTimestamp
