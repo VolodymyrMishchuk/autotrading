@@ -2,6 +2,8 @@ package com.mishchuk.autotrade.repository.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.time.Instant;
 import java.util.UUID;
 
 @Builder
@@ -14,12 +16,21 @@ import java.util.UUID;
 public class SourceEntity {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false)
+    @Column(name = "name")
     private String name;
 
-    @Column
-    private String description;
+    @Column(name = "platform")
+    private String platform;
+
+    @Column(name = "token")
+    private String token;
+
+    @Column(name = "created_at")
+    private Instant createdAt;
+
+    @Column(name = "updated_at")
+    private Instant updatedAt;
 }

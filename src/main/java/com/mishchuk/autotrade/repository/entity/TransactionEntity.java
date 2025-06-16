@@ -17,22 +17,23 @@ import java.util.UUID;
 public class TransactionEntity {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id", nullable = false)
-    private Account account;
-
-    @Column(nullable = false)
+    @Column(name = "amount")
     private BigDecimal amount;
 
-    @Column(nullable = false)
-    private String type;
+    @Column(name = "direction")
+    private String direction;
 
-    @Column(nullable = false)
-    private Instant timestamp;
+    @Column(name = "created_at")
+    private Instant createdAt;
 
-    @Column
-    private String category;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "account_id")
+    private Account account;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "source_id")
+    private Account source;
 }
