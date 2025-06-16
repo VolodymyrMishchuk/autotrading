@@ -8,16 +8,16 @@ import java.util.UUID;
 
 @Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class UserDetailDto {
-    private UUID id;
-    private String firstName;
-    private String lastName;
-    private String email;
-    private String phoneNumber;
-    private Instant birthDate;
-    private Role role;
-    private Status status;
+    private final UUID id;
+    private final String firstName;
+    private final String lastName;
+    private final String email;
+    private final String phoneNumber;
+    private final Instant birthDate;
+    private final Role role;
+    private final Status status;
+    private final Instant createdAt;
+    private final Instant updatedAt;
 }

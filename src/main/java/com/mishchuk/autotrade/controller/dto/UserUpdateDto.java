@@ -2,24 +2,23 @@ package com.mishchuk.autotrade.controller.dto;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import java.time.Instant;
+import java.util.UUID;
 
 @Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class UserUpdateDto {
-    private String firstName;
-    private String lastName;
-    private String email;
-    private String phoneNumber;
-    private Instant birthDate;
-    private Role role;
-    private Status status;
-    private String password;
+    private final UUID id;
+    private final String firstName;
+    private final String lastName;
+    private final Instant birthDate;
+    private final String phoneNumber;
+    private final String email;
+    private final String password;
+    private final Role role;
+    private final Status status;
+    private final Instant updatedAt;
 }

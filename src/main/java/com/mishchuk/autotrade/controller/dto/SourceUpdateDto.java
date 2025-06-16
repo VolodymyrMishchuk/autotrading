@@ -2,19 +2,19 @@ package com.mishchuk.autotrade.controller.dto;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import java.time.Instant;
+import java.util.UUID;
 
 @Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class SourceUpdateDto {
-    private String name;
-    private String platform;
-    private String token;
-    private Status status;
+    private final UUID id;
+    private final String name;
+    private final String platform;
+    private final Status status;
+    private final String token;
+    private final Instant updatedAt;
 }

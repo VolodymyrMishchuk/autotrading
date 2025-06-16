@@ -2,26 +2,22 @@ package com.mishchuk.autotrade.controller.dto;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.UUID;
 
 @Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class AccountCreateDto {
-    @NotBlank
-    private String tokenMetaTradeAPI;
-
-    @NotNull
-    private UUID sourceId;
-
-    @NotNull
-    private UUID personId;
+    private final UUID id;
+    private final Long number;
+    private final Status status;
+    private final BigDecimal balance;
+    private final String currency;
+    private final String tokenMetaTradeAPI;
+    private final Instant createdAt;
+    private final UUID personId;
 }

@@ -18,7 +18,8 @@ public class SourceDetailDto {
     private UUID id;
     private String name;
     private String platform;
+    private Status status;
+    private String token;
     private Instant createdAt;
     private Instant updatedAt;
-    private Status status;
 }
