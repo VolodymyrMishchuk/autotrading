@@ -242,7 +242,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/User'
+                  $ref: '#/components/schemas/UserEntity'
         '204':
           description: No users found
 
@@ -258,7 +258,7 @@ paths:
               $ref: '#/components/schemas/UserUpdate'
       responses:
         '204':
-          description: User updated
+          description: UserEntity updated
         '403':
           description: Unauthorized or insufficient permissions
 
@@ -276,13 +276,13 @@ paths:
             format: uuid
       responses:
         '200':
-          description: User details
+          description: UserEntity details
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/UserEntity'
         '404':
-          description: User not found
+          description: UserEntity not found
 
     delete:
       tags: [Users]
@@ -295,7 +295,7 @@ paths:
           schema: { type: string, format: uuid }
       responses:
         '204':
-          description: User deleted
+          description: UserEntity deleted
         '403':
           description: Unauthorized
 
