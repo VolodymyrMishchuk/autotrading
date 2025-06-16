@@ -32,6 +32,7 @@ CREATE TABLE "sources" (
     "id" UUID PRIMARY KEY,
     "name" VARCHAR(255) NOT NULL,
     "platform" VARCHAR(50) NOT NULL,
+    "status" VARCHAR(10) NOT NULL,
     "token" TEXT NOT NULL,
     "created_at" TIMESTAMPTZ NOT NULL,
     "updated_at" TIMESTAMPTZ
