@@ -7,12 +7,12 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.Instant;
 import java.util.*;
 
-@Entity
-@Table(name = "accounts")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
+@Table(name = "accounts")
 public class Account {
     @Id
     @GeneratedValue

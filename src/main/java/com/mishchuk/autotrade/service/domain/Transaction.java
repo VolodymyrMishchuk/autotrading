@@ -7,12 +7,12 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.Instant;
 import java.util.*;
 
-@Entity
-@Table(name = "transactions")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
+@Table(name = "transactions")
 public class Transaction {
 
     @Id
@@ -37,3 +37,4 @@ public class Transaction {
     @UpdateTimestamp
     protected Instant updatedAt;
 }
+
