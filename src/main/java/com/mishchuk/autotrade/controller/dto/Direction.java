@@ -1,4 +1,5 @@
 package com.mishchuk.autotrade.controller.dto;
 
-public class PersonRegistrationDto {
+public enum Direction {
+    BUY, SELL
 }

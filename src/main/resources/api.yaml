@@ -2,9 +2,9 @@ openapi: 3.0.3
 info:
   title: Autotrading Backend API
   description: |
-    API for managing users, accounts, signal sources, and transactions
-    in the autotrading system.
-  version: 1.0.1
+    API for managing users (Super‑Admin, Admin, Customer), accounts, sources, transactions
+    with email-confirmed registration and role-based access control.
+  version: 1.1.0
 
 servers:
   - url: https://localhost:8080
@@ -12,9 +12,9 @@ servers:
 
 tags:
   - name: Auth
-    description: Operations for sign up/in
-  - name: Persons
-    description: Operations related to users
+    description: Operations for sign up/in and registration flow
+  - name: Users
+    description: Operations for managing users (customer/admin/super-admin)
   - name: Accounts
     description: Operations with user accounts
   - name: Sources
@@ -22,24 +22,192 @@ tags:
   - name: Transactions
     description: Transactions related to accounts
 
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        first_name: { type: string }
+        last_name: { type: string }
+        email: { type: string, format: email }
+        phone_number: { type: string }
+        birth_date: { type: string, format: date }
+        role:
+          type: string
+          enum: [CUSTOMER, ADMIN, SUPER-ADMIN]
+        status:
+          type: string
+          enum: [ACTIVE, DEACTIVATED]
+
+    UserCreateRequest:
+      type: object
+      required: [first_name, last_name, email, phone_number, birth_date]
+      properties:
+        first_name: { type: string }
+        last_name: { type: string }
+        email: { type: string, format: email }
+        phone_number: { type: string }
+        birth_date: { type: string, format: date }
+
+    UserCompleteRegistration:
+      type: object
+      required: [token, password]
+      properties:
+        token: { type: string }
+        password: { type: string, format: password }
+
+    UserUpdate:
+      type: object
+      properties:
+        first_name: { type: string }
+        last_name: { type: string }
+        email: { type: string, format: email }
+        phone_number: { type: string }
+        birth_date: { type: string, format: date }
+        role:
+          type: string
+          enum: [CUSTOMER, ADMIN, SUPER-ADMIN]
+        status:
+          type: string
+          enum: [ACTIVE, DEACTIVATED]
+        password: { type: string, format: password }
+
+    AuthLogin:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string, format: password }
+
+    AuthToken:
+      type: object
+      properties:
+        access_token: { type: string }
+        token_type:
+          type: string
+          enum: [bearer]
+          default: bearer
+
+    Account:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        balance: { type: number, format: double }
+        currency: { type: string }
+        number: { type: integer }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+        person_id: { type: string, format: uuid }
+        source_id: { type: string, format: uuid }
+        status:
+          type: string
+          enum: [ACTIVE, DEACTIVATED]
+
+    AccountCreate:
+      type: object
+      required: [token_MetaTradeAPI, source_id, person_id]
+      properties:
+        token_MetaTradeAPI: { type: string }
+        source_id: { type: string, format: uuid }
+        person_id: { type: string, format: uuid }
+
+    AccountUpdate:
+      type: object
+      properties:
+        currency: { type: string }
+        token_MetaTradeAPI: { type: string }
+        status:
+          type: string
+          enum: [ACTIVE, DEACTIVATED]
+
+    Source:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        platform: { type: string }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+        status:
+          type: string
+          enum: [ACTIVE, DEACTIVATED]
+
+    SourceCreate:
+      type: object
+      required: [name, platform, token]
+      properties:
+        name: { type: string }
+        platform: { type: string }
+        token: { type: string }
+
+    SourceUpdate:
+      type: object
+      properties:
+        name: { type: string }
+        platform: { type: string }
+        token: { type: string }
+        status:
+          type: string
+          enum: [active, deactivated]
+
+    Transaction:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        amount: { type: number, format: double, minimum: 0 }
+        direction: { type: string }
+        account_id: { type: string, format: uuid }
+        source_id: { type: string, format: uuid }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    TransactionCreate:
+      type: object
+      required: [amount, direction, account_id, source_id]
+      properties:
+        amount: { type: number, format: double, minimum: 0 }
+        direction: { type: string }
+        account_id: { type: string, format: uuid }
+        source_id: { type: string, format: uuid }
+
 paths:
 
-  # AUTH
-  /auth/signup:
+  /auth/register:
     post:
       tags: [Auth]
-      summary: Register a new user
+      summary: Pre-register user (email confirmation pending)
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AuthSignUp'
+              $ref: '#/components/schemas/UserCreateRequest'
+      responses:
+        '200':
+          description: Confirmation email sent
+
+  /auth/complete-registration:
+    post:
+      tags: [Auth]
+      summary: Complete registration and set password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCompleteRegistration'
       responses:
         '201':
-          description: User registered successfully
+          description: Registration completed, account is now active
         '400':
-          description: Invalid input or user already exists
+          description: Invalid or expired token
 
   /auth/login:
     post:
@@ -61,71 +229,10 @@ paths:
         '401':
           description: Invalid credentials
 
-  /auth/request-password-reset:
-    post:
-      tags: [Auth]
-      summary: Request password reset email
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [email]
-              properties:
-                email:
-                  type: string
-                  format: email
-      responses:
-        '200':
-          description: Password reset link sent if email exists
-        '400':
-          description: Invalid input
-
-  /auth/reset-password:
-    post:
-      tags: [Auth]
-      summary: Reset password using token
-      security: [ { bearerAuth: [ ] } ]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [token, new_password]
-              properties:
-                token:
-                  type: string
-                  description: Reset token from email
-                new_password:
-                  type: string
-                  format: password
-      responses:
-        '200':
-          description: Password successfully reset
-        '400':
-          description: Invalid token or password
-
-  # PERSONS
-  /persons:
-    post:
-      tags: [Persons]
-      summary: Create a new user/admin/super admin
-      security: [ { bearerAuth: [ ] } ]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PersonCreate'
-      responses:
-        '201':
-          description: User created
-
+  /users:
     get:
-      tags: [Persons]
-      summary: Retrieve all users
+      tags: [Users]
+      summary: List all users (Super‑Admin/Admin can view)
       security: [ { bearerAuth: [ ] } ]
       responses:
         '200':
@@ -135,28 +242,30 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Person'
+                  $ref: '#/components/schemas/UserEntity'
         '204':
           description: No users found
 
     put:
-      tags: [Persons]
-      summary: Update user data
+      tags: [Users]
+      summary: Update any user (role/status)
       security: [ { bearerAuth: [ ] } ]
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PersonUpdate'
+              $ref: '#/components/schemas/UserUpdate'
       responses:
         '204':
-          description: Data updated
+          description: UserEntity updated
+        '403':
+          description: Unauthorized or insufficient permissions
 
-  /persons/{id}:
+  /users/{id}:
     get:
-      tags: [Persons]
-      summary: Retrieve full information about a user
+      tags: [Users]
+      summary: Get user details
       security: [ { bearerAuth: [ ] } ]
       parameters:
         - name: id
@@ -167,30 +276,29 @@ paths:
             format: uuid
       responses:
         '200':
-          description: Full user information
+          description: UserEntity details
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PersonDetails'
+                $ref: '#/components/schemas/UserEntity'
         '404':
-          description: User not found
+          description: UserEntity not found
 
     delete:
-      tags: [Persons]
-      summary: Delete a user
+      tags: [Users]
+      summary: Delete user (Admin/Super‑Admin)
       security: [ { bearerAuth: [ ] } ]
       parameters:
         - name: id
           in: path
           required: true
-          schema:
-            type: string
-            format: uuid
+          schema: { type: string, format: uuid }
       responses:
         '204':
-          description: User deleted
+          description: UserEntity deleted
+        '403':
+          description: Unauthorized
 
-  # ACCOUNTS
   /accounts:
     post:
       tags: [Accounts]
@@ -208,7 +316,7 @@ paths:
 
     get:
       tags: [Accounts]
-      summary: Retrieve all accounts
+      summary: List all accounts
       security: [ { bearerAuth: [ ] } ]
       responses:
         '200':
@@ -224,7 +332,7 @@ paths:
 
     put:
       tags: [Accounts]
-      summary: Update an account
+      summary: Update account status or settings
       security: [ { bearerAuth: [ ] } ]
       requestBody:
         required: true
@@ -254,30 +362,27 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AccountDetails'
+                $ref: '#/components/schemas/Account'
         '404':
           description: Account not found
 
     delete:
       tags: [Accounts]
-      summary: Delete an account
+      summary: Delete account
       security: [ { bearerAuth: [ ] } ]
       parameters:
         - name: id
           in: path
           required: true
-          schema:
-            type: string
-            format: uuid
+          schema: { type: string, format: uuid }
       responses:
         '204':
           description: Account deleted
 
-  # SOURCES
   /sources:
     post:
       tags: [Sources]
-      summary: Create a signal source
+      summary: Create a source
       security: [ { bearerAuth: [ ] } ]
       requestBody:
         required: true
@@ -291,7 +396,7 @@ paths:
 
     get:
       tags: [Sources]
-      summary: Retrieve all sources
+      summary: List all sources
       security: [ { bearerAuth: [ ] } ]
       responses:
         '200':
@@ -307,7 +412,7 @@ paths:
 
     put:
       tags: [Sources]
-      summary: Update a source
+      summary: Update source details or status
       security: [ { bearerAuth: [ ] } ]
       requestBody:
         required: true
@@ -337,26 +442,23 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SourceDetails'
+                $ref: '#/components/schemas/Source'
         '404':
           description: Source not found
 
     delete:
       tags: [Sources]
-      summary: Delete a source
+      summary: Delete source
       security: [ { bearerAuth: [ ] } ]
       parameters:
         - name: id
           in: path
           required: true
-          schema:
-            type: string
-            format: uuid
+          schema: { type: string, format: uuid }
       responses:
         '204':
           description: Source deleted
 
-  # TRANSACTIONS
   /transactions:
     post:
       tags: [Transactions]
@@ -374,7 +476,7 @@ paths:
 
     get:
       tags: [Transactions]
-      summary: Retrieve all transactions
+      summary: List all transactions
       security: [ { bearerAuth: [ ] } ]
       responses:
         '200':
@@ -397,182 +499,13 @@ paths:
         - name: id
           in: path
           required: true
-          schema:
-            type: string
-            format: uuid
+          schema: { type: string, format: uuid }
       responses:
         '200':
           description: Transaction details
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TransactionDetails'
+                $ref: '#/components/schemas/Transaction'
         '404':
           description: Transaction not found
-
-components:
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-
-  schemas:
-    # Auth
-    AuthSignUp:
-      type: object
-      required: [first_name, last_name, email, password, phone_number]
-      properties:
-        first_name: { type: string }
-        last_name: { type: string }
-        email: { type: string, format: email }
-        phone_number: { type: string }
-        password: { type: string, format: password }
-
-    AuthLogin:
-      type: object
-      required: [email, password]
-      properties:
-        email: { type: string, format: email }
-        password: { type: string, format: password }
-
-    AuthToken:
-      type: object
-      properties:
-        access_token:
-          type: string
-          description: JWT or session token for authenticated access
-        token_type:
-          type: string
-          enum: [bearer]
-          default: bearer
-
-    # Persons
-    Person:
-      type: object
-      properties:
-        id: { type: string, format: uuid }
-        type: { type: string }
-        first_name: { type: string }
-        last_name: { type: string }
-        email: { type: string, format: email }
-        phone_number: { type: string }
-        role:
-          type: string
-          enum: [USER, ADMIN, SUPERADMIN]
-
-    PersonCreate:
-      allOf:
-        - $ref: '#/components/schemas/Person'
-        - type: object
-          required: [type, first_name, last_name, email, phone_number, password]
-          properties:
-            password: { type: string }
-
-    PersonUpdate:
-      allOf:
-        - $ref: '#/components/schemas/Person'
-
-    PersonDetails:
-      allOf:
-        - $ref: '#/components/schemas/Person'
-        - type: object
-          properties:
-            created_at: { type: string, format: date-time }
-            updated_at: { type: string, format: date-time }
-
-    # Accounts
-    Account:
-      type: object
-      properties:
-        id: { type: string, format: uuid }
-        balance: { type: number, format: double }
-        currency: { type: string }
-        number: { type: integer }
-        created_at: { type: string, format: date-time }
-        person_id: { type: string, format: uuid }
-        source_id: { type: string, format: uuid }
-        status:
-          type: string
-          enum: [ACTIVE, DEACTIVATED]
-
-    AccountCreate:
-      type: object
-      required: [token_MetaTradeAPI]
-      properties:
-        token_MetaTradeAPI: { type: string }
-        source_id: { type: string, format: uuid }
-        person_id: { type: string, format: uuid }
-
-    AccountUpdate:
-      type: object
-      properties:
-        currency: { type: string }
-        token_MetaTradeAPI: { type: string }
-        status:
-          type: string
-          enum: [ACTIVE, DEACTIVATED]
-
-    AccountDetails:
-      allOf:
-        - $ref: '#/components/schemas/Account'
-        - type: object
-          properties:
-            updated_at: { type: string, format: date-time }
-
-    # Sources
-    Source:
-      type: object
-      properties:
-        id: { type: string, format: uuid }
-        name: { type: string }
-        platform: { type: string }
-        created_at: { type: string, format: date-time }
-
-    SourceCreate:
-      type: object
-      required: [name, platform, token]
-      properties:
-        name: { type: string }
-        platform: { type: string }
-        token: { type: string }
-
-    SourceUpdate:
-      type: object
-      properties:
-        name: { type: string }
-        platform: { type: string }
-        token: { type: string }
-
-    SourceDetails:
-      allOf:
-        - $ref: '#/components/schemas/Source'
-        - type: object
-          properties:
-            token: { type: string, description: Token is visible only to admin }
-            updated_at: { type: string, format: date-time }
-
-    # Transactions
-    Transaction:
-      type: object
-      properties:
-        id: { type: string, format: uuid }
-        amount: { type: number, format: double, minimum: 0 }
-        direction: { type: string }
-        created_at: { type: string, format: date-time }
-
-    TransactionCreate:
-      required: [amount, direction, account_id, source_id]
-      type: object
-      properties:
-        amount: { type: number, format: double, minimum: 0 }
-        direction: { type: string }
-        account_id: { type: string, format: uuid }
-        source_id: { type: string, format: uuid }
-
-    TransactionDetails:
-      allOf:
-        - $ref: '#/components/schemas/Transaction'
-        - type: object
-          properties:
-            updated_at: { type: string, format: date-time }
