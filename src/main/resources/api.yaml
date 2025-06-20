@@ -2,9 +2,9 @@ openapi: 3.0.3
 info:
   title: Autotrading Backend API
   description: |
-    API for managing users (Super‑Admin, Admin, Customer), accounts, sources, transactions
+    API for managing users (ROLE_SUPER-ADMIN, ROLE_ADMIN, ROLE_CUSTOMER), accounts, sources, transactions
     with email-confirmed registration and role-based access control.
-  version: 1.1.0
+  version: 1.2.0
 
 servers:
   - url: https://localhost:8080
@@ -14,7 +14,7 @@ tags:
   - name: Auth
     description: Operations for sign up/in and registration flow
   - name: Users
-    description: Operations for managing users (customer/admin/super-admin)
+    description: Operations for managing users (ROLE_CUSTOMER/ROLE_ADMIN/ROLE_SUPER-ADMIN)
   - name: Accounts
     description: Operations with user accounts
   - name: Sources
@@ -41,26 +41,20 @@ components:
         birth_date: { type: string, format: date }
         role:
           type: string
-          enum: [CUSTOMER, ADMIN, SUPER-ADMIN]
+          enum: [ROLE_CUSTOMER, ROLE_ADMIN, ROLE_SUPER-ADMIN]
         status:
           type: string
-          enum: [ACTIVE, DEACTIVATED]
+          enum: [ACTIVE, DEACTIVATED, PENDING_CONFIRMATION]
 
     UserCreateRequest:
       type: object
-      required: [first_name, last_name, email, phone_number, birth_date]
+      required: [first_name, last_name, email, phone_number, birth_date, password]
       properties:
         first_name: { type: string }
         last_name: { type: string }
         email: { type: string, format: email }
         phone_number: { type: string }
         birth_date: { type: string, format: date }
-
-    UserCompleteRegistration:
-      type: object
-      required: [token, password]
-      properties:
-        token: { type: string }
         password: { type: string, format: password }
 
     UserUpdate:
@@ -73,7 +67,7 @@ components:
         birth_date: { type: string, format: date }
         role:
           type: string
-          enum: [CUSTOMER, ADMIN, SUPER-ADMIN]
+          enum: [ROLE_CUSTOMER, ROLE_ADMIN, ROLE_SUPER-ADMIN]
         status:
           type: string
           enum: [ACTIVE, DEACTIVATED]
@@ -182,7 +176,7 @@ paths:
   /auth/register:
     post:
       tags: [Auth]
-      summary: Pre-register user (email confirmation pending)
+      summary: Register a new user with password (email confirmation required)
       requestBody:
         required: true
         content:
@@ -191,21 +185,21 @@ paths:
               $ref: '#/components/schemas/UserCreateRequest'
       responses:
         '200':
-          description: Confirmation email sent
+          description: Confirmation email sent with activation link
 
-  /auth/complete-registration:
-    post:
+  /auth/confirm-email:
+    get:
       tags: [Auth]
-      summary: Complete registration and set password
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserCompleteRegistration'
+      summary: Confirm email using token
+      parameters:
+        - name: token
+          in: query
+          required: true
+          schema:
+            type: string
       responses:
-        '201':
-          description: Registration completed, account is now active
+        '200':
+          description: Email confirmed, account activated
         '400':
           description: Invalid or expired token
 
@@ -229,10 +223,11 @@ paths:
         '401':
           description: Invalid credentials
 
+  # Users
   /users:
     get:
       tags: [Users]
-      summary: List all users (Super‑Admin/Admin can view)
+      summary: List all users
       security: [ { bearerAuth: [ ] } ]
       responses:
         '200':
@@ -242,13 +237,13 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/UserEntity'
+                  $ref: '#/components/schemas/User'
         '204':
           description: No users found
 
     put:
       tags: [Users]
-      summary: Update any user (role/status)
+      summary: Update a user
       security: [ { bearerAuth: [ ] } ]
       requestBody:
         required: true
@@ -258,9 +253,9 @@ paths:
               $ref: '#/components/schemas/UserUpdate'
       responses:
         '204':
-          description: UserEntity updated
+          description: User updated
         '403':
-          description: Unauthorized or insufficient permissions
+          description: Unauthorized
 
   /users/{id}:
     get:
@@ -276,17 +271,17 @@ paths:
             format: uuid
       responses:
         '200':
-          description: UserEntity details
+          description: User details
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserEntity'
+                $ref: '#/components/schemas/User'
         '404':
-          description: UserEntity not found
+          description: User not found
 
     delete:
       tags: [Users]
-      summary: Delete user (Admin/Super‑Admin)
+      summary: Delete user
       security: [ { bearerAuth: [ ] } ]
       parameters:
         - name: id
@@ -295,10 +290,11 @@ paths:
           schema: { type: string, format: uuid }
       responses:
         '204':
-          description: UserEntity deleted
+          description: User deleted
         '403':
           description: Unauthorized
 
+  # Accounts
   /accounts:
     post:
       tags: [Accounts]
@@ -332,7 +328,7 @@ paths:
 
     put:
       tags: [Accounts]
-      summary: Update account status or settings
+      summary: Update account
       security: [ { bearerAuth: [ ] } ]
       requestBody:
         required: true
@@ -379,6 +375,7 @@ paths:
         '204':
           description: Account deleted
 
+  # Sources
   /sources:
     post:
       tags: [Sources]
@@ -412,7 +409,7 @@ paths:
 
     put:
       tags: [Sources]
-      summary: Update source details or status
+      summary: Update source
       security: [ { bearerAuth: [ ] } ]
       requestBody:
         required: true
@@ -459,6 +456,7 @@ paths:
         '204':
           description: Source deleted
 
+  # Transactions
   /transactions:
     post:
       tags: [Transactions]
