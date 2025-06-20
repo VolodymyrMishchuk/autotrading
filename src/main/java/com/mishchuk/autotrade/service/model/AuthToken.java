@@ -1,4 +1,4 @@
-package com.mishchuk.autotrade.service.domain;
+package com.mishchuk.autotrade.service.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;

@@ -2,7 +2,7 @@ package com.mishchuk.autotrade.controller;
 
 import com.mishchuk.autotrade.controller.dto.AuthLoginDto;
 import com.mishchuk.autotrade.controller.dto.AuthTokenResponseDto;
-import com.mishchuk.autotrade.service.AuthService;
+import com.mishchuk.autotrade.service.auth.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

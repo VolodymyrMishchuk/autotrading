@@ -1,4 +1,4 @@
-package com.mishchuk.autotrade.service.domain;
+package com.mishchuk.autotrade.service.model;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -12,18 +12,23 @@ import java.util.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "sources")
-public class Source {
+@Table(name = "transactions")
+public class Transaction {
+
     @Id
     @GeneratedValue
     private UUID id;
 
-    private String name;
-    private String platform;
-    private String token;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "account_id")
+    private Account account;
+
+    private Double amount;
 
     @Enumerated(EnumType.STRING)
-    private SourceStatus status;
+    private TransactionType type;
+
+    private String description;
 
     @CreationTimestamp
     @Column(updatable = false)
@@ -32,3 +37,4 @@ public class Source {
     @UpdateTimestamp
     protected Instant updatedAt;
 }
+

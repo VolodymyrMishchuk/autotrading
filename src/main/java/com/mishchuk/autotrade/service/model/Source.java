@@ -1,4 +1,4 @@
-package com.mishchuk.autotrade.service.domain;
+package com.mishchuk.autotrade.service.model;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -12,23 +12,18 @@ import java.util.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "accounts")
-public class Account {
+@Table(name = "sources")
+public class Source {
     @Id
     @GeneratedValue
     private UUID id;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "user_id")
-    private User user;
-
     private String name;
-    private String tokenMetaApi;
+    private String platform;
+    private String token;
 
     @Enumerated(EnumType.STRING)
-    private Status status;
-
-    private Double balance;
+    private SourceStatus status;
 
     @CreationTimestamp
     @Column(updatable = false)
@@ -36,7 +31,4 @@ public class Account {
 
     @UpdateTimestamp
     protected Instant updatedAt;
-
-    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Transaction> transactions = new ArrayList<>();
 }

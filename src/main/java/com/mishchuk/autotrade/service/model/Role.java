@@ -1,4 +1,4 @@
-package com.mishchuk.autotrade.service.domain;
+package com.mishchuk.autotrade.service.model;
 
 public enum Role {
     CUSTOMER, ADMIN, SUPER_ADMIN

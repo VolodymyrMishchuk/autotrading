@@ -1,6 +1,6 @@
 package com.mishchuk.autotrade.repository;
 
-import com.mishchuk.autotrade.service.domain.Transaction;
+import com.mishchuk.autotrade.service.model.Transaction;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

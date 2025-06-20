@@ -1,4 +1,4 @@
-package com.mishchuk.autotrade.service;
+package com.mishchuk.autotrade.service.auth;
 
 import com.mishchuk.autotrade.controller.dto.AuthLoginDto;
 import com.mishchuk.autotrade.controller.dto.AuthTokenResponseDto;
