@@ -1,6 +1,5 @@
 package com.mishchuk.autotrade.service.user;
 
-import com.mishchuk.autotrade.controller.dto.UserCompleteRegistrationDto;
 import com.mishchuk.autotrade.controller.dto.UserCreateDto;
 import com.mishchuk.autotrade.controller.dto.UserDetailDto;
 import com.mishchuk.autotrade.controller.dto.UserUpdateDto;

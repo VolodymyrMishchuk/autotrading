@@ -20,5 +20,6 @@ public class AccountDetailDto {
     private final String tokenMetaTradeAPI;
     private final Instant createdAt;
     private final Instant updatedAt;
-    private final UUID personId;
+    private final UUID userId;
+    private final UUID sourceId;
 }

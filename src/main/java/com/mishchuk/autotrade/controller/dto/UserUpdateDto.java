@@ -11,7 +11,6 @@ import java.util.UUID;
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class UserUpdateDto {
-    private final UUID id;
     private final String firstName;
     private final String lastName;
     private final Instant birthDate;
@@ -20,5 +19,4 @@ public class UserUpdateDto {
     private final String password;
     private final Role role;
     private final Status status;
-    private final Instant updatedAt;
 }

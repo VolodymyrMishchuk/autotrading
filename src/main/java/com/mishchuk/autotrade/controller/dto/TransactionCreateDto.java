@@ -12,10 +12,8 @@ import java.util.UUID;
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class TransactionCreateDto {
-    private final UUID id;
     private final BigDecimal amount;
     private final Direction direction;
-    private final Instant createdAt;
     private final UUID accountId;
     private final UUID sourceId;
 }
