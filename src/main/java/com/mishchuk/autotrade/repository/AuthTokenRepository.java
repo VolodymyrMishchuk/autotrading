@@ -1,6 +1,6 @@
 package com.mishchuk.autotrade.repository;
 
-import com.mishchuk.autotrade.service.domain.AuthToken;
+import com.mishchuk.autotrade.service.model.AuthToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

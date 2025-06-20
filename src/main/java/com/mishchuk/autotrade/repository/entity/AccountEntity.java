@@ -1,6 +1,6 @@
 package com.mishchuk.autotrade.repository.entity;
 
-import com.mishchuk.autotrade.service.domain.User;
+import com.mishchuk.autotrade.service.model.User;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;

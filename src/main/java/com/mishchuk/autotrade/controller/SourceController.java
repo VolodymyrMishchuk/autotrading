@@ -1,7 +1,7 @@
 package com.mishchuk.autotrade.controller;
 
 import com.mishchuk.autotrade.controller.dto.*;
-import com.mishchuk.autotrade.service.SourceService;
+import com.mishchuk.autotrade.service.source.SourceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

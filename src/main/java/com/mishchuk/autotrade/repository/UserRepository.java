@@ -1,6 +1,6 @@
 package com.mishchuk.autotrade.repository;
 
-import com.mishchuk.autotrade.service.domain.User;
+import com.mishchuk.autotrade.service.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
