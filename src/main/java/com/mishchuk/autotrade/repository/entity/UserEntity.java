@@ -33,16 +33,16 @@ public class UserEntity {
     @Column(name = "phone_number")
     private String phoneNumber;
 
-    @Column(name = "email")
+    @Column
     private String email;
 
-    @Column(name = "password")
+    @Column
     private String password;
 
-    @Column(name = "role")
+    @Column
     private Role role;
 
-    @Column(name = "status")
+    @Column
     private Status status;
 
     @Column(name = "created_at")

@@ -20,10 +20,10 @@ public class TransactionEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "amount")
+    @Column
     private BigDecimal amount;
 
-    @Column(name = "direction")
+    @Column
     private String direction;
 
     @Column(name = "created_at")

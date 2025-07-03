@@ -20,16 +20,16 @@ public class AccountEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "number")
+    @Column
     private Long number;
 
-    @Column(name = "status")
+    @Column
     private String status;
 
-    @Column(name = "balance")
+    @Column
     private BigDecimal balance;
 
-    @Column(name = "currency")
+    @Column
     private String currency;
 
     @Column(name = "token_MetaTradeAPI")
