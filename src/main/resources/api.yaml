@@ -46,16 +46,49 @@ components:
           type: string
           enum: [ACTIVE, DEACTIVATED, PENDING_CONFIRMATION]
 
-    UserCreateRequest:
+    # --- DTO для ініціалізації реєстрації ---
+    UserCreateDto:
       type: object
-      required: [first_name, last_name, email, phone_number, birth_date, password]
+      required:
+        - first_name
+        - last_name
+        - email
+        - phone_number
+        - birth_date
+        - password
       properties:
-        first_name: { type: string }
-        last_name: { type: string }
-        email: { type: string, format: email }
-        phone_number: { type: string }
-        birth_date: { type: string, format: date }
-        password: { type: string, format: password }
+        first_name:
+          type: string
+          maxLength: 50
+        last_name:
+          type: string
+          maxLength: 50
+        email:
+          type: string
+          format: email
+        phone_number:
+          type: string
+          pattern: '^\\+?[0-9]{7,15}$'
+        birth_date:
+          type: string
+          format: date
+        password:
+          type: string
+          format: password
+          minLength: 8
+
+    # --- DTO для підтвердження email ---
+    UserCompleteRegistrationDto:
+      type: object
+      required:
+        - email
+        - confirmation_token
+      properties:
+        email:
+          type: string
+          format: email
+        confirmation_token:
+          type: string
 
     UserUpdate:
       type: object
@@ -96,7 +129,7 @@ components:
         balance: { type: number, format: double }
         currency: { type: string }
         number:
-          type: integer
+          type: string
           description: Unique account number (e.g. MetaTrader ID)
         created_at: { type: string, format: date-time }
         updated_at: { type: string, format: date-time }
@@ -190,18 +223,34 @@ paths:
   /auth/signup:
     post:
       tags: [Auth]
-      summary: Register new user
+      summary: Register new user and send confirmation token
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserCreateRequest'
+              $ref: '#/components/schemas/UserCreateDto'
       responses:
         '201':
-          description: User created successfully
+          description: User created; confirmation email sent
         '400':
           description: Invalid input
+
+  /auth/signup/confirm:
+    post:
+      tags: [Auth]
+      summary: Complete registration by confirming email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCompleteRegistrationDto'
+      responses:
+        '200':
+          description: Email confirmed, user activated
+        '400':
+          description: Invalid or expired token
 
   /auth/login:
     post:
