@@ -2,10 +2,7 @@ package com.mishchuk.autotrade.service.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 import java.time.Instant;
-import java.util.*;
 
 @Getter
 @Setter
@@ -16,19 +13,11 @@ import java.util.*;
 public class Source {
     @Id
     @GeneratedValue
-    private UUID id;
-
+    private String id;
     private String name;
     private String platform;
     private String token;
-
-    @Enumerated(EnumType.STRING)
-    private SourceStatus status;
-
-    @CreationTimestamp
-    @Column(updatable = false)
+    private Status status;
     protected Instant createdAt;
-
-    @UpdateTimestamp
     protected Instant updatedAt;
 }

@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.*;
 
@@ -16,27 +18,14 @@ import java.util.*;
 public class Account {
     @Id
     @GeneratedValue
-    private UUID id;
+    private String id;
 
-    @ManyToOne(optional = false)
     @JoinColumn(name = "user_id")
-    private User user;
-
+    private String user;
     private String name;
     private String tokenMetaApi;
-
-    @Enumerated(EnumType.STRING)
     private Status status;
-
-    private Double balance;
-
-    @CreationTimestamp
-    @Column(updatable = false)
+    private BigDecimal balance;
     protected Instant createdAt;
-
-    @UpdateTimestamp
     protected Instant updatedAt;
-
-    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Transaction> transactions = new ArrayList<>();
 }

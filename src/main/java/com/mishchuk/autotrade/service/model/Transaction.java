@@ -2,10 +2,8 @@ package com.mishchuk.autotrade.service.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.*;
 
 @Getter
 @Setter
@@ -17,24 +15,14 @@ public class Transaction {
 
     @Id
     @GeneratedValue
-    private UUID id;
+    private String id;
 
-    @ManyToOne(optional = false)
     @JoinColumn(name = "account_id")
-    private Account account;
-
-    private Double amount;
-
-    @Enumerated(EnumType.STRING)
-    private TransactionType type;
-
+    private String account;
+    private BigDecimal amount;
+    private Direction direction;
     private String description;
-
-    @CreationTimestamp
-    @Column(updatable = false)
     protected Instant createdAt;
-
-    @UpdateTimestamp
     protected Instant updatedAt;
 }
 
