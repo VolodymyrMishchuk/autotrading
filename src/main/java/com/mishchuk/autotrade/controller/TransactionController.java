@@ -24,10 +24,4 @@ public class TransactionController {
     public ResponseEntity<TransactionDetailDto> getTransaction(@PathVariable UUID id) {
         return ResponseEntity.ok(transactionService.getTransaction(id));
     }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTransaction(@PathVariable UUID id) {
-        transactionService.deleteTransaction(id);
-        return ResponseEntity.noContent().build();
-    }
 }
