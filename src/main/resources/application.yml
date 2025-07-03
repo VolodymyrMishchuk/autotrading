@@ -5,6 +5,27 @@ spring:
   datasource:
     url: jdbc:postgresql://${DATABASE_HOST:127.0.0.1}:${DATABASE_PORT:5432}/${DATABASE_NAME:autotrade}
     username: ${DATABASE_USER:postgres}
-    # Use the DATABASE_PASSWORD environment variable if set, otherwise use 'postgres_password'
     password: ${DATABASE_PASSWORD:postgres_password}
     driver-class-name: org.postgresql.Driver
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${GMAIL_USERNAME:musterman@ggmail.com}
+    password: ${GMAIL_PASSWORD:my-secret-password}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          ssl:
+            trust: smtp.gmail.com
+
+  jwt:
+    secret: ${JWT_SECRET:ace6bc1c-c94c-40c3-8146-c0bda8381863}
+    ttl-millis: ${JWT_TTL:43200000}
+
+  frontend:
+    base-url: ${FRONTEND_BASE_URL:http://localhost:3000/}
