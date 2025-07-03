@@ -1,8 +1,11 @@
 package com.mishchuk.autotrade.service.auth;
 
-import com.mishchuk.autotrade.controller.dto.AuthLoginDto;
-import com.mishchuk.autotrade.controller.dto.AuthTokenResponseDto;
+import com.mishchuk.autotrade.service.model.User;
+import com.mishchuk.autotrade.service.model.UserRole;
 
 public interface AuthService {
-    AuthTokenResponseDto login(AuthLoginDto request);
+    String createToken(User user);
+    boolean isValidToken(String token);
+    String getUserId(String token);
+    UserRole getUserRole(String token);
 }
