@@ -1,15 +1,15 @@
 package com.mishchuk.autotrade.service.user;
 
-import com.mishchuk.autotrade.controller.dto.UserCreateDto;
-import com.mishchuk.autotrade.controller.dto.UserDetailDto;
-import com.mishchuk.autotrade.controller.dto.UserUpdateDto;
-
-import java.util.UUID;
+import com.mishchuk.autotrade.service.model.User;
+import java.util.List;
 
 public interface UserService {
-    UserDetailDto createUser(UserCreateDto request);
-    void completeRegistration(UserCompleteRegistrationDto request);
-    UserDetailDto updateUser(UUID id, UserUpdateDto request);
-    UserDetailDto getUser(UUID id);
-    void deleteUser(UUID id);
+    void createUser(User user);
+    User getUser(String id);
+    User getByToken(String token);
+    List<User> getAllUsers();
+    void updateUser(User user);
+    void deleteUser(String id);
+    void completeRegistration(String token); // тут в Loyalty-card є ще password як аргумент
+    User getAuthenticatedUser();
 }

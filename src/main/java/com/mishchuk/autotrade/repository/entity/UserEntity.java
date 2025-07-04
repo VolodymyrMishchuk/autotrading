@@ -1,7 +1,7 @@
 package com.mishchuk.autotrade.repository.entity;
 
-import com.mishchuk.autotrade.service.model.Role;
 import com.mishchuk.autotrade.service.model.Status;
+import com.mishchuk.autotrade.service.model.UserRole;
 import jakarta.persistence.*;
 
 import java.time.Instant;
@@ -40,7 +40,7 @@ public class UserEntity {
     private String password;
 
     @Column
-    private Role role;
+    private UserRole role;
 
     @Column
     private Status status;

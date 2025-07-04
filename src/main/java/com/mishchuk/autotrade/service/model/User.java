@@ -3,7 +3,7 @@ package com.mishchuk.autotrade.service.model;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.Instant;
-import java.util.*;
+import java.util.UUID;
 
 @Builder
 @Getter
@@ -19,7 +19,7 @@ public class User {
     private String id;
     private String firstName;
     private String lastName;
-    protected Instant birthDate;
+    private Instant birthDate;
     private String phoneNumber;
     private String email;
     private String password;

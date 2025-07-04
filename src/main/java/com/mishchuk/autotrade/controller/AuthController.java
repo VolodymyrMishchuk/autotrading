@@ -1,7 +1,10 @@
 package com.mishchuk.autotrade.controller;
 
 import com.mishchuk.autotrade.controller.dto.*;
+import com.mishchuk.autotrade.mapper.UserMapper;
 import com.mishchuk.autotrade.service.auth.AuthService;
+import com.mishchuk.autotrade.service.login.LoginService;
+import com.mishchuk.autotrade.service.user.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,6 +21,10 @@ import java.util.UUID;
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
+
+    private final UserService userService;
+    private final UserMapper userMapper;
+    private final LoginService loginService;
 
     private final AuthService authService;
 
@@ -48,7 +55,9 @@ public class AuthController {
     // ===== LOGIN =====
     @PostMapping("/login")
     public ResponseEntity<AuthTokenDto> login(@RequestBody AuthLoginDto authLoginDto) {
-        String token = authService.login(authLoginDto.getEmail(), authLoginDto.getPassword());
+
+        String token = loginService.login(authLoginDto.getEmail(), authLoginDto.getPassword());
+
         return new ResponseEntity<>(new AuthTokenDto(token), HttpStatus.OK);
     }
 }
