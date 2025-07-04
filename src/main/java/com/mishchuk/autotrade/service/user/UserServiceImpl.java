@@ -36,7 +36,10 @@ public class UserServiceImpl implements UserService {
 
         log.info("Creating new user");
 
-        user.setPassword(passwordEncoder.encode(password)); // чи потрібно тут задавати пароль (чи краще було б null, або взагалі видалити)?
+        // Encode the raw password from the user object
+        // Тут Чатік допоміг (Ай чутка нід хелп)
+        String rawPassword = user.getPassword();
+        user.setPassword(passwordEncoder.encode(rawPassword));
         user.setStatus(Status.INACTIVE);
         user.setCreatedAt(Instant.now());
 
@@ -108,10 +111,20 @@ public class UserServiceImpl implements UserService {
             userEntity.setEmail(user.getEmail());
             userEntity.setRole(user.getRole());
             userEntity.setStatus(user.getStatus());
+            userEntity.setUpdatedAt(Instant.now());
 
             userRepository.save(userEntity);
         } else {
             throw new UserNotFoundException("User with id " + user.getId() + " not found");
+        }
+    }
+
+    @Override
+    public void deleteUser(String id) {
+        if (userRepository.existsById(UUID.fromString(id))) {
+            userRepository.deleteById(UUID.fromString(id));
+        } else {
+            throw new UserNotFoundException("User with id " + id + " not found");
         }
     }
 
@@ -131,7 +144,6 @@ public class UserServiceImpl implements UserService {
             userRepository.save(userEntity);
         } else {
             throw new UserNotFoundException("User with token " + token + " not found");
-        }
         }
     }
 
