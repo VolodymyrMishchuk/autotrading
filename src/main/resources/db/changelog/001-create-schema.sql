@@ -13,7 +13,8 @@ CREATE TABLE "users" (
     "role" VARCHAR(15) NOT NULL,
     "status" VARCHAR(10) NOT NULL,
     "created_at" TIMESTAMPTZ NOT NULL,
-    "updated_at" TIMESTAMPTZ
+    "updated_at" TIMESTAMPTZ,
+    "token" UUID
 );
 
 CREATE TABLE "accounts" (
