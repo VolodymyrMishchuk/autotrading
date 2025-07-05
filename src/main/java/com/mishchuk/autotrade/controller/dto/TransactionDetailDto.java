@@ -16,6 +16,7 @@ public class TransactionDetailDto {
     private final BigDecimal amount;
     private final Direction direction;
     private final Instant createdAt;
+    private final Instant updatedAt;
     private final UUID accountId;
     private final UUID sourceId;
 }

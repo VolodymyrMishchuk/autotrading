@@ -1,7 +1,7 @@
 package com.mishchuk.autotrade.mapper;
 
 import com.mishchuk.autotrade.controller.dto.*;
-import com.mishchuk.autotrade.service.domain.User;
+import com.mishchuk.autotrade.service.model.User;
 import com.mishchuk.autotrade.repository.entity.UserEntity;
 import org.springframework.stereotype.Component;
 

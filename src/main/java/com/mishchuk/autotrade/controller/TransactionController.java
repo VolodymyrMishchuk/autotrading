@@ -1,7 +1,7 @@
 package com.mishchuk.autotrade.controller;
 
 import com.mishchuk.autotrade.controller.dto.*;
-import com.mishchuk.autotrade.service.TransactionService;
+import com.mishchuk.autotrade.service.transaction.TransactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,11 +23,5 @@ public class TransactionController {
     @GetMapping("/{id}")
     public ResponseEntity<TransactionDetailDto> getTransaction(@PathVariable UUID id) {
         return ResponseEntity.ok(transactionService.getTransaction(id));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTransaction(@PathVariable UUID id) {
-        transactionService.deleteTransaction(id);
-        return ResponseEntity.noContent().build();
     }
 }
