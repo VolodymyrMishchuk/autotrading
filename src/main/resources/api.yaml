@@ -46,7 +46,6 @@ components:
           type: string
           enum: [ACTIVE, DEACTIVATED, PENDING_CONFIRMATION]
 
-    # --- DTO для ініціалізації реєстрації ---
     UserCreateDto:
       type: object
       required:
@@ -77,7 +76,6 @@ components:
           format: password
           minLength: 8
 
-    # --- DTO для підтвердження email ---
     UserCompleteRegistrationDto:
       type: object
       required:
@@ -155,6 +153,18 @@ components:
         status:
           type: string
           enum: [ACTIVE, DEACTIVATED]
+
+    AccountCredentialsDto:
+      type: object
+      required:
+        - account_id
+        - token_meta_trade_api
+      properties:
+        account_id:
+          type: string
+          format: uuid
+        token_meta_trade_api:
+          type: string
 
     Source:
       type: object
@@ -428,6 +438,32 @@ paths:
       responses:
         '204':
           description: Account deleted
+
+  /accounts/{id}/credentials:
+    get:
+      tags: [ Accounts ]
+      summary: Get MetaTrade API token for account
+      description: Повертає `tokenMetaTradeAPI` для заданого рахунку (ROLE_ADMIN)
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Token retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountCredentialsDto'
+        '403':
+          description: Forbidden (недостатньо прав)
+        '404':
+          description: Account not found
 
   /sources:
     get:
