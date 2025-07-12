@@ -1,11 +1,12 @@
 package com.mishchuk.autotrade.service.transaction;
 
-import com.mishchuk.autotrade.controller.dto.TransactionCreateDto;
-import com.mishchuk.autotrade.controller.dto.TransactionDetailDto;
-
+import com.mishchuk.autotrade.service.model.Transaction;
+import java.util.List;
 import java.util.UUID;
 
 public interface TransactionService {
-    TransactionDetailDto createTransaction(TransactionCreateDto request);
-    TransactionDetailDto getTransaction(UUID id);
+    void createTransaction(Transaction transaction);
+    Transaction getTransactionById(UUID id);
+    Transaction getTransactionByToken(UUID token);
+    List<Transaction> getAllTransactions();
 }

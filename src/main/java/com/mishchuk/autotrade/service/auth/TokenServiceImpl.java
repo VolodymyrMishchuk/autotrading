@@ -14,7 +14,7 @@ import java.util.Date;
 
 @Service
 @RequiredArgsConstructor
-public class AuthServiceImpl implements AuthService{
+public class TokenServiceImpl implements TokenService {
 
     private static final String CLAIM_ROLE = "role";
     @Value("${jwt.secret}")
@@ -52,6 +52,7 @@ public class AuthServiceImpl implements AuthService{
         } catch (Exception e) {
             return false;
         }
+
         return true;
     }
 
@@ -68,6 +69,7 @@ public class AuthServiceImpl implements AuthService{
 
     @Override
     public UserRole getUserRole(String token) {
+
         String typeValue = Jwts.parser()
                 .verifyWith(getSecretKey())
                 .build()

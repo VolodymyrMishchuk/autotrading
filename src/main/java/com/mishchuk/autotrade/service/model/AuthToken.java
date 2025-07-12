@@ -1,15 +1,31 @@
 package com.mishchuk.autotrade.service.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
 
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.Instant;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "?????????")
-public record AuthToken (
-    String accessToken,
-    String refreshToken,
-    String tokenType,
-    long expiresIn
-) {
-         public static final String BEARER = "Bearer";
-    }
+public class AuthToken {
+    @Id
+    @GeneratedValue
+    private String id;
+
+    @JoinColumn(name = "user_id")
+    private String user;
+    private String tokenType;
+    private String accessToken;
+    private String refreshToken;
+    protected Instant createdAt;
+    protected Instant updatedAt;
+}
+

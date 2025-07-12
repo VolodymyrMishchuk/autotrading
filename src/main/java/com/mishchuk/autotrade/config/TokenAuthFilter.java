@@ -1,7 +1,7 @@
 package com.mishchuk.autotrade.config;
 
 import com.mishchuk.autotrade.service.model.UserRole;
-import com.mishchuk.autotrade.service.auth.AuthService;
+import com.mishchuk.autotrade.service.auth.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,7 +33,7 @@ public class TokenAuthFilter extends OncePerRequestFilter {
 
     private static final String BEARER_TOKEN_PREFIX = "Bearer ";
 
-    private final AuthService tokenService;
+    private final TokenService tokenService;
 
     @Override
     protected void doFilterInternal(

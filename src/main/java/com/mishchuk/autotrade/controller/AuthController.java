@@ -2,7 +2,7 @@ package com.mishchuk.autotrade.controller;
 
 import com.mishchuk.autotrade.controller.dto.*;
 import com.mishchuk.autotrade.mapper.UserMapper;
-import com.mishchuk.autotrade.service.auth.AuthService;
+import com.mishchuk.autotrade.service.auth.TokenService;
 import com.mishchuk.autotrade.service.login.LoginService;
 import com.mishchuk.autotrade.service.user.UserService;
 import jakarta.validation.Valid;
@@ -26,7 +26,7 @@ public class AuthController {
     private final UserMapper userMapper;
     private final LoginService loginService;
 
-    private final AuthService authService;
+    private final TokenService tokenService;
 
     // ===== SIGN UP (ініціює створення та відправку токена) =====
     @PostMapping("/signup")
@@ -34,7 +34,7 @@ public class AuthController {
             @Valid @RequestBody UserCreateDto dto,
             UriComponentsBuilder uriBuilder) {
 
-        UUID userId = authService.register(dto);
+        UUID userId = tokenService.register(dto);
         URI location = uriBuilder
                 .path("/users/{id}")
                 .buildAndExpand(userId)
@@ -48,7 +48,7 @@ public class AuthController {
     public ResponseEntity<Void> confirmRegistration(
             @Valid @RequestBody UserCompleteRegistrationDto dto) {
 
-        authService.confirmRegistration(dto.getEmail(), dto.getConfirmationToken());
+        tokenService.confirmRegistration(dto.getEmail(), dto.getConfirmationToken());
         return ResponseEntity.ok().build();
     }
 
