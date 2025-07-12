@@ -1,5 +1,6 @@
 package com.mishchuk.autotrade.repository.entity;
 
+import com.mishchuk.autotrade.service.model.Status;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,7 +27,7 @@ public class SourceEntity {
     private String platform;
 
     @Column
-    private String status;
+    private Status status;
 
     @Column
     private String token;
