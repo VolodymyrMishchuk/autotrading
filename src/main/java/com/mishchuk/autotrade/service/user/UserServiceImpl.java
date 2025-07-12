@@ -28,6 +28,7 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
+
     @Value("${frontend.base-url}")
     private String frontendBaseUrl;
 
@@ -36,14 +37,16 @@ public class UserServiceImpl implements UserService {
 
         log.info("Creating new user");
 
-        // Encode the raw password from the user object
-        // Тут Чатік допоміг (Ай чутка нід хелп)
-        String rawPassword = user.getPassword();
-        user.setPassword(passwordEncoder.encode(rawPassword));
+        UUID token = UUID.randomUUID();
+
+        user.setFirstName(user.getFirstName());
+        user.setLastName(user.getLastName());
+        user.setBirthDate(user.getBirthDate());
+        user.setPhoneNumber(user.getPhoneNumber());
+        user.setEmail(user.getEmail());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setStatus(Status.INACTIVE);
         user.setCreatedAt(Instant.now());
-
-        UUID token = UUID.randomUUID();
         user.setToken(token);
 
         userRepository.save(userMapper.toUserEntity(user));
@@ -56,11 +59,11 @@ public class UserServiceImpl implements UserService {
                 + "/users/registration-confirm?token="
                 + token);
 
-        log.info("User crested: {}", user);
+        log.info("User created: {}", user);
     }
 
     @Override
-    public User getUser(String id) {
+    public User getUserById(String id) {
 
         Optional<UserEntity> optionalUserEntity =
                 userRepository.findById(UUID.fromString(id));
@@ -73,7 +76,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getByToken(String token) {
+    public User getUserByToken(String token) {
 
         Optional<UserEntity> optionalUserEntity =
                 userRepository.findByToken(UUID.fromString(token));
@@ -97,10 +100,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateUser(User user) {
+
+        // я тут не реалізовував логіку оновлення імейлу, пароля та ролі
+        // мені це видалося якось не дуж сек'юрно
+        // тре подумати над такою фічою з якоюсь складнішою логікою
+
         log.info("Updating user with id: {}", user.getId());
 
         Optional<UserEntity> optionalUserEntity =
                 userRepository.findById(UUID.fromString(user.getId()));
+
         if (optionalUserEntity.isPresent()) {
             UserEntity userEntity = optionalUserEntity.get();
 
@@ -108,12 +117,12 @@ public class UserServiceImpl implements UserService {
             userEntity.setLastName(user.getLastName());
             userEntity.setBirthDay(user.getBirthDate());
             userEntity.setPhoneNumber(user.getPhoneNumber());
-            userEntity.setEmail(user.getEmail());
-            userEntity.setRole(user.getRole());
             userEntity.setStatus(user.getStatus());
             userEntity.setUpdatedAt(Instant.now());
 
             userRepository.save(userEntity);
+
+            log.info("Updated user with id: {}", user.getId());
         } else {
             throw new UserNotFoundException("User with id " + user.getId() + " not found");
         }
@@ -121,6 +130,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(String id) {
+
         if (userRepository.existsById(UUID.fromString(id))) {
             userRepository.deleteById(UUID.fromString(id));
         } else {
@@ -152,6 +162,19 @@ public class UserServiceImpl implements UserService {
 
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        return getUser(userId);
+        return getUserById(userId);
+    }
+
+    // Потрібна допомога із реалізацією логіки
+    public void updateEmailOfUser(User user) {
+
+    }
+
+    public void updatePasswordOfUser(User user) {
+
+    }
+
+    public void updateRoleOfUser(User user) {
+
     }
 }
