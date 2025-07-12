@@ -37,10 +37,10 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public Transaction getTransactionById(UUID id) {
+    public Transaction getTransactionById(String id) {
 
         Optional<TransactionEntity> optionalTransactionEntity =
-                transactionRepository.findById(id);
+                transactionRepository.findById(UUID.fromString(id));
 
         if (optionalTransactionEntity.isPresent()) {
             return  transactionMapper.toTransaction(optionalTransactionEntity.get());
@@ -50,10 +50,10 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public Transaction getTransactionByToken(UUID token) {
+    public Transaction getTransactionByToken(String token) {
 
         Optional<TransactionEntity> optionalTransactionEntity =
-                transactionRepository.findByToken(token);
+                transactionRepository.findByToken(UUID.fromString(token));
 
         if (optionalTransactionEntity.isPresent()) {
             return  transactionMapper.toTransaction(optionalTransactionEntity.get());
