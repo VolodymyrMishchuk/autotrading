@@ -58,7 +58,7 @@ public class UserMapper {
 
     public User toUser(UserEntity entity) {
         return User.builder()
-                .id(UUID.fromString(entity.getId().toString()))
+                .id(UUID.entity.getId())
                 .firstName(entity.getFirstName())
                 .lastName(entity.getLastName())
                 .birthDate(entity.getBirthDay())

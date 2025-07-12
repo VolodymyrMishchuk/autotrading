@@ -1,37 +1,36 @@
 package com.mishchuk.autotrade.service.source;
 
-import com.mishchuk.autotrade.controller.dto.SourceCreateDto;
-import com.mishchuk.autotrade.controller.dto.SourceDetailDto;
-import com.mishchuk.autotrade.controller.dto.SourceUpdateDto;
+import com.mishchuk.autotrade.service.model.Source;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class SourceServiceImpl implements SourceService {
 
     @Override
-    public SourceDetailDto createSource(SourceCreateDto request) {
-        // TODO: persist and return new source
-        return new SourceDetailDto();
+    public void createSource(Source source) {
+
     }
 
     @Override
-    public SourceDetailDto updateSource(UUID id, SourceUpdateDto request) {
-        // TODO: update name, platform, token, status
-        return new SourceDetailDto();
+    public Source getSource(String id) {
+        return null;
     }
 
     @Override
-    public SourceDetailDto getSource(UUID id) {
-        // TODO: find by ID
-        return new SourceDetailDto();
+    public List<Source> getAllSources() {
+        return List.of();
     }
 
     @Override
-    public void deleteSource(UUID id) {
-        // TODO: soft/hard delete
+    public void updateSource(Source source) {
+
+    }
+
+    @Override
+    public void deleteSource(String id) {
+
     }
 }

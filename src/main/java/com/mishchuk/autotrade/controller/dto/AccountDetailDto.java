@@ -13,11 +13,10 @@ import java.util.UUID;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class AccountDetailDto {
     private final UUID id;
-    private final Long number;
+    private final String number;
     private final Status status;
     private final BigDecimal balance;
     private final String currency;
-    private final String tokenMetaTradeAPI;
     private final Instant createdAt;
     private final Instant updatedAt;
     private final UUID userId;

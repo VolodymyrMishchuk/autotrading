@@ -1,15 +1,14 @@
 package com.mishchuk.autotrade.service.source;
 
-
-import com.mishchuk.autotrade.controller.dto.SourceCreateDto;
-import com.mishchuk.autotrade.controller.dto.SourceDetailDto;
 import com.mishchuk.autotrade.controller.dto.SourceUpdateDto;
-
+import com.mishchuk.autotrade.service.model.Source;
+import java.util.List;
 import java.util.UUID;
 
 public interface SourceService {
-    SourceDetailDto createSource(SourceCreateDto request);
-    SourceDetailDto updateSource(UUID id, SourceUpdateDto request);
-    SourceDetailDto getSource(UUID id);
-    void deleteSource(UUID id);
+    void createSource(Source source);
+    Source getSource(String id);
+    List<Source> getAllSources();
+    void updateSource(Source source);
+    void deleteSource(String id);
 }
