@@ -19,16 +19,16 @@ public class SourceEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "name")
+    @Column
     private String name;
 
-    @Column(name = "platform")
+    @Column
     private String platform;
 
-    @Column(name = "status")
+    @Column
     private String status;
 
-    @Column(name = "token")
+    @Column
     private String token;
 
     @Column(name = "created_at")

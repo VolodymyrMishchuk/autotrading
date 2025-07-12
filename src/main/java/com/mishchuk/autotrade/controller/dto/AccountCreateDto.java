@@ -12,12 +12,7 @@ import java.util.UUID;
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class AccountCreateDto {
-    private final UUID id;
-    private final Long number;
-    private final Status status;
-    private final BigDecimal balance;
-    private final String currency;
     private final String tokenMetaTradeAPI;
-    private final Instant createdAt;
-    private final UUID personId;
+    private final UUID userId;
+    private final UUID sourceId;
 }
