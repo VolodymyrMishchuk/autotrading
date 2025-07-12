@@ -1,5 +1,6 @@
 package com.mishchuk.autotrade.repository.entity;
 
+import com.mishchuk.autotrade.service.model.Status;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,16 +20,16 @@ public class SourceEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "name")
+    @Column
     private String name;
 
-    @Column(name = "platform")
+    @Column
     private String platform;
 
-    @Column(name = "status")
-    private String status;
+    @Column
+    private Status status;
 
-    @Column(name = "token")
+    @Column
     private String token;
 
     @Column(name = "created_at")

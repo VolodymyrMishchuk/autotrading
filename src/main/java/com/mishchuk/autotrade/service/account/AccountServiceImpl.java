@@ -1,4 +1,4 @@
-package com.mishchuk.autotrade.service;
+package com.mishchuk.autotrade.service.account;
 
 import com.mishchuk.autotrade.controller.dto.AccountCreateDto;
 import com.mishchuk.autotrade.controller.dto.AccountDetailDto;

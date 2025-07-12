@@ -1,7 +1,7 @@
 package com.mishchuk.autotrade.repository.entity;
 
-import com.mishchuk.autotrade.service.domain.Role;
-import com.mishchuk.autotrade.service.domain.Status;
+import com.mishchuk.autotrade.service.model.Status;
+import com.mishchuk.autotrade.service.model.UserRole;
 import jakarta.persistence.*;
 
 import java.time.Instant;
@@ -33,16 +33,16 @@ public class UserEntity {
     @Column(name = "phone_number")
     private String phoneNumber;
 
-    @Column(name = "email")
+    @Column
     private String email;
 
-    @Column(name = "password")
+    @Column
     private String password;
 
-    @Column(name = "role")
-    private Role role;
+    @Column
+    private UserRole role;
 
-    @Column(name = "status")
+    @Column
     private Status status;
 
     @Column(name = "created_at")
@@ -50,4 +50,7 @@ public class UserEntity {
 
     @Column(name = "updated_at")
     private Instant updatedAt;
+
+    @Column
+    private UUID token;
 }

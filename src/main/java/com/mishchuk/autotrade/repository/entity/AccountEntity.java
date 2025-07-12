@@ -1,6 +1,6 @@
 package com.mishchuk.autotrade.repository.entity;
 
-import com.mishchuk.autotrade.service.domain.User;
+import com.mishchuk.autotrade.service.model.User;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
@@ -20,16 +20,16 @@ public class AccountEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "number")
+    @Column
     private Long number;
 
-    @Column(name = "status")
+    @Column
     private String status;
 
-    @Column(name = "balance")
+    @Column
     private BigDecimal balance;
 
-    @Column(name = "currency")
+    @Column
     private String currency;
 
     @Column(name = "token_MetaTradeAPI")
