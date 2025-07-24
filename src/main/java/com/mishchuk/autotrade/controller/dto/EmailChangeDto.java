@@ -8,6 +8,7 @@ import lombok.Data;
 @Data
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class UserCompleteRegistrationDto {
-    private final String confirmationToken;
+public class EmailChangeDto {
+    private final String oldEmail;
+    private final String newEmail;
 }

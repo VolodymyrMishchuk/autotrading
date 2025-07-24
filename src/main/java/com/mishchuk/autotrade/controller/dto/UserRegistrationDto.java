@@ -8,7 +8,7 @@ import lombok.*;
 @Data
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class UserCreateDto {
+public class UserRegistrationDto {
     private final String firstName;
     private final String lastName;
     private final Instant birthDate;

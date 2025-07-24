@@ -8,5 +8,5 @@ import java.util.UUID;
 @Builder
 public class AccountCredentialsDto {
     private final UUID accountId;
-    private final String tokenMetaTradeAPI;
+    private final String token;
 }
