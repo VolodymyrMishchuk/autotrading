@@ -1,9 +1,9 @@
 package com.mishchuk.autotrade.repository.entity;
 
-import com.mishchuk.autotrade.service.model.Status;
+
+import com.mishchuk.autotrade.controller.dto.Status;
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.time.Instant;
 import java.util.UUID;
 

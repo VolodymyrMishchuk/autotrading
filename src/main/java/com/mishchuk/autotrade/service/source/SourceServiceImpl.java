@@ -1,15 +1,14 @@
 package com.mishchuk.autotrade.service.source;
 
 import com.mishchuk.autotrade.exception.SourceNotFoundException;
-import com.mishchuk.autotrade.exception.UserNotFoundException;
+import com.mishchuk.autotrade.mapper.SourceMapper;
 import com.mishchuk.autotrade.repository.SourceRepository;
 import com.mishchuk.autotrade.repository.entity.SourceEntity;
 import com.mishchuk.autotrade.service.model.Source;
-import com.mishchuk.autotrade.service.model.Status;
+import com.mishchuk.autotrade.controller.dto.Status;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;

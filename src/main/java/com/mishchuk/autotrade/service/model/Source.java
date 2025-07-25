@@ -1,9 +1,11 @@
 package com.mishchuk.autotrade.service.model;
 
+import com.mishchuk.autotrade.controller.dto.Status;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.Instant;
 
+@Builder
 @Getter
 @Setter
 @NoArgsConstructor
