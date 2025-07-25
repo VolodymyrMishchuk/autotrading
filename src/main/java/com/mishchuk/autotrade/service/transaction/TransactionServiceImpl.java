@@ -1,6 +1,7 @@
 package com.mishchuk.autotrade.service.transaction;
 
 import com.mishchuk.autotrade.exception.TransactionNotFoundException;
+import com.mishchuk.autotrade.mapper.TransactionMapper;
 import com.mishchuk.autotrade.repository.TransactionRepository;
 import com.mishchuk.autotrade.repository.entity.TransactionEntity;
 import com.mishchuk.autotrade.service.model.Transaction;

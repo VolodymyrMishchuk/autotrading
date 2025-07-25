@@ -1,10 +1,12 @@
 package com.mishchuk.autotrade.service.model;
 
+import com.mishchuk.autotrade.controller.dto.Direction;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
 import java.time.Instant;
 
+@Builder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -17,12 +19,15 @@ public class Transaction {
     @GeneratedValue
     private String id;
 
-    @JoinColumn(name = "account_id")
-    private String account;
     private BigDecimal amount;
     private Direction direction;
     private String description;
     protected Instant createdAt;
-    protected Instant updatedAt;
+
+    @JoinColumn(name = "account_id")
+    private String account;
+
+    @JoinColumn(name = "source_id")
+    private String source;
 }
 

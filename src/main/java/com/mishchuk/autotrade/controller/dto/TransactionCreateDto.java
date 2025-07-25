@@ -14,6 +14,7 @@ import java.util.UUID;
 public class TransactionCreateDto {
     private final BigDecimal amount;
     private final Direction direction;
+    private final Instant createdAt;
     private final UUID accountId;
     private final UUID sourceId;
 }
