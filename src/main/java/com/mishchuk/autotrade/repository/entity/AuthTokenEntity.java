@@ -1,6 +1,5 @@
 package com.mishchuk.autotrade.repository.entity;
 
-import com.mishchuk.autotrade.service.model.User;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.Instant;
@@ -21,10 +20,10 @@ public class AuthTokenEntity {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User user;
+    private UserEntity user;
 
     @Column
-    private String refreshToken;
+    private UUID refreshToken;
 
     @Column
     private Instant expiryDate;

@@ -23,7 +23,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<String> user(@PathVariable String id) {
+    public ResponseEntity<String> getUser(@PathVariable String id) {
         // business logic: retrieve one person from a database
         return new ResponseEntity<>("User: " + id, HttpStatus.OK);
     }

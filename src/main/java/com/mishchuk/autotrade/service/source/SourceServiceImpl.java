@@ -87,6 +87,8 @@ public class SourceServiceImpl implements SourceService {
 
             sourceEntity.setName(source.getName());
             sourceEntity.setPlatform(source.getPlatform());
+            // думав добавити як окрему функцію зміну статусу
+            // (активувати/деактивувати), але чи є в тому сенс?
             sourceEntity.setStatus(source.getStatus());
             sourceEntity.setToken(source.getToken());
             sourceEntity.setUpdatedAt(Instant.now());

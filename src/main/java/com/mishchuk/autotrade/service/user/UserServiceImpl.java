@@ -101,7 +101,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateUser(User user) {
 
-        // я тут не реалізовував логіку оновлення імейлу, пароля та ролі
+        // я тут не реалізовував логіку оновлення номера телефону, імейлу, пароля, статусу та ролі
         // мені це видалося якось не дуж сек'юрно
         // тре подумати над такою фічою з якоюсь складнішою логікою
 
@@ -116,8 +116,6 @@ public class UserServiceImpl implements UserService {
             userEntity.setFirstName(user.getFirstName());
             userEntity.setLastName(user.getLastName());
             userEntity.setBirthDay(user.getBirthDate());
-            userEntity.setPhoneNumber(user.getPhoneNumber());
-            userEntity.setStatus(user.getStatus());
             userEntity.setUpdatedAt(Instant.now());
 
             userRepository.save(userEntity);
@@ -166,6 +164,11 @@ public class UserServiceImpl implements UserService {
     }
 
     // Потрібна допомога із реалізацією логіки
+
+    public void updatePhoneNumberOfUser(User user) {
+
+    }
+
     public void updateEmailOfUser(User user) {
 
     }
@@ -175,6 +178,10 @@ public class UserServiceImpl implements UserService {
     }
 
     public void updateRoleOfUser(User user) {
+
+    }
+
+    public void updateStatusOfUser(User user) {
 
     }
 }

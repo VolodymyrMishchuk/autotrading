@@ -12,7 +12,9 @@ public interface UserService {
     void deleteUser(String id);
     void completeRegistration(String token);
     User getAuthenticatedUser();
+    void updatePhoneNumberOfUser(User user);
     void updateEmailOfUser(User user);
     void updatePasswordOfUser(User user);
     void updateRoleOfUser(User user);
+    void updateStatusOfUser(User user);
 }

@@ -1,37 +1,34 @@
 package com.mishchuk.autotrade.service.account;
 
-import com.mishchuk.autotrade.controller.dto.AccountCreateDto;
-import com.mishchuk.autotrade.controller.dto.AccountDetailDto;
-import com.mishchuk.autotrade.controller.dto.AccountUpdateDto;
+import com.mishchuk.autotrade.repository.AccountRepository;
+import com.mishchuk.autotrade.service.model.Account;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AccountServiceImpl implements AccountService {
 
-    @Override
-    public AccountDetailDto createAccount(AccountCreateDto request) {
-        // TODO: save account with token_MetaTradeAPI
-        return new AccountDetailDto();
-    }
+    private final AccountRepository accountRepository;
+    private final AccountMapper accountMapper;
 
     @Override
-    public AccountDetailDto updateAccount(UUID id, AccountUpdateDto request) {
-        // TODO: update balance/status/token
-        return new AccountDetailDto();
+    public void createAccount(Account account) {
+
+        log.info("Creating new account");
+
+        UUID token = UUID.randomUUID();
+
     }
 
-    @Override
-    public AccountDetailDto getAccount(UUID id) {
-        // TODO: fetch by id
-        return new AccountDetailDto();
-    }
-
-    @Override
-    public void deleteAccount(UUID id) {
-        // TODO: soft delete or hard delete
-    }
+    Account updateAccount(String id, Account account);
+    Account getAccountById(String id);
+    Account getAccountByToken(String token);
+    List<Account> getAllAccounts();
+    void deleteAccount(String id);
 }
