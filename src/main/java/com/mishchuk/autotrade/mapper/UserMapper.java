@@ -20,7 +20,7 @@ public class UserMapper {
                 .email(entity.getEmail())
                 .password(entity.getPassword())
                 .role(entity.getRole())
-                .status(entity.getStatus())
+                .status(entity.getStatus()) //  а тут тре пассворд?
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .token(entity.getToken()) // чи тре тут токен?
