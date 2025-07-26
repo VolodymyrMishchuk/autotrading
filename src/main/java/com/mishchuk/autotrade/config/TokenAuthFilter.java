@@ -1,6 +1,6 @@
 package com.mishchuk.autotrade.config;
 
-import com.mishchuk.autotrade.service.model.UserRole;
+import com.mishchuk.autotrade.enums.UserRole;
 import com.mishchuk.autotrade.service.auth.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
