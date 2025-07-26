@@ -1,4 +1,4 @@
-package com.mishchuk.autotrade.service.model;
+package com.mishchuk.autotrade.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
