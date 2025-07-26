@@ -5,7 +5,7 @@ import com.mishchuk.autotrade.mapper.SourceMapper;
 import com.mishchuk.autotrade.repository.SourceRepository;
 import com.mishchuk.autotrade.repository.entity.SourceEntity;
 import com.mishchuk.autotrade.service.model.Source;
-import com.mishchuk.autotrade.controller.dto.Status;
+import com.mishchuk.autotrade.enums.Status;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

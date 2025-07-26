@@ -4,7 +4,6 @@ import com.mishchuk.autotrade.controller.dto.*;
 import com.mishchuk.autotrade.repository.entity.SourceEntity;
 import com.mishchuk.autotrade.service.model.Source;
 import org.springframework.stereotype.Component;
-
 import java.util.UUID;
 
 @Component
