@@ -1,6 +1,6 @@
 package com.mishchuk.autotrade.service.model;
 
-import com.mishchuk.autotrade.controller.dto.Direction;
+import com.mishchuk.autotrade.enums.Direction;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
@@ -22,10 +22,11 @@ public class Transaction {
     private BigDecimal amount;
     private Direction direction;
     private String description;
-    protected Instant createdAt;
+    private Instant createdAt;
 
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id")
-    private String account;
+    private Account account;
 
     @JoinColumn(name = "source_id")
     private String source;

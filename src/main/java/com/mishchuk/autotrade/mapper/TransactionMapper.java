@@ -1,6 +1,7 @@
 package com.mishchuk.autotrade.mapper;
 
 import com.mishchuk.autotrade.controller.dto.*;
+import com.mishchuk.autotrade.enums.Direction;
 import com.mishchuk.autotrade.repository.entity.AccountEntity;
 import com.mishchuk.autotrade.repository.entity.SourceEntity;
 import com.mishchuk.autotrade.repository.entity.TransactionEntity;
@@ -28,7 +29,7 @@ public class TransactionMapper {
                 .amount(dto.getAmount())
                 .direction(dto.getDirection())
                 .createdAt(dto.getCreatedAt())
-                .account(dto.getAccountId().toString())
+                .account(dto.getAccountId())
                 .source(dto.getSourceId().toString())
                 .build();
     }
@@ -41,7 +42,7 @@ public class TransactionMapper {
                 .createdAt(transaction.getCreatedAt())
                 .account(
                         AccountEntity.builder()
-                                .id(UUID.fromString(transaction.getAccount()))
+                                .id(transaction.getAccount())
                                 .build()
                 )
                 .source(
