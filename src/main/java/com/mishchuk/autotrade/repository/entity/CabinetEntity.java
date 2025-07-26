@@ -1,18 +1,18 @@
 package com.mishchuk.autotrade.repository.entity;
 
+import com.mishchuk.autotrade.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "cabinets")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "cabinets")
 public class CabinetEntity {
 
     @Id
@@ -20,7 +20,7 @@ public class CabinetEntity {
     private UUID id;
     private String name;
     private String metaTradeToken;
-    private String status;
+    private Status status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
