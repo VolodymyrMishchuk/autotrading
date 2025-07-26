@@ -1,5 +1,7 @@
 package com.mishchuk.autotrade.service.model;
 
+import com.mishchuk.autotrade.enums.Status;
+import com.mishchuk.autotrade.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.Instant;
@@ -24,7 +26,7 @@ public class User {
     private String email;
     private String password;
     private UserRole role;
-    private Status status;
+    private Status.Status status;
     protected Instant createdAt;
     protected Instant updatedAt;
     private UUID token;

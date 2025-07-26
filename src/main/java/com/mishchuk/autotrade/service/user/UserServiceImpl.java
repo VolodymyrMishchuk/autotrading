@@ -1,11 +1,11 @@
 package com.mishchuk.autotrade.service.user;
 
+import com.mishchuk.autotrade.enums.Status;
 import com.mishchuk.autotrade.exception.UserNotFoundException;
 import com.mishchuk.autotrade.mapper.UserMapper;
 import com.mishchuk.autotrade.repository.UserRepository;
 import com.mishchuk.autotrade.repository.entity.UserEntity;
 import com.mishchuk.autotrade.service.email.EmailService;
-import com.mishchuk.autotrade.service.model.Status;
 import com.mishchuk.autotrade.service.model.User;
 import lombok.RequiredArgsConstructor;
 //import lombok.Value;
@@ -45,7 +45,7 @@ public class UserServiceImpl implements UserService {
         user.setPhoneNumber(user.getPhoneNumber());
         user.setEmail(user.getEmail());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setStatus(Status.INACTIVE);
+        user.setStatus(com.mishchuk.autotrade.enums.Status.Status.INACTIVE);
         user.setCreatedAt(Instant.now());
         user.setToken(token);
 
@@ -145,7 +145,7 @@ public class UserServiceImpl implements UserService {
         if (optionalUserEntity.isPresent()){
             UserEntity userEntity = optionalUserEntity.get();
 
-            userEntity.setStatus(Status.valueOf("ACTIVE"));
+            userEntity.setStatus(Status.Status.valueOf("ACTIVE"));
             userEntity.setUpdatedAt(Instant.now());
             userEntity.setToken(null);
 
