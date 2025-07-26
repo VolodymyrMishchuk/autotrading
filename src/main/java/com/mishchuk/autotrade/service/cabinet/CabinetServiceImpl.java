@@ -85,11 +85,11 @@ public class CabinetServiceImpl implements CabinetService {
     @Override
     public void deleteCabinet(UUID cabinetId) {
 
-        log.info("Deleting cabinet with id: {}", cabinetId);
+        log.info("Removing cabinet with id: {}", cabinetId);
 
         cabinetRepository.deleteById(cabinetId);
 
-        log.info("Deleted cabinet with id: {}", cabinetId);
+        log.info("Removed cabinet with id: {}", cabinetId);
     }
 
     @Override

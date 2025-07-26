@@ -1,12 +1,12 @@
 package com.mishchuk.autotrade.service.login;
 
+import com.mishchuk.autotrade.enums.Status;
 import com.mishchuk.autotrade.exception.PasswordIncorrectException;
 import com.mishchuk.autotrade.exception.UserIsBlockedException;
 import com.mishchuk.autotrade.exception.UserNotFoundException;
 import com.mishchuk.autotrade.mapper.UserMapper;
 import com.mishchuk.autotrade.repository.UserRepository;
 import com.mishchuk.autotrade.service.auth.TokenService;
-import com.mishchuk.autotrade.service.model.Status;
 import com.mishchuk.autotrade.service.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +36,7 @@ public class LoginServiceImpl implements LoginService {
             throw new PasswordIncorrectException("Password was incorrect for user with email " + email);
         }
 
-        if (user.getStatus() == Status.BLOCKED) {
+        if (user.getStatus() == Status.Status.BLOCKED) {
             log.warn("User with email {} is blocked", email);
             throw new UserIsBlockedException("User is blocked");
         }
