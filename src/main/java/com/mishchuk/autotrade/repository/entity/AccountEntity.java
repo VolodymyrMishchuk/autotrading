@@ -1,10 +1,11 @@
 package com.mishchuk.autotrade.repository.entity;
 
-import com.mishchuk.autotrade.service.model.User;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Builder
@@ -21,7 +22,7 @@ public class AccountEntity {
     private UUID id;
 
     @Column
-    private Long number;
+    private String name;
 
     @Column
     private String status;
@@ -44,4 +45,16 @@ public class AccountEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private UserEntity user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "source_id")
+    private SourceEntity source;
+
+    @OneToMany(
+            mappedBy = "account",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<TransactionEntity> transactions = new ArrayList<>();
 }
