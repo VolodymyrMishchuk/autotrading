@@ -21,6 +21,10 @@ tags:
     description: Signal sources for autotrading
   - name: Transactions
     description: Transactions related to accounts
+  - name: Cabinets
+    description: Trading cabinets and their lifecycle
+  - name: CabinetSources
+    description: Manage linking and status of sources in cabinets
 
 components:
   securitySchemes:
@@ -67,7 +71,7 @@ components:
           format: email
         phone_number:
           type: string
-          pattern: '^\\+?[0-9]{7,15}$'
+          pattern: '^\+?[0-9]{7,15}$'
         birth_date:
           type: string
           format: date
@@ -132,17 +136,15 @@ components:
         created_at: { type: string, format: date-time }
         updated_at: { type: string, format: date-time }
         person_id: { type: string, format: uuid }
-        source_id: { type: string, format: uuid }
         status:
           type: string
           enum: [ACTIVE, DEACTIVATED]
 
     AccountCreate:
       type: object
-      required: [token_MetaTradeAPI, source_id, person_id]
+      required: [token_MetaTradeAPI, person_id]
       properties:
         token_MetaTradeAPI: { type: string }
-        source_id: { type: string, format: uuid }
         person_id: { type: string, format: uuid }
 
     AccountUpdate:
@@ -228,6 +230,87 @@ components:
           type: string
           enum: [BUY, SELL]
         source_id: { type: string, format: uuid }
+
+    CabinetCreateDto:
+      type: object
+      required:
+        - name
+        - meta_trade_token
+        - account_id
+        - source_ids
+      properties:
+        name:
+          type: string
+        meta_trade_token:
+          type: string
+        account_id:
+          type: string
+          format: uuid
+        source_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+
+    CabinetUpdateDto:
+      type: object
+      properties:
+        name:
+          type: string
+        meta_trade_token:
+          type: string
+        status:
+          type: string
+        source_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+
+    CabinetDetailDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        meta_trade_token:
+          type: string
+        status:
+          type: string
+        user_id:
+          type: string
+          format: uuid
+        account_id:
+          type: string
+          format: uuid
+        source_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+
+    CabinetSourceDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        cabinet_id:
+          type: string
+          format: uuid
+        source_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+
+    CabinetSourceStatusUpdateDto:
+      type: object
+      properties:
+        status:
+          type: string
 
 paths:
   /auth/signup:
@@ -441,11 +524,10 @@ paths:
 
   /accounts/{id}/credentials:
     get:
-      tags: [ Accounts ]
+      tags: [Accounts]
       summary: Get MetaTrade API token for account
-      description: Повертає `tokenMetaTradeAPI` для заданого рахунку (ROLE_ADMIN)
       security:
-        - bearerAuth: [ ]
+        - bearerAuth: []
       parameters:
         - name: id
           in: path
@@ -461,7 +543,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/AccountCredentialsDto'
         '403':
-          description: Forbidden (недостатньо прав)
+          description: Forbidden
         '404':
           description: Account not found
 
