@@ -547,229 +547,6 @@ paths:
         '404':
           description: Account not found
 
-  /cabinets:
-    post:
-      tags:
-        - Cabinets
-      summary: Create a new cabinet
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CabinetCreateDto'
-      responses:
-        '200':
-          description: Cabinet created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CabinetDetailDto'
-
-  /cabinets/{cabinetId}:
-    get:
-      tags:
-        - Cabinets
-      summary: Get cabinet by ID
-      parameters:
-        - name: cabinetId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Cabinet detail
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CabinetDetailDto'
-
-    patch:
-      tags:
-        - Cabinets
-      summary: Update cabinet
-      parameters:
-        - name: cabinetId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CabinetUpdateDto'
-      responses:
-        '200':
-          description: Cabinet updated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CabinetDetailDto'
-
-    delete:
-      tags:
-        - Cabinets
-      summary: Delete cabinet
-      parameters:
-        - name: cabinetId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '204':
-          description: Cabinet deleted
-
-  /cabinets/by-user/{userId}:
-    get:
-      tags:
-        - Cabinets
-      summary: Get cabinets by user ID
-      parameters:
-        - name: userId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: List of cabinets
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/CabinetDetailDto'
-
-  /cabinets/by-account/{accountId}:
-    get:
-      tags:
-        - Cabinets
-      summary: Get cabinets by account ID
-      parameters:
-        - name: accountId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: List of cabinets
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/CabinetDetailDto'
-
-  /cabinets/{cabinetId}/sources:
-    get:
-      tags:
-        - CabinetSources
-      summary: Get all sources linked to cabinet
-      parameters:
-        - name: cabinetId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Cabinet sources
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/CabinetSourceDto'
-
-  /cabinets/{cabinetId}/sources/{sourceId}:
-    post:
-      tags:
-        - CabinetSources
-      summary: Add source to cabinet
-      parameters:
-        - name: cabinetId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-        - name: sourceId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Source linked
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CabinetSourceDto'
-
-    patch:
-      tags:
-        - CabinetSources
-      summary: Update status of source in cabinet
-      parameters:
-        - name: cabinetId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-        - name: sourceId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CabinetSourceStatusUpdateDto'
-      responses:
-        '200':
-          description: Status updated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CabinetSourceDto'
-
-    delete:
-      tags:
-        - CabinetSources
-      summary: Remove source from cabinet
-      parameters:
-        - name: cabinetId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-        - name: sourceId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '204':
-          description: Source removed
-
   /sources:
     get:
       tags: [Sources]
@@ -907,3 +684,236 @@ paths:
                 $ref: '#/components/schemas/Transaction'
         '404':
           description: Transaction not found
+
+  /cabinets:
+    post:
+      tags: [Cabinets]
+      summary: Create a new cabinet
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CabinetCreateDto'
+      responses:
+        '200':
+          description: Cabinet created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CabinetDetailDto'
+
+  /cabinets/{cabinetId}:
+    get:
+      tags: [Cabinets]
+      summary: Get cabinet by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: cabinetId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Cabinet detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CabinetDetailDto'
+
+    patch:
+      tags: [Cabinets]
+      summary: Update cabinet
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: cabinetId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CabinetUpdateDto'
+      responses:
+        '200':
+          description: Cabinet updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CabinetDetailDto'
+
+    delete:
+      tags: [Cabinets]
+      summary: Delete cabinet
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: cabinetId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Cabinet deleted
+
+  /cabinets/by-user/{userId}:
+    get:
+      tags: [Cabinets]
+      summary: Get cabinets by user ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of cabinets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CabinetDetailDto'
+
+  /cabinets/by-account/{accountId}:
+    get:
+      tags: [Cabinets]
+      summary: Get cabinets by account ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of cabinets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CabinetDetailDto'
+
+  /cabinets/{cabinetId}/sources:
+    get:
+      tags: [CabinetSources]
+      summary: Get all sources linked to cabinet
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: cabinetId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Cabinet sources
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CabinetSourceDto'
+
+  /cabinets/{cabinetId}/sources/{sourceId}:
+    post:
+      tags: [CabinetSources]
+      summary: Add source to cabinet
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: cabinetId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: sourceId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Source linked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CabinetSourceDto'
+
+    patch:
+      tags: [CabinetSources]
+      summary: Update status of source in cabinet
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: cabinetId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: sourceId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CabinetSourceStatusUpdateDto'
+      responses:
+        '200':
+          description: Status updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CabinetSourceDto'
+
+    delete:
+      tags: [CabinetSources]
+      summary: Remove source from cabinet
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: cabinetId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: sourceId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Source removed
