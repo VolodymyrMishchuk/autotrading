@@ -14,8 +14,17 @@ CREATE TABLE "users"
     "role"         VARCHAR(15)  NOT NULL,
     "status"       VARCHAR(10)  NOT NULL,
     "created_at"   TIMESTAMPTZ  NOT NULL,
-    "updated_at"   TIMESTAMPTZ,
-    "token"        UUID
+    "updated_at"   TIMESTAMPTZ
+);
+
+CREATE TABLE "email_verification_tokens"
+(
+    "id"           UUID PRIMARY KEY,
+    "token"        VARCHAR(255) NOT NULL UNIQUE,
+    "expires_at"   TIMESTAMPTZ  NOT NULL,
+    "confirmed_at" TIMESTAMPTZ,
+    "created_at"   TIMESTAMPTZ  NOT NULL,
+    "user_id"      UUID         NOT NULL REFERENCES users (id) ON DELETE CASCADE
 );
 
 CREATE TABLE "accounts"
@@ -23,12 +32,12 @@ CREATE TABLE "accounts"
     "id"                 UUID PRIMARY KEY,
     "name"               VARCHAR(255)   NOT NULL UNIQUE,
     "status"             VARCHAR(10)    NOT NULL,
-    "balance"            NUMERIC(15, 2) NOT NULL DEFAULT 0::money CHECK (balance >= 0::money),
+    "balance"            NUMERIC(15, 2) NOT NULL DEFAULT 0 CHECK (balance >= 0),
     "currency"           CHAR(3)        NOT NULL,
     "token_MetaTradeAPI" TEXT           NOT NULL,
     "created_at"         TIMESTAMPTZ    NOT NULL,
     "updated_at"         TIMESTAMPTZ,
-    "user_id"            UUID           NOT NULL REFERENCES users (id)
+    "user_id"            UUID           NOT NULL REFERENCES users (id) ON DELETE CASCADE
 );
 
 CREATE TABLE "sources"
@@ -42,31 +51,14 @@ CREATE TABLE "sources"
     "updated_at" TIMESTAMPTZ
 );
 
-CREATE TABLE "transactions"
-(
-    "id"         UUID PRIMARY KEY,
-    "amount"     NUMERIC(15, 2) NOT NULL DEFAULT 0::money CHECK (amount >= 0::money),
-    "direction"  VARCHAR(15)    NOT NULL,
-    "created_at" TIMESTAMPTZ    NOT NULL,
-    "account_id" UUID           NOT NULL REFERENCES Accounts (id),
-    "source_id"  UUID           NOT NULL REFERENCES Sources (id)
-);
-
-CREATE TABLE "account_sources"
-(
-    "account_id" UUID NOT NULL REFERENCES "accounts" ("id"),
-    "source_id"  UUID NOT NULL REFERENCES "sources" ("id"),
-    PRIMARY KEY ("account_id", "source_id")
-);
-
 CREATE TABLE "cabinets"
 (
     "id"               UUID PRIMARY KEY,
     "name"             VARCHAR(255) NOT NULL,
     "meta_trade_token" TEXT,
     "status"           VARCHAR(10)  NOT NULL,
-    "user_id"          UUID         NOT NULL REFERENCES users (id),
-    "account_id"       UUID         NOT NULL REFERENCES accounts (id),
+    "user_id"          UUID         NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    "account_id"       UUID         NOT NULL REFERENCES accounts (id) ON DELETE CASCADE,
     "created_at"       TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
     "updated_at"       TIMESTAMPTZ
 );
@@ -74,9 +66,25 @@ CREATE TABLE "cabinets"
 CREATE TABLE "cabinet_sources"
 (
     "id"         UUID PRIMARY KEY,
-    "cabinet_id" UUID         NOT NULL REFERENCES cabinets (id) ON DELETE CASCADE,
-    "source_id"  UUID         NOT NULL REFERENCES sources (id) ON DELETE CASCADE,
-    "status"     VARCHAR(10)  NOT NULL,
-    "created_at" TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
-    "updated_at" TIMESTAMPTZ
+    "cabinet_id" UUID        NOT NULL REFERENCES cabinets (id) ON DELETE CASCADE,
+    "source_id"  UUID        NOT NULL REFERENCES sources (id) ON DELETE CASCADE,
+    "status"     VARCHAR(10) NOT NULL,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE "transactions"
+(
+    "id"            UUID PRIMARY KEY,
+    "symbol"        VARCHAR(20)    NOT NULL,
+    "amount"        NUMERIC(15, 2) NOT NULL CHECK (amount >= 0),
+    "direction"     VARCHAR(15)    NOT NULL,
+    "opened_at"     TIMESTAMPTZ    NOT NULL,
+    "closed_at"     TIMESTAMPTZ,
+    "balance_after" NUMERIC(15, 2),
+    "is_profitable" BOOLEAN,
+    "user_id"       UUID           NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    "account_id"    UUID           NOT NULL REFERENCES accounts (id) ON DELETE CASCADE,
+    "cabinet_id"    UUID           NOT NULL REFERENCES cabinets (id) ON DELETE CASCADE,
+    "source_id"     UUID           NOT NULL REFERENCES sources (id) ON DELETE CASCADE,
+    "created_at"    TIMESTAMPTZ    NOT NULL DEFAULT NOW()
 );

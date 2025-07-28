@@ -20,7 +20,7 @@ public class UserDetailDto {
     private final String phoneNumber;
     private final Instant birthDate;
     private final UserRole role;
-    private final Status.Status status;
+    private final Status status;
     private final Instant createdAt;
     private final Instant updatedAt;
 }

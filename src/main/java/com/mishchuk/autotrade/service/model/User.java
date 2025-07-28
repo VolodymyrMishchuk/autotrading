@@ -26,7 +26,7 @@ public class User {
     private String email;
     private String password;
     private UserRole role;
-    private Status.Status status;
+    private Status status;
     protected Instant createdAt;
     protected Instant updatedAt;
     private UUID token;

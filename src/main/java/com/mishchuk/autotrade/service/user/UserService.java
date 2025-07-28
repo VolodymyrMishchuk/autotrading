@@ -2,14 +2,15 @@ package com.mishchuk.autotrade.service.user;
 
 import com.mishchuk.autotrade.service.model.User;
 import java.util.List;
+import java.util.UUID;
 
 public interface UserService {
     void createUser(User user);
-    User getUserById(String id);
+    User getUserById(UUID id);
     User getUserByToken(String token);
     List<User> getAllUsers();
     void updateUser(User user);
-    void deleteUser(String id);
+    void deleteUser(UUID id);
     void completeRegistration(String token);
     User getAuthenticatedUser();
     void updatePhoneNumberOfUser(User user);

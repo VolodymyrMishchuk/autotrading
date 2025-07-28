@@ -6,7 +6,7 @@ import com.mishchuk.autotrade.exception.UserIsBlockedException;
 import com.mishchuk.autotrade.exception.UserNotFoundException;
 import com.mishchuk.autotrade.mapper.UserMapper;
 import com.mishchuk.autotrade.repository.UserRepository;
-import com.mishchuk.autotrade.service.auth.TokenService;
+import com.mishchuk.autotrade.service.auth.AuthTokenService;
 import com.mishchuk.autotrade.service.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,7 @@ public class LoginServiceImpl implements LoginService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
-    private final TokenService tokenService;
+    private final AuthTokenService authTokenService;
 
     @Override
     public String login(String email, String password) {
@@ -41,6 +41,6 @@ public class LoginServiceImpl implements LoginService {
             throw new UserIsBlockedException("User is blocked");
         }
 
-        return tokenService.createToken(user);
+        return authTokenService.createToken(user);
     }
 }

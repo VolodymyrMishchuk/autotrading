@@ -1,18 +1,14 @@
 package com.mishchuk.autotrade.controller;
 
 import com.mishchuk.autotrade.controller.dto.*;
-import com.mishchuk.autotrade.mapper.UserMapper;
-import com.mishchuk.autotrade.service.auth.TokenService;
 import com.mishchuk.autotrade.service.login.LoginService;
-import com.mishchuk.autotrade.service.user.UserService;
+import com.mishchuk.autotrade.service.registration.RegistrationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.util.UUID;
@@ -22,19 +18,19 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final UserService userService;
-    private final UserMapper userMapper;
     private final LoginService loginService;
+    private final RegistrationService registrationService;
 
-    private final TokenService tokenService;
+    @Value("${frontend.base-url}")
+    private String frontendBaseUrl;
 
-    // ===== SIGN UP (ініціює створення та відправку токена) =====
     @PostMapping("/signup")
     public ResponseEntity<Void> signup(
             @Valid @RequestBody UserCreateDto dto,
             UriComponentsBuilder uriBuilder) {
 
-        UUID userId = tokenService.register(dto);
+        UUID userId = registrationService.register(dto);
+
         URI location = uriBuilder
                 .path("/users/{id}")
                 .buildAndExpand(userId)
@@ -43,23 +39,29 @@ public class AuthController {
         return ResponseEntity.created(location).build();
     }
 
-    // ===== COMPLETE REGISTRATION (підтвердження email) =====
     @PostMapping("/signup/confirm")
-    public ResponseEntity<Void> confirmRegistration(
-            @Valid @RequestBody UserCompleteRegistrationDto dto) {
+    public ResponseEntity<Void> confirmRegistration(@Valid @RequestBody UserCompleteRegistrationDto dto) {
+        boolean success = registrationService.confirmByEmailAndToken(dto.getEmail(), dto.getConfirmationToken());
 
-        tokenService.confirmRegistration(dto.getEmail(), dto.getConfirmationToken());
-        return ResponseEntity.ok().build();
+        return success
+                ? ResponseEntity.ok().build()
+                : ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
-    // ===== LOGIN =====
+    @GetMapping("/confirm")
+    public ResponseEntity<Void> confirmTokenFromBrowser(@RequestParam("token") String token) {
+        boolean confirmed = registrationService.confirmByToken(token);
+
+        String redirectUrl = String.format("%s/login?confirmed=%s", frontendBaseUrl, confirmed);
+
+        return ResponseEntity.status(302)
+                .header("Location", redirectUrl)
+                .build();
+    }
+
     @PostMapping("/login")
-    public ResponseEntity<AuthTokenDto> login(@RequestBody AuthLoginDto authLoginDto) {
-
-        String token = loginService.login(authLoginDto.getEmail(), authLoginDto.getPassword());
-
-        return new ResponseEntity<>(new AuthTokenDto(token), HttpStatus.OK);
+    public ResponseEntity<AuthTokenDto> login(@Valid @RequestBody AuthLoginDto dto) {
+        String jwt = loginService.login(dto.getEmail(), dto.getPassword());
+        return ResponseEntity.ok(new AuthTokenDto(jwt));
     }
 }
-
-

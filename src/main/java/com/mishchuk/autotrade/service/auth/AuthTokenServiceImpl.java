@@ -14,7 +14,7 @@ import java.util.Date;
 
 @Service
 @RequiredArgsConstructor
-public class TokenServiceImpl implements TokenService {
+public class AuthTokenServiceImpl implements AuthTokenService {
 
     private static final String CLAIM_ROLE = "role";
     @Value("${jwt.secret}")

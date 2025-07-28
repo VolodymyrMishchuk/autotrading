@@ -1,7 +1,7 @@
 package com.mishchuk.autotrade.config;
 
 import com.mishchuk.autotrade.enums.UserRole;
-import com.mishchuk.autotrade.service.auth.TokenService;
+import com.mishchuk.autotrade.service.auth.AuthTokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,7 +33,7 @@ public class TokenAuthFilter extends OncePerRequestFilter {
 
     private static final String BEARER_TOKEN_PREFIX = "Bearer ";
 
-    private final TokenService tokenService;
+    private final AuthTokenService authTokenService;
 
     @Override
     protected void doFilterInternal(
@@ -44,14 +44,14 @@ public class TokenAuthFilter extends OncePerRequestFilter {
 
         String jwt = getJwtFromRequest(request);
 
-        if (!StringUtils.hasText(jwt) || !tokenService.isValidToken(jwt)) {
+        if (!StringUtils.hasText(jwt) || !authTokenService.isValidToken(jwt)) {
             // Skip authentication due to invalid JWT.
             filterChain.doFilter(request, response);
             return;
         }
 
-        String id = tokenService.getUserId(jwt);
-        UserRole userUpperBoundaryRole = tokenService.getUserRole(jwt);
+        String id = authTokenService.getUserId(jwt);
+        UserRole userUpperBoundaryRole = authTokenService.getUserRole(jwt);
 
         List<GrantedAuthority> authorities = new ArrayList<>();
 
