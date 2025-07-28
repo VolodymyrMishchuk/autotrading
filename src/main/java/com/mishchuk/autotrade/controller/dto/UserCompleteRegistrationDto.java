@@ -9,6 +9,6 @@ import lombok.Data;
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class UserCompleteRegistrationDto {
-    private final String token;
-    private final String password;
+    private final String email;
+    private final String confirmationToken;
 }

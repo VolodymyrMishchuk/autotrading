@@ -1,12 +1,13 @@
 package com.mishchuk.autotrade.controller;
 
-
-import com.mishchuk.autotrade.controller.dto.*;
-import com.mishchuk.autotrade.service.UserService;
+import com.mishchuk.autotrade.controller.dto.UserDetailDto;
+import com.mishchuk.autotrade.controller.dto.UserUpdateDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import jakarta.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -14,32 +15,34 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserService userService;
-
-    @PostMapping
-    public ResponseEntity<UserDetailDto> createUser(@Valid @RequestBody UserCreateDto request) {
-        return ResponseEntity.ok(userService.createUser(request));
-    }
-
-    @PostMapping("/complete-registration")
-    public ResponseEntity<Void> completeRegistration(@Valid @RequestBody UserCompleteRegistrationDto request) {
-        userService.completeRegistration(request);
-        return ResponseEntity.ok().build();
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<UserDetailDto> updateUser(@PathVariable UUID id, @RequestBody UserUpdateDto request) {
-        return ResponseEntity.ok(userService.updateUser(id, request));
+    @GetMapping
+    public ResponseEntity<List<UserDetailDto>> getUsers() {
+        // business logic: retrieve persons from a database
+        List<UserDetailDto> usersDto = new ArrayList<>();
+        return new ResponseEntity<>(usersDto, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserDetailDto> getUser(@PathVariable UUID id) {
-        return ResponseEntity.ok(userService.getUser(id));
+    public ResponseEntity<String> getUser(@PathVariable String id) {
+        // business logic: retrieve one person from a database
+        return new ResponseEntity<>("User: " + id, HttpStatus.OK);
+    }
+
+    @PostMapping
+    public ResponseEntity<Void> createUser(@RequestBody UserDetailDto userDetailDto) {
+        // business logic: create something in a database
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> updateUser(@PathVariable UUID id, @RequestBody UserUpdateDto userUpdateDto) {
+        // business logic: update something in a database
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
-        userService.deleteUser(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<String> deleteUser(@PathVariable String id) {
+        // business logic: delete one person from a database
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

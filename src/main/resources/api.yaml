@@ -4,7 +4,7 @@ info:
   description: |
     API for managing users (ROLE_SUPER-ADMIN, ROLE_ADMIN, ROLE_CUSTOMER), accounts, sources, transactions
     with email-confirmed registration and role-based access control.
-  version: 1.2.0
+  version: 1.2.1
 
 servers:
   - url: https://localhost:8080
@@ -21,6 +21,10 @@ tags:
     description: Signal sources for autotrading
   - name: Transactions
     description: Transactions related to accounts
+  - name: Cabinets
+    description: Trading cabinets and their lifecycle
+  - name: CabinetSources
+    description: Manage linking and status of sources in cabinets
 
 components:
   securitySchemes:
@@ -46,16 +50,47 @@ components:
           type: string
           enum: [ACTIVE, DEACTIVATED, PENDING_CONFIRMATION]
 
-    UserCreateRequest:
+    UserCreateDto:
       type: object
-      required: [first_name, last_name, email, phone_number, birth_date, password]
+      required:
+        - first_name
+        - last_name
+        - email
+        - phone_number
+        - birth_date
+        - password
       properties:
-        first_name: { type: string }
-        last_name: { type: string }
-        email: { type: string, format: email }
-        phone_number: { type: string }
-        birth_date: { type: string, format: date }
-        password: { type: string, format: password }
+        first_name:
+          type: string
+          maxLength: 50
+        last_name:
+          type: string
+          maxLength: 50
+        email:
+          type: string
+          format: email
+        phone_number:
+          type: string
+          pattern: '^\+?[0-9]{7,15}$'
+        birth_date:
+          type: string
+          format: date
+        password:
+          type: string
+          format: password
+          minLength: 8
+
+    UserCompleteRegistrationDto:
+      type: object
+      required:
+        - email
+        - confirmation_token
+      properties:
+        email:
+          type: string
+          format: email
+        confirmation_token:
+          type: string
 
     UserUpdate:
       type: object
@@ -95,21 +130,21 @@ components:
         id: { type: string, format: uuid }
         balance: { type: number, format: double }
         currency: { type: string }
-        number: { type: integer }
+        number:
+          type: string
+          description: Unique account number (e.g. MetaTrader ID)
         created_at: { type: string, format: date-time }
         updated_at: { type: string, format: date-time }
         person_id: { type: string, format: uuid }
-        source_id: { type: string, format: uuid }
         status:
           type: string
           enum: [ACTIVE, DEACTIVATED]
 
     AccountCreate:
       type: object
-      required: [token_MetaTradeAPI, source_id, person_id]
+      required: [token_MetaTradeAPI, person_id]
       properties:
         token_MetaTradeAPI: { type: string }
-        source_id: { type: string, format: uuid }
         person_id: { type: string, format: uuid }
 
     AccountUpdate:
@@ -120,6 +155,18 @@ components:
         status:
           type: string
           enum: [ACTIVE, DEACTIVATED]
+
+    AccountCredentialsDto:
+      type: object
+      required:
+        - account_id
+        - token_meta_trade_api
+      properties:
+        account_id:
+          type: string
+          format: uuid
+        token_meta_trade_api:
+          type: string
 
     Source:
       type: object
@@ -149,14 +196,16 @@ components:
         token: { type: string }
         status:
           type: string
-          enum: [active, deactivated]
+          enum: [ACTIVE, DEACTIVATED]
 
     Transaction:
       type: object
       properties:
         id: { type: string, format: uuid }
         amount: { type: number, format: double, minimum: 0 }
-        direction: { type: string }
+        direction:
+          type: string
+          enum: [BUY, SELL]
         account_id: { type: string, format: uuid }
         source_id: { type: string, format: uuid }
         created_at: { type: string, format: date-time }
@@ -167,46 +216,139 @@ components:
       required: [amount, direction, account_id, source_id]
       properties:
         amount: { type: number, format: double, minimum: 0 }
-        direction: { type: string }
+        direction:
+          type: string
+          enum: [BUY, SELL]
         account_id: { type: string, format: uuid }
         source_id: { type: string, format: uuid }
 
-paths:
+    TransactionUpdate:
+      type: object
+      properties:
+        amount: { type: number, format: double, minimum: 0 }
+        direction:
+          type: string
+          enum: [BUY, SELL]
+        source_id: { type: string, format: uuid }
 
-  /auth/register:
+    CabinetCreateDto:
+      type: object
+      required:
+        - name
+        - meta_trade_token
+        - account_id
+        - source_ids
+      properties:
+        name:
+          type: string
+        meta_trade_token:
+          type: string
+        account_id:
+          type: string
+          format: uuid
+        source_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+
+    CabinetUpdateDto:
+      type: object
+      properties:
+        name:
+          type: string
+        meta_trade_token:
+          type: string
+        status:
+          type: string
+        source_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+
+    CabinetDetailDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        meta_trade_token:
+          type: string
+        status:
+          type: string
+        user_id:
+          type: string
+          format: uuid
+        account_id:
+          type: string
+          format: uuid
+        source_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+
+    CabinetSourceDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        cabinet_id:
+          type: string
+          format: uuid
+        source_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+
+    CabinetSourceStatusUpdateDto:
+      type: object
+      properties:
+        status:
+          type: string
+
+paths:
+  /auth/signup:
     post:
       tags: [Auth]
-      summary: Register a new user with password (email confirmation required)
+      summary: Register new user and send confirmation token
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserCreateRequest'
+              $ref: '#/components/schemas/UserCreateDto'
       responses:
-        '200':
-          description: Confirmation email sent with activation link
+        '201':
+          description: User created; confirmation email sent
+        '400':
+          description: Invalid input
 
-  /auth/confirm-email:
-    get:
+  /auth/signup/confirm:
+    post:
       tags: [Auth]
-      summary: Confirm email using token
-      parameters:
-        - name: token
-          in: query
-          required: true
-          schema:
-            type: string
+      summary: Complete registration by confirming email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCompleteRegistrationDto'
       responses:
         '200':
-          description: Email confirmed, account activated
+          description: Email confirmed, user activated
         '400':
           description: Invalid or expired token
 
   /auth/login:
     post:
       tags: [Auth]
-      summary: Authenticate a user and get a token
+      summary: Log in and receive JWT token
       requestBody:
         required: true
         content:
@@ -215,20 +357,20 @@ paths:
               $ref: '#/components/schemas/AuthLogin'
       responses:
         '200':
-          description: Authentication successful
+          description: Successful login
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuthToken'
         '401':
-          description: Invalid credentials
+          description: Unauthorized
 
-  # Users
   /users:
     get:
       tags: [Users]
-      summary: List all users
-      security: [ { bearerAuth: [ ] } ]
+      summary: Get all users
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: List of users
@@ -238,40 +380,21 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/User'
-        '204':
-          description: No users found
-
-    put:
-      tags: [Users]
-      summary: Update a user
-      security: [ { bearerAuth: [ ] } ]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserUpdate'
-      responses:
-        '204':
-          description: User updated
-        '403':
-          description: Unauthorized
 
   /users/{id}:
     get:
       tags: [Users]
-      summary: Get user details
-      security: [ { bearerAuth: [ ] } ]
+      summary: Get user by ID
+      security:
+        - bearerAuth: []
       parameters:
         - name: id
           in: path
           required: true
-          schema:
-            type: string
-            format: uuid
+          schema: { type: string, format: uuid }
       responses:
         '200':
-          description: User details
+          description: User found
           content:
             application/json:
               schema:
@@ -279,10 +402,31 @@ paths:
         '404':
           description: User not found
 
+    put:
+      tags: [Users]
+      summary: Update user
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+      responses:
+        '200':
+          description: User updated
+
     delete:
       tags: [Users]
       summary: Delete user
-      security: [ { bearerAuth: [ ] } ]
+      security:
+        - bearerAuth: []
       parameters:
         - name: id
           in: path
@@ -291,15 +435,28 @@ paths:
       responses:
         '204':
           description: User deleted
-        '403':
-          description: Unauthorized
 
-  # Accounts
   /accounts:
+    get:
+      tags: [Accounts]
+      summary: Get all accounts
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of accounts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Account'
+
     post:
       tags: [Accounts]
-      summary: Create an account
-      security: [ { bearerAuth: [ ] } ]
+      summary: Create new account
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -310,51 +467,20 @@ paths:
         '201':
           description: Account created
 
-    get:
-      tags: [Accounts]
-      summary: List all accounts
-      security: [ { bearerAuth: [ ] } ]
-      responses:
-        '200':
-          description: List of accounts
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Account'
-        '204':
-          description: No accounts found
-
-    put:
-      tags: [Accounts]
-      summary: Update account
-      security: [ { bearerAuth: [ ] } ]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AccountUpdate'
-      responses:
-        '204':
-          description: Account updated
-
   /accounts/{id}:
     get:
       tags: [Accounts]
-      summary: Get account details
-      security: [ { bearerAuth: [ ] } ]
+      summary: Get account by ID
+      security:
+        - bearerAuth: []
       parameters:
         - name: id
           in: path
           required: true
-          schema:
-            type: string
-            format: uuid
+          schema: { type: string, format: uuid }
       responses:
         '200':
-          description: Account details
+          description: Account found
           content:
             application/json:
               schema:
@@ -362,10 +488,31 @@ paths:
         '404':
           description: Account not found
 
+    put:
+      tags: [Accounts]
+      summary: Update account
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountUpdate'
+      responses:
+        '200':
+          description: Account updated
+
     delete:
       tags: [Accounts]
       summary: Delete account
-      security: [ { bearerAuth: [ ] } ]
+      security:
+        - bearerAuth: []
       parameters:
         - name: id
           in: path
@@ -375,12 +522,52 @@ paths:
         '204':
           description: Account deleted
 
-  # Sources
+  /accounts/{id}/credentials:
+    get:
+      tags: [Accounts]
+      summary: Get MetaTrade API token for account
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Token retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountCredentialsDto'
+        '403':
+          description: Forbidden
+        '404':
+          description: Account not found
+
   /sources:
+    get:
+      tags: [Sources]
+      summary: Get all sources
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of sources
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Source'
+
     post:
       tags: [Sources]
-      summary: Create a source
-      security: [ { bearerAuth: [ ] } ]
+      summary: Create source
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -391,51 +578,20 @@ paths:
         '201':
           description: Source created
 
-    get:
-      tags: [Sources]
-      summary: List all sources
-      security: [ { bearerAuth: [ ] } ]
-      responses:
-        '200':
-          description: List of sources
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Source'
-        '204':
-          description: No sources found
-
-    put:
-      tags: [Sources]
-      summary: Update source
-      security: [ { bearerAuth: [ ] } ]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SourceUpdate'
-      responses:
-        '204':
-          description: Source updated
-
   /sources/{id}:
     get:
       tags: [Sources]
-      summary: Get source details
-      security: [ { bearerAuth: [ ] } ]
+      summary: Get source by ID
+      security:
+        - bearerAuth: []
       parameters:
         - name: id
           in: path
           required: true
-          schema:
-            type: string
-            format: uuid
+          schema: { type: string, format: uuid }
       responses:
         '200':
-          description: Source details
+          description: Source found
           content:
             application/json:
               schema:
@@ -443,10 +599,31 @@ paths:
         '404':
           description: Source not found
 
+    put:
+      tags: [Sources]
+      summary: Update source
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SourceUpdate'
+      responses:
+        '200':
+          description: Source updated
+
     delete:
       tags: [Sources]
       summary: Delete source
-      security: [ { bearerAuth: [ ] } ]
+      security:
+        - bearerAuth: []
       parameters:
         - name: id
           in: path
@@ -456,12 +633,27 @@ paths:
         '204':
           description: Source deleted
 
-  # Transactions
   /transactions:
+    get:
+      tags: [Transactions]
+      summary: Get all transactions
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transaction'
+
     post:
       tags: [Transactions]
-      summary: Create a transaction
-      security: [ { bearerAuth: [ ] } ]
+      summary: Create transaction
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -472,27 +664,12 @@ paths:
         '201':
           description: Transaction created
 
-    get:
-      tags: [Transactions]
-      summary: List all transactions
-      security: [ { bearerAuth: [ ] } ]
-      responses:
-        '200':
-          description: List of transactions
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Transaction'
-        '204':
-          description: No transactions found
-
   /transactions/{id}:
     get:
       tags: [Transactions]
-      summary: Get transaction details
-      security: [ { bearerAuth: [ ] } ]
+      summary: Get transaction by ID
+      security:
+        - bearerAuth: []
       parameters:
         - name: id
           in: path
@@ -500,10 +677,243 @@ paths:
           schema: { type: string, format: uuid }
       responses:
         '200':
-          description: Transaction details
+          description: Transaction found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Transaction'
         '404':
           description: Transaction not found
+
+  /cabinets:
+    post:
+      tags: [Cabinets]
+      summary: Create a new cabinet
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CabinetCreateDto'
+      responses:
+        '200':
+          description: Cabinet created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CabinetDetailDto'
+
+  /cabinets/{cabinetId}:
+    get:
+      tags: [Cabinets]
+      summary: Get cabinet by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: cabinetId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Cabinet detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CabinetDetailDto'
+
+    patch:
+      tags: [Cabinets]
+      summary: Update cabinet
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: cabinetId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CabinetUpdateDto'
+      responses:
+        '200':
+          description: Cabinet updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CabinetDetailDto'
+
+    delete:
+      tags: [Cabinets]
+      summary: Delete cabinet
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: cabinetId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Cabinet deleted
+
+  /cabinets/by-user/{userId}:
+    get:
+      tags: [Cabinets]
+      summary: Get cabinets by user ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of cabinets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CabinetDetailDto'
+
+  /cabinets/by-account/{accountId}:
+    get:
+      tags: [Cabinets]
+      summary: Get cabinets by account ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of cabinets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CabinetDetailDto'
+
+  /cabinets/{cabinetId}/sources:
+    get:
+      tags: [CabinetSources]
+      summary: Get all sources linked to cabinet
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: cabinetId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Cabinet sources
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CabinetSourceDto'
+
+  /cabinets/{cabinetId}/sources/{sourceId}:
+    post:
+      tags: [CabinetSources]
+      summary: Add source to cabinet
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: cabinetId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: sourceId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Source linked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CabinetSourceDto'
+
+    patch:
+      tags: [CabinetSources]
+      summary: Update status of source in cabinet
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: cabinetId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: sourceId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CabinetSourceStatusUpdateDto'
+      responses:
+        '200':
+          description: Status updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CabinetSourceDto'
+
+    delete:
+      tags: [CabinetSources]
+      summary: Remove source from cabinet
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: cabinetId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: sourceId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Source removed
