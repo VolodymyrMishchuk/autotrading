@@ -11,10 +11,7 @@ import com.mishchuk.autotrade.repository.AccountRepository;
 import com.mishchuk.autotrade.repository.CabinetRepository;
 import com.mishchuk.autotrade.repository.SourceRepository;
 import com.mishchuk.autotrade.repository.UserRepository;
-import com.mishchuk.autotrade.repository.entity.AccountEntity;
-import com.mishchuk.autotrade.repository.entity.CabinetEntity;
-import com.mishchuk.autotrade.repository.entity.SourceEntity;
-import com.mishchuk.autotrade.repository.entity.UserEntity;
+import com.mishchuk.autotrade.repository.entity.*;
 import com.mishchuk.autotrade.service.model.Cabinet;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,15 +32,17 @@ public class CabinetServiceImpl implements CabinetService {
 
     @Override
     @Transactional
-    public CabinetDetailDto createCabinet(UUID userId, CabinetCreateDto dto) {
-
+    public CabinetDetailDto createCabinet(CabinetCreateDto dto) {
         log.info("Creating new cabinet");
+
+        UUID userId = dto.getUserId();
+        UUID accountId = dto.getAccountId();
 
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User with id " + userId + " not found"));
 
-        AccountEntity account = accountRepository.findById(dto.getAccountId())
-                .orElseThrow(() -> new AccountNotFoundException("Account with id " + dto.getAccountId() + " not found"));
+        AccountEntity account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new AccountNotFoundException("Account with id " + accountId + " not found"));
 
         List<SourceEntity> sources = sourceRepository.findAllById(dto.getSourceIds());
 
@@ -59,7 +58,6 @@ public class CabinetServiceImpl implements CabinetService {
     @Override
     @Transactional
     public CabinetDetailDto updateCabinet(UUID cabinetId, CabinetUpdateDto dto) {
-
         log.info("Updating cabinet with id: {}", cabinetId);
 
         CabinetEntity entity = cabinetRepository.findById(cabinetId)
@@ -70,9 +68,11 @@ public class CabinetServiceImpl implements CabinetService {
 
         UserEntity user = entity.getUser();
         AccountEntity account = entity.getAccount();
-        List<SourceEntity> sources = updated.getSourceIds() != null
-                ? sourceRepository.findAllById(updated.getSourceIds())
-                : entity.getSources();
+        List<SourceEntity> sources = dto.getSourceIds() != null
+                ? sourceRepository.findAllById(dto.getSourceIds())
+                : entity.getSources().stream()
+                .map(CabinetSourceEntity::getSource)
+                .toList();
 
         CabinetEntity toSave = CabinetMapper.toCabinetEntity(updated, user, account, sources);
         CabinetEntity saved = cabinetRepository.save(toSave);
@@ -84,11 +84,8 @@ public class CabinetServiceImpl implements CabinetService {
 
     @Override
     public void deleteCabinet(UUID cabinetId) {
-
         log.info("Removing cabinet with id: {}", cabinetId);
-
         cabinetRepository.deleteById(cabinetId);
-
         log.info("Removed cabinet with id: {}", cabinetId);
     }
 
@@ -101,7 +98,7 @@ public class CabinetServiceImpl implements CabinetService {
 
     @Override
     public List<CabinetDetailDto> getCabinetsByUserId(UUID userId) {
-        return cabinetRepository.findByUserId(userId).stream()
+        return cabinetRepository.findByUser_Id(userId).stream()
                 .map(CabinetMapper::toCabinet)
                 .map(CabinetMapper::toCabinetDetailDto)
                 .toList();
@@ -109,7 +106,7 @@ public class CabinetServiceImpl implements CabinetService {
 
     @Override
     public List<CabinetDetailDto> getCabinetsByAccountId(UUID accountId) {
-        return cabinetRepository.findByAccountId(accountId).stream()
+        return cabinetRepository.findByAccount_Id(accountId).stream()
                 .map(CabinetMapper::toCabinet)
                 .map(CabinetMapper::toCabinetDetailDto)
                 .toList();

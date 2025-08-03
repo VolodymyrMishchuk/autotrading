@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public interface CabinetService {
 
-    CabinetDetailDto createCabinet(UUID userId, CabinetCreateDto dto);
+    CabinetDetailDto createCabinet(CabinetCreateDto dto);
 
     CabinetDetailDto updateCabinet(UUID cabinetId, CabinetUpdateDto dto);
 

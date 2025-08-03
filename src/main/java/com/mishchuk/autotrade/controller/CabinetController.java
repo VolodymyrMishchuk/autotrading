@@ -22,35 +22,34 @@ public class CabinetController {
 
     @PostMapping
     public ResponseEntity<CabinetDetailDto> createCabinet(
-            @RequestParam UUID userId,
             @Valid @RequestBody CabinetCreateDto dto
     ) {
-        log.info("POST /api/cabinets - create cabinet for user {}", userId);
-        CabinetDetailDto created = cabinetService.createCabinet(userId, dto);
+        log.info("POST /api/cabinets - create cabinet for user {}", dto.getUserId());
+        CabinetDetailDto created = cabinetService.createCabinet(dto);
         return ResponseEntity.ok(created);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{cabinetId}")
     public ResponseEntity<CabinetDetailDto> updateCabinet(
-            @PathVariable UUID id,
+            @PathVariable UUID cabinetId,
             @Valid @RequestBody CabinetUpdateDto dto
     ) {
-        log.info("PUT /api/cabinets/{} - update cabinet", id);
-        CabinetDetailDto updated = cabinetService.updateCabinet(id, dto);
+        log.info("PUT /api/cabinets/{} - update cabinet", cabinetId);
+        CabinetDetailDto updated = cabinetService.updateCabinet(cabinetId, dto);
         return ResponseEntity.ok(updated);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCabinet(@PathVariable UUID id) {
-        log.info("DELETE /api/cabinets/{} - delete cabinet", id);
-        cabinetService.deleteCabinet(id);
+    @DeleteMapping("/{cabinetId}")
+    public ResponseEntity<Void> deleteCabinet(@PathVariable UUID cabinetId) {
+        log.info("DELETE /api/cabinets/{} - delete cabinet", cabinetId);
+        cabinetService.deleteCabinet(cabinetId);
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<CabinetDetailDto> getCabinetById(@PathVariable UUID id) {
-        log.info("GET /api/cabinets/{} - get cabinet", id);
-        return ResponseEntity.ok(cabinetService.getCabinetById(id));
+    @GetMapping("/{cabinetId}")
+    public ResponseEntity<CabinetDetailDto> getCabinetById(@PathVariable UUID cabinetId) {
+        log.info("GET /api/cabinets/{} - get cabinet", cabinetId);
+        return ResponseEntity.ok(cabinetService.getCabinetById(cabinetId));
     }
 
     @GetMapping("/by-user/{userId}")

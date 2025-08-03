@@ -14,5 +14,6 @@ public class CabinetCreateDto {
     private String name;
     private String metaTradeToken;
     private UUID accountId;
+    private UUID userId;
     private List<UUID> sourceIds;
 }
