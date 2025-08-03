@@ -33,7 +33,6 @@ CREATE TABLE "accounts"
     "name"               VARCHAR(255)   NOT NULL UNIQUE,
     "status"             VARCHAR(10)    NOT NULL,
     "balance"            NUMERIC(15, 2) NOT NULL DEFAULT 0 CHECK (balance >= 0),
-    "currency"           CHAR(3)        NOT NULL,
     "token_MetaTradeAPI" TEXT           NOT NULL,
     "created_at"         TIMESTAMPTZ    NOT NULL,
     "updated_at"         TIMESTAMPTZ,
