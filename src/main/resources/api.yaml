@@ -237,6 +237,7 @@ components:
         - name
         - meta_trade_token
         - account_id
+        - user_id
         - source_ids
       properties:
         name:
@@ -244,6 +245,9 @@ components:
         meta_trade_token:
           type: string
         account_id:
+          type: string
+          format: uuid
+        user_id:
           type: string
           format: uuid
         source_ids:
@@ -254,6 +258,11 @@ components:
 
     CabinetUpdateDto:
       type: object
+      required:
+        - name
+        - meta_trade_token
+        - status
+        - source_ids
       properties:
         name:
           type: string
@@ -726,11 +735,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/CabinetDetailDto'
 
-    patch:
-      tags: [Cabinets]
+    put:
+      tags: [ Cabinets ]
       summary: Update cabinet
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - name: cabinetId
           in: path
