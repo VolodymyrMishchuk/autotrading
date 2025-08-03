@@ -36,9 +36,14 @@ public class LoginServiceImpl implements LoginService {
             throw new PasswordIncorrectException("Password was incorrect for user with email " + email);
         }
 
-        if (user.getStatus() == Status.Status.BLOCKED) {
+        if (user.getStatus() == Status.BLOCKED) {
             log.warn("User with email {} is blocked", email);
             throw new UserIsBlockedException("User is blocked");
+        }
+
+        if (user.getStatus() != Status.ACTIVE) {
+            log.warn("User with email {} is not activated", email);
+            throw new UserIsBlockedException("User account is not activated");
         }
 
         return authTokenService.createToken(user);

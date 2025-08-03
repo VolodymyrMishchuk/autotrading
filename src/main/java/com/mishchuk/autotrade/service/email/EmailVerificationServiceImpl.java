@@ -73,12 +73,11 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
             return false;
         }
 
-        entity.setConfirmedAt(Instant.now());
-        tokenRepository.save(entity);
-
         UserEntity user = entity.getUser();
         user.setStatus(Status.ACTIVE);
         userRepository.save(user);
+
+        tokenRepository.delete(entity);
 
         return true;
     }

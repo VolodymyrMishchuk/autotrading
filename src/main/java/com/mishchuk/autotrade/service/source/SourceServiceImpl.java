@@ -79,7 +79,7 @@ public class SourceServiceImpl implements SourceService {
         log.info("Updating user with id: {}", source.getId());
 
         Optional<SourceEntity> optionalSourceEntity =
-                sourceRepository.findById(UUID.fromString(source.getId()));
+                sourceRepository.findById(UUID.fromString(String.valueOf(source.getId())));
 
         if (optionalSourceEntity.isPresent()) {
             SourceEntity sourceEntity = optionalSourceEntity.get();

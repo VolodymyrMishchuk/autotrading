@@ -3,18 +3,20 @@ package com.mishchuk.autotrade.service.user;
 import com.mishchuk.autotrade.enums.Status;
 import com.mishchuk.autotrade.exception.UserNotFoundException;
 import com.mishchuk.autotrade.mapper.UserMapper;
+import com.mishchuk.autotrade.mapper.UserUpdateMapper;
 import com.mishchuk.autotrade.repository.UserRepository;
 import com.mishchuk.autotrade.repository.entity.UserEntity;
 import com.mishchuk.autotrade.service.email.EmailService;
 import com.mishchuk.autotrade.service.model.User;
 import lombok.RequiredArgsConstructor;
-//import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,6 +28,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final UserUpdateMapper userUpdateMapper;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
 
@@ -34,18 +37,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void createUser(User user) {
-
         log.info("Creating new user");
 
         UUID token = UUID.randomUUID();
 
-        user.setFirstName(user.getFirstName());
-        user.setLastName(user.getLastName());
-        user.setBirthDate(user.getBirthDate());
-        user.setPhoneNumber(user.getPhoneNumber());
-        user.setEmail(user.getEmail());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setStatus(com.mishchuk.autotrade.enums.Status.Status.INACTIVE);
+        user.setStatus(Status.INACTIVE);
         user.setCreatedAt(Instant.now());
         user.setToken(token);
 
@@ -55,44 +52,33 @@ public class UserServiceImpl implements UserService {
                 user.getEmail(),
                 "Confirm registration",
                 "Please confirm your registration by clicking the link below:\n"
-                + frontendBaseUrl
-                + "/users/registration-confirm?token="
-                + token);
+                        + frontendBaseUrl
+                        + "/users/registration-confirm?token="
+                        + token
+        );
 
-        log.info("User created: {}", user);
+        log.info("User created: {}", user.getEmail());
     }
 
     @Override
-    public User getUserById(String id) {
-
-        Optional<UserEntity> optionalUserEntity =
-                userRepository.findById(UUID.fromString(id));
-
-        if (optionalUserEntity.isPresent()) {
-            return  userMapper.toUser(optionalUserEntity.get());
-        }
-
-        throw new UserNotFoundException("User with id " + id + " not found");
+    public User getUserById(UUID id) {
+        return userMapper.toUser(
+                userRepository.findById(id)
+                        .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found"))
+        );
     }
 
     @Override
     public User getUserByToken(String token) {
-
-        Optional<UserEntity> optionalUserEntity =
-                userRepository.findByToken(UUID.fromString(token));
-
-        if (optionalUserEntity.isPresent()) {
-            return  userMapper.toUser(optionalUserEntity.get());
-        }
-
-        throw new UserNotFoundException("User with token " + token + " not found");
+        return userMapper.toUser(
+                userRepository.findByToken(UUID.fromString(token))
+                        .orElseThrow(() -> new UserNotFoundException("User with token " + token + " not found"))
+        );
     }
 
     @Override
     public List<User> getAllUsers() {
-
-        return userRepository
-                .findAll()
+        return userRepository.findAll()
                 .stream()
                 .map(userMapper::toUser)
                 .toList();
@@ -100,88 +86,112 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateUser(User user) {
+        UUID id = UUID.fromString(user.getId());
 
-        // я тут не реалізовував логіку оновлення номера телефону, імейлу, пароля, статусу та ролі
-        // мені це видалося якось не дуж сек'юрно
-        // тре подумати над такою фічою з якоюсь складнішою логікою
+        UserEntity userEntity = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User with id " + user.getId() + " not found"));
 
-        log.info("Updating user with id: {}", user.getId());
+        userEntity.setFirstName(user.getFirstName());
+        userEntity.setLastName(user.getLastName());
+        userEntity.setBirthDay(LocalDate.from(user.getBirthDate()));
+        userEntity.setUpdatedAt(Instant.now());
 
-        Optional<UserEntity> optionalUserEntity =
-                userRepository.findById(UUID.fromString(user.getId()));
+        userRepository.save(userEntity);
 
-        if (optionalUserEntity.isPresent()) {
-            UserEntity userEntity = optionalUserEntity.get();
-
-            userEntity.setFirstName(user.getFirstName());
-            userEntity.setLastName(user.getLastName());
-            userEntity.setBirthDay(user.getBirthDate());
-            userEntity.setUpdatedAt(Instant.now());
-
-            userRepository.save(userEntity);
-
-            log.info("Updated user with id: {}", user.getId());
-        } else {
-            throw new UserNotFoundException("User with id " + user.getId() + " not found");
-        }
+        log.info("Updated user profile: {}", user.getId());
     }
 
     @Override
-    public void deleteUser(String id) {
-
-        if (userRepository.existsById(UUID.fromString(id))) {
-            userRepository.deleteById(UUID.fromString(id));
-        } else {
+    public void deleteUser(UUID id) {
+        if (!userRepository.existsById(id)) {
             throw new UserNotFoundException("User with id " + id + " not found");
         }
+
+        userRepository.deleteById(id);
+        log.info("Deleted user: {}", id);
     }
 
     @Override
     public void completeRegistration(String token) {
+        UserEntity userEntity = userRepository.findByToken(UUID.fromString(token))
+                .orElseThrow(() -> new UserNotFoundException("User with token " + token + " not found"));
 
-        Optional<UserEntity> optionalUserEntity =
-                userRepository.findByToken(UUID.fromString(token));
+        userEntity.setStatus(Status.ACTIVE);
+        userEntity.setUpdatedAt(Instant.now());
+        userEntity.setToken(null);
 
-        if (optionalUserEntity.isPresent()){
-            UserEntity userEntity = optionalUserEntity.get();
-
-            userEntity.setStatus(Status.Status.valueOf("ACTIVE"));
-            userEntity.setUpdatedAt(Instant.now());
-            userEntity.setToken(null);
-
-            userRepository.save(userEntity);
-        } else {
-            throw new UserNotFoundException("User with token " + token + " not found");
-        }
+        userRepository.save(userEntity);
+        log.info("Completed registration for user: {}", userEntity.getEmail());
     }
 
     @Override
     public User getAuthenticatedUser() {
-
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        return getUserById(userId);
+        return getUserById(UUID.fromString(userId));
     }
 
-    // Потрібна допомога із реалізацією логіки
-
+    @Override
     public void updatePhoneNumberOfUser(User user) {
+        UUID id = UUID.fromString(user.getId());
+        UserEntity userEntity = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found: " + user.getId()));
 
+        userEntity.setPhoneNumber(user.getPhoneNumber());
+        userEntity.setUpdatedAt(Instant.now());
+
+        userRepository.save(userEntity);
+        log.info("Phone number updated for user {}", user.getId());
     }
 
+    @Override
     public void updateEmailOfUser(User user) {
+        UUID id = UUID.fromString(user.getId());
+        UserEntity userEntity = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found: " + user.getId()));
 
+        userEntity.setEmail(user.getEmail());
+        userEntity.setUpdatedAt(Instant.now());
+
+        userRepository.save(userEntity);
+        log.info("Email updated for user {}", user.getId());
     }
 
+    @Override
     public void updatePasswordOfUser(User user) {
+        UUID id = UUID.fromString(user.getId());
+        UserEntity userEntity = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found: " + user.getId()));
 
+        userEntity.setPassword(passwordEncoder.encode(user.getPassword()));
+        userEntity.setUpdatedAt(Instant.now());
+
+        userRepository.save(userEntity);
+        log.info("Password updated for user {}", user.getId());
     }
 
+    @Override
     public void updateRoleOfUser(User user) {
+        UUID id = UUID.fromString(user.getId());
+        UserEntity userEntity = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found: " + user.getId()));
 
+        userEntity.setRole(user.getRole());
+        userEntity.setUpdatedAt(Instant.now());
+
+        userRepository.save(userEntity);
+        log.info("Role updated for user {}", user.getId());
     }
 
+    @Override
     public void updateStatusOfUser(User user) {
+        UUID id = UUID.fromString(user.getId());
+        UserEntity userEntity = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found: " + user.getId()));
 
+        userEntity.setStatus(user.getStatus());
+        userEntity.setUpdatedAt(Instant.now());
+
+        userRepository.save(userEntity);
+        log.info("Status updated for user {}", user.getId());
     }
 }

@@ -28,7 +28,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     @Override
     @Transactional
     public UUID register(UserCreateDto dto) {
-        UserEntity user = userMapper.toEntity(dto);
+        UserEntity user = userMapper.toUser(dto);
 
         user.setId(UUID.randomUUID());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
