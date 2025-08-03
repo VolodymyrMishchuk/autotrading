@@ -10,7 +10,8 @@ import java.util.UUID;
 
 @Data
 @Builder
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)public class CabinetDetailDto {
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+public class CabinetDetailDto {
     private UUID id;
     private String name;
     private String metaTradeToken;
