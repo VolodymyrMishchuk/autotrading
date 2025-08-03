@@ -1,6 +1,7 @@
 package com.mishchuk.autotrade.service.model;
 
 import com.mishchuk.autotrade.enums.Status;
+import com.mishchuk.autotrade.repository.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
@@ -22,17 +23,22 @@ public class Account {
     private String id;
 
     private String name;
-    private String tokenMetaApi;
-    private Status.Status status;
+
+    @Column(name = "token_MetaTradeAPI", nullable = false)
+    private String tokenMetaTradeAPI;
+    private Status status;
     private BigDecimal balance;
-    private String currency;
+
+    @Column(name = "created_at", nullable = false)
     protected Instant createdAt;
+
+    @Column(name = "updated_at")
     protected Instant updatedAt;
 
-    @JoinColumn(name = "user_id")
-    private String user;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserEntity user;
 
-    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "account_sources",
             joinColumns = @JoinColumn(name = "account_id"),

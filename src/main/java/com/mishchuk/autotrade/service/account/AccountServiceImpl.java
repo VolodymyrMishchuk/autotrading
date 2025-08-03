@@ -1,5 +1,6 @@
 package com.mishchuk.autotrade.service.account;
 
+import com.mishchuk.autotrade.mapper.AccountMapper;
 import com.mishchuk.autotrade.repository.AccountRepository;
 import com.mishchuk.autotrade.service.model.Account;
 import lombok.RequiredArgsConstructor;

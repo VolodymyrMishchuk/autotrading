@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.mishchuk.autotrade.enums.Status;
 import lombok.Builder;
 import lombok.Data;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
@@ -18,10 +19,9 @@ public class AccountDetailDto {
     private final String name;
     private final Status status;
     private final BigDecimal balance;
-    private final String currency;
     private final Instant createdAt;
     private final Instant updatedAt;
     private final UUID userId;
-    private final List<UUID> sourceIds;
+    private final List<CabinetDetailDto> cabinets;
     private final List<TransactionDetailDto> transactions;
 }
