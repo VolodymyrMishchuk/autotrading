@@ -7,21 +7,21 @@ import com.mishchuk.autotrade.enums.Status;
 import com.mishchuk.autotrade.repository.entity.*;
 import com.mishchuk.autotrade.service.model.Cabinet;
 import org.springframework.stereotype.Component;
+
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
 public class CabinetMapper {
 
-    public static Cabinet toCabinet(CabinetEntity entity) {
+    public Cabinet toCabinet(CabinetEntity entity) {
         return Cabinet.builder()
-                .id(entity.getId() != null ? entity.getId() : null)
+                .id(entity.getId())
                 .name(entity.getName())
                 .metaTradeToken(entity.getMetaTradeToken())
                 .status(entity.getStatus())
-                .userId(entity.getUser().getId())
-                .accountId(entity.getAccount().getId())
+                .userId(entity.getUser() != null ? entity.getUser().getId() : null)
+                .accountId(entity.getAccount() != null ? entity.getAccount().getId() : null)
                 .sourceIds(
                         entity.getSources() != null
                                 ? entity.getSources().stream()
@@ -32,7 +32,7 @@ public class CabinetMapper {
                 .build();
     }
 
-    public static CabinetEntity toCabinetEntity(
+    public CabinetEntity toCabinetEntity(
             Cabinet cabinet,
             UserEntity user,
             AccountEntity account,
@@ -47,7 +47,7 @@ public class CabinetMapper {
                 .collect(Collectors.toList());
 
         CabinetEntity cabinetEntity = CabinetEntity.builder()
-                .id(cabinet.getId() != null ? cabinet.getId() : null)
+                .id(cabinet.getId())
                 .name(cabinet.getName())
                 .metaTradeToken(cabinet.getMetaTradeToken())
                 .status(cabinet.getStatus())
@@ -57,11 +57,10 @@ public class CabinetMapper {
                 .build();
 
         cabinetSources.forEach(cs -> cs.setCabinet(cabinetEntity));
-
         return cabinetEntity;
     }
 
-    public static CabinetDetailDto toCabinetDetailDto(Cabinet cabinet) {
+    public CabinetDetailDto toCabinetDetailDto(Cabinet cabinet) {
         return CabinetDetailDto.builder()
                 .id(cabinet.getId())
                 .name(cabinet.getName())
@@ -84,25 +83,25 @@ public class CabinetMapper {
                 .sourceIds(
                         entity.getSources() != null
                                 ? entity.getSources().stream()
-                                .map(cabinetSource -> cabinetSource.getSource().getId())
+                                .map(cs -> cs.getSource().getId())
                                 .collect(Collectors.toList())
                                 : List.of()
                 )
                 .build();
     }
 
-    public static Cabinet toCabinet(UUID userId, CabinetCreateDto dto) {
+    public Cabinet toCabinet(CabinetCreateDto dto) {
         return Cabinet.builder()
                 .name(dto.getName())
                 .metaTradeToken(dto.getMetaTradeToken())
                 .status(Status.ACTIVE)
-                .userId(userId)
+                .userId(dto.getUserId())
                 .accountId(dto.getAccountId())
                 .sourceIds(dto.getSourceIds())
                 .build();
     }
 
-    public static Cabinet toCabinet(CabinetUpdateDto dto) {
+    public Cabinet toCabinet(CabinetUpdateDto dto) {
         return Cabinet.builder()
                 .name(dto.getName())
                 .metaTradeToken(dto.getMetaTradeToken())
@@ -111,7 +110,7 @@ public class CabinetMapper {
                 .build();
     }
 
-    public static Cabinet mergeCabinet(Cabinet original, Cabinet updates) {
+    public Cabinet mergeCabinet(Cabinet original, Cabinet updates) {
         return Cabinet.builder()
                 .id(original.getId())
                 .name(updates.getName() != null ? updates.getName() : original.getName())

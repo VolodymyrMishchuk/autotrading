@@ -4,14 +4,13 @@ import com.mishchuk.autotrade.controller.dto.*;
 import com.mishchuk.autotrade.repository.entity.SourceEntity;
 import com.mishchuk.autotrade.service.model.Source;
 import org.springframework.stereotype.Component;
-import java.util.UUID;
 
 @Component
 public class SourceMapper {
 
     public Source toSource(SourceEntity entity) {
         return Source.builder()
-                .id(entity.getId() != null ? entity.getId().toString() : null)
+                .id(entity.getId())
                 .name(entity.getName())
                 .platform(entity.getPlatform())
                 .token(entity.getToken())
@@ -24,7 +23,7 @@ public class SourceMapper {
 
     public SourceEntity toSourceEntity(Source source) {
         return SourceEntity.builder()
-                .id(source.getId() != null ? UUID.fromString(source.getId()) : null)
+                .id(source.getId())
                 .name(source.getName())
                 .platform(source.getPlatform())
                 .token(source.getToken())
@@ -53,7 +52,7 @@ public class SourceMapper {
 
     public SourceDetailDto toSourceDetailDto(Source source) {
         return SourceDetailDto.builder()
-                .id(source.getId() != null ? UUID.fromString(source.getId()) : null)
+                .id(source.getId())
                 .name(source.getName())
                 .platform(source.getPlatform())
                 .token(source.getToken())

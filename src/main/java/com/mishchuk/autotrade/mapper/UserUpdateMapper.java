@@ -23,7 +23,6 @@ public class UserUpdateMapper {
 
     public User toUser(EmailResetCompleteDto dto) {
         return User.builder()
-                .token(UUID.fromString(dto.getToken()))
                 .email(dto.getEmail())
                 .build();
     }
@@ -42,7 +41,6 @@ public class UserUpdateMapper {
 
     public User toUser(PasswordResetCompleteDto dto) {
         return User.builder()
-                .token(UUID.fromString(dto.getToken()))
                 .password(dto.getPassword())
                 .build();
     }
@@ -61,7 +59,6 @@ public class UserUpdateMapper {
 
     public User toUser(PhoneNumberResetCompleteDto dto) {
         return User.builder()
-                .token(UUID.fromString(dto.getToken()))
                 .phoneNumber(dto.getPhoneNumber())
                 .build();
     }

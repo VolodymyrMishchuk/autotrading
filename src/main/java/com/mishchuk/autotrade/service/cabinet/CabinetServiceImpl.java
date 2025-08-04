@@ -46,13 +46,13 @@ public class CabinetServiceImpl implements CabinetService {
 
         List<SourceEntity> sources = sourceRepository.findAllById(dto.getSourceIds());
 
-        Cabinet cabinet = CabinetMapper.toCabinet(userId, dto);
-        CabinetEntity entity = CabinetMapper.toCabinetEntity(cabinet, user, account, sources);
+        Cabinet cabinet = cabinetMapper.toCabinet(dto);
+        CabinetEntity entity = cabinetMapper.toCabinetEntity(cabinet, user, account, sources);
         CabinetEntity saved = cabinetRepository.save(entity);
 
         log.info("Cabinet created: {}", cabinet);
 
-        return CabinetMapper.toCabinetDetailDto(CabinetMapper.toCabinet(saved));
+        return cabinetMapper.toCabinetDetailDto(cabinetMapper.toCabinet(saved));
     }
 
     @Override
@@ -63,8 +63,8 @@ public class CabinetServiceImpl implements CabinetService {
         CabinetEntity entity = cabinetRepository.findById(cabinetId)
                 .orElseThrow(() -> new CabinetNotFoundException("Cabinet with id " + cabinetId + " not found"));
 
-        Cabinet current = CabinetMapper.toCabinet(entity);
-        Cabinet updated = CabinetMapper.mergeCabinet(current, CabinetMapper.toCabinet(dto));
+        Cabinet current = cabinetMapper.toCabinet(entity);
+        Cabinet updated = cabinetMapper.mergeCabinet(current, cabinetMapper.toCabinet(dto));
 
         UserEntity user = entity.getUser();
         AccountEntity account = entity.getAccount();
@@ -74,12 +74,12 @@ public class CabinetServiceImpl implements CabinetService {
                 .map(CabinetSourceEntity::getSource)
                 .toList();
 
-        CabinetEntity toSave = CabinetMapper.toCabinetEntity(updated, user, account, sources);
+        CabinetEntity toSave = cabinetMapper.toCabinetEntity(updated, user, account, sources);
         CabinetEntity saved = cabinetRepository.save(toSave);
 
         log.info("Updated cabinet with id: {}", cabinetId);
 
-        return CabinetMapper.toCabinetDetailDto(CabinetMapper.toCabinet(saved));
+        return cabinetMapper.toCabinetDetailDto(cabinetMapper.toCabinet(saved));
     }
 
     @Override
@@ -93,22 +93,22 @@ public class CabinetServiceImpl implements CabinetService {
     public CabinetDetailDto getCabinetById(UUID cabinetId) {
         CabinetEntity entity = cabinetRepository.findById(cabinetId)
                 .orElseThrow(() -> new CabinetNotFoundException("Cabinet with id " + cabinetId + " not found"));
-        return CabinetMapper.toCabinetDetailDto(CabinetMapper.toCabinet(entity));
+        return cabinetMapper.toCabinetDetailDto(cabinetMapper.toCabinet(entity));
     }
 
     @Override
     public List<CabinetDetailDto> getCabinetsByUserId(UUID userId) {
         return cabinetRepository.findByUser_Id(userId).stream()
-                .map(CabinetMapper::toCabinet)
-                .map(CabinetMapper::toCabinetDetailDto)
+                .map(cabinetMapper::toCabinet)
+                .map(cabinetMapper::toCabinetDetailDto)
                 .toList();
     }
 
     @Override
     public List<CabinetDetailDto> getCabinetsByAccountId(UUID accountId) {
         return cabinetRepository.findByAccount_Id(accountId).stream()
-                .map(CabinetMapper::toCabinet)
-                .map(CabinetMapper::toCabinetDetailDto)
+                .map(cabinetMapper::toCabinet)
+                .map(cabinetMapper::toCabinetDetailDto)
                 .toList();
     }
 }

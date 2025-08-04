@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -93,7 +92,7 @@ public class UserServiceImpl implements UserService {
 
         userEntity.setFirstName(user.getFirstName());
         userEntity.setLastName(user.getLastName());
-        userEntity.setBirthDay(LocalDate.from(user.getBirthDate()));
+        userEntity.setBirthDate(LocalDate.from(user.getBirthDate()));
         userEntity.setUpdatedAt(Instant.now());
 
         userRepository.save(userEntity);

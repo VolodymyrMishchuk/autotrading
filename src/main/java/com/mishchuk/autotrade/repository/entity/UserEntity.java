@@ -31,7 +31,7 @@ public class UserEntity {
     private String lastName;
 
     @Column(name = "birth_day", nullable = false)
-    private LocalDate birthDay;
+    private LocalDate birthDate;
 
     @Column(name = "phone_number", nullable = false, unique = true)
     private String phoneNumber;

@@ -16,7 +16,7 @@ import java.util.UUID;
 public class CabinetSourceEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -27,5 +27,7 @@ public class CabinetSourceEntity {
     @JoinColumn(name = "source_id", nullable = false)
     private SourceEntity source;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Status status;
 }

@@ -4,19 +4,16 @@ import com.mishchuk.autotrade.controller.dto.*;
 import com.mishchuk.autotrade.repository.entity.UserEntity;
 import com.mishchuk.autotrade.service.model.User;
 import org.springframework.stereotype.Component;
-import java.util.UUID;
 
 @Component
 public class UserMapper {
 
     public User toUser(UserEntity entity) {
         return User.builder()
-                .id(entity.getId() != null ? entity.getId().toString() : null)
+                .id(entity.getId())
                 .firstName(entity.getFirstName())
                 .lastName(entity.getLastName())
-                .birthDate(entity.getBirthDay() != null
-                        ? entity.getBirthDay().atStartOfDay().toInstant(java.time.ZoneOffset.UTC)
-                        : null)
+                .birthDate(entity.getBirthDate())
                 .phoneNumber(entity.getPhoneNumber())
                 .email(entity.getEmail())
                 .password(entity.getPassword())
@@ -29,12 +26,10 @@ public class UserMapper {
 
     public UserEntity toUserEntity(User user) {
         return UserEntity.builder()
-                .id(user.getId() != null ? UUID.fromString(user.getId()) : null)
+                .id(user.getId())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
-                .birthDay(user.getBirthDate() != null
-                        ? user.getBirthDate().atZone(java.time.ZoneOffset.UTC).toLocalDate()
-                        : null)
+                .birthDate(user.getBirthDate())
                 .phoneNumber(user.getPhoneNumber())
                 .email(user.getEmail())
                 .password(user.getPassword())
@@ -58,7 +53,7 @@ public class UserMapper {
 
     public UserDetailDto toUserDetailDto(User user) {
         return UserDetailDto.builder()
-                .id(UUID.fromString(user.getId()))
+                .id(user.getId())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .email(user.getEmail())
@@ -81,7 +76,7 @@ public class UserMapper {
 
     public User toUser(UserCompleteRegistrationDto dto) {
         return User.builder()
-                .token(UUID.fromString(dto.getConfirmationToken()))
+                .email(dto.getEmail())
                 .build();
     }
 }

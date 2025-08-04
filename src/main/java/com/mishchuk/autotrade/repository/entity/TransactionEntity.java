@@ -1,5 +1,6 @@
 package com.mishchuk.autotrade.repository.entity;
 
+import com.mishchuk.autotrade.enums.Direction;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
@@ -27,8 +28,9 @@ public class TransactionEntity {
     @Column(name = "amount", nullable = false)
     private BigDecimal amount;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "direction", nullable = false)
-    private String direction;
+    private Direction direction;
 
     @Column(name = "opened_at", nullable = false)
     private Instant openedAt;

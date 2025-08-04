@@ -6,6 +6,7 @@ import com.mishchuk.autotrade.enums.Status;
 import com.mishchuk.autotrade.enums.UserRole;
 import lombok.*;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Getter
@@ -18,7 +19,7 @@ public class UserDetailDto {
     private final String lastName;
     private final String email;
     private final String phoneNumber;
-    private final Instant birthDate;
+    private final LocalDate birthDate;
     private final UserRole role;
     private final Status status;
     private final Instant createdAt;

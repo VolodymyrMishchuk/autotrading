@@ -13,10 +13,17 @@ import java.util.UUID;
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class TransactionDetailDto {
-    private final UUID id;
-    private final BigDecimal amount;
-    private final Direction direction;
-    private final Instant createdAt;
-    private final UUID accountId;
-    private final UUID sourceId;
+    private UUID id;
+    private String symbol;
+    private BigDecimal amount;
+    private Direction direction;
+    private Instant openedAt;
+    private Instant closedAt;
+    private BigDecimal balanceAfter;
+    private Boolean isProfitable;
+    private UUID userId;
+    private UUID accountId;
+    private UUID cabinetId;
+    private UUID sourceId;
+    private Instant createdAt;
 }

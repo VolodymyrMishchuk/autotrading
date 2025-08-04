@@ -2,16 +2,12 @@ package com.mishchuk.autotrade.mapper;
 
 import com.mishchuk.autotrade.controller.dto.TransactionCreateDto;
 import com.mishchuk.autotrade.controller.dto.TransactionDetailDto;
-import com.mishchuk.autotrade.enums.Direction;
-import com.mishchuk.autotrade.repository.entity.AccountEntity;
-import com.mishchuk.autotrade.repository.entity.SourceEntity;
-import com.mishchuk.autotrade.repository.entity.TransactionEntity;
+import com.mishchuk.autotrade.repository.entity.*;
 import com.mishchuk.autotrade.service.model.Transaction;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
@@ -20,44 +16,78 @@ public class TransactionMapper {
 
     public Transaction toTransaction(TransactionEntity entity) {
         return Transaction.builder()
-                .id(entity.getId() != null ? entity.getId().toString() : null)
+                .id(entity.getId())
+                .symbol(entity.getSymbol())
                 .amount(entity.getAmount())
-                .direction(Direction.valueOf(entity.getDirection()))
+                .direction(entity.getDirection())
+                .openedAt(entity.getOpenedAt())
+                .closedAt(entity.getClosedAt())
+                .balanceAfter(entity.getBalanceAfter())
+                .isProfitable(entity.getIsProfitable())
+                .userId(entity.getUser().getId())
+                .accountId(entity.getAccount().getId())
+                .cabinetId(entity.getCabinet().getId())
+                .sourceId(entity.getSource().getId())
                 .createdAt(entity.getCreatedAt())
-                .account(entity.getAccount().getId().toString())
-                .source(entity.getSource().getId().toString())
                 .build();
     }
 
     public Transaction toTransaction(TransactionCreateDto dto) {
         return Transaction.builder()
+                .symbol(dto.getSymbol())
                 .amount(dto.getAmount())
                 .direction(dto.getDirection())
-                .createdAt(dto.getCreatedAt())
-                .account(dto.getAccountId())
-                .source(dto.getSourceId().toString())
+                .openedAt(dto.getOpenedAt())
+                .closedAt(dto.getClosedAt())
+                .balanceAfter(dto.getBalanceAfter())
+                .isProfitable(dto.getIsProfitable())
+                .userId(dto.getUserId())
+                .accountId(dto.getAccountId())
+                .cabinetId(dto.getCabinetId())
+                .sourceId(dto.getSourceId())
+                // createdAt як правило встановлюєш у сервісі при створенні (Instant.now())
                 .build();
     }
 
-    public TransactionEntity toTransactionEntity(Transaction transaction) {
+    public TransactionEntity toTransactionEntity(
+            Transaction tx,
+            UserEntity user,
+            AccountEntity account,
+            CabinetEntity cabinet,
+            SourceEntity source
+    ) {
         return TransactionEntity.builder()
-                .id(transaction.getId() != null ? UUID.fromString(transaction.getId()) : null)
-                .amount(transaction.getAmount())
-                .direction(String.valueOf(transaction.getDirection()))
-                .createdAt(transaction.getCreatedAt())
-                .account(AccountEntity.builder().id(transaction.getAccount()).build())
-                .source(SourceEntity.builder().id(UUID.fromString(transaction.getSource())).build())
+                .id(tx.getId())
+                .symbol(tx.getSymbol())
+                .amount(tx.getAmount())
+                .direction(tx.getDirection())
+                .openedAt(tx.getOpenedAt())
+                .closedAt(tx.getClosedAt())
+                .balanceAfter(tx.getBalanceAfter())
+                .isProfitable(tx.getIsProfitable())
+                .user(user)
+                .account(account)
+                .cabinet(cabinet)
+                .source(source)
+                .createdAt(tx.getCreatedAt())
                 .build();
     }
 
-    public TransactionDetailDto toTransactionDetailDto(Transaction transaction) {
+    public TransactionDetailDto toTransactionDetailDto(Transaction tx) {
         return TransactionDetailDto.builder()
-                .id(transaction.getId() != null ? UUID.fromString(transaction.getId()) : null)
-                .amount(transaction.getAmount())
-                .direction(transaction.getDirection())
-                .createdAt(transaction.getCreatedAt())
-                .accountId(UUID.fromString(String.valueOf(transaction.getAccount())))
-                .sourceId(UUID.fromString(transaction.getSource()))
+                .id(tx.getId())
+                .symbol(tx.getSymbol())
+                .amount(tx.getAmount())
+                .direction(tx.getDirection())
+                .openedAt(tx.getOpenedAt())
+                .closedAt(tx.getClosedAt())
+                .balanceAfter(tx.getBalanceAfter())
+                .isProfitable(tx.getIsProfitable())
+                .userId(tx.getUserId())
+                .accountId(tx.getAccountId())
+                .cabinetId(tx.getCabinetId())
+                .sourceId(tx.getSourceId())
+                .createdAt(tx.getCreatedAt())
                 .build();
     }
 
