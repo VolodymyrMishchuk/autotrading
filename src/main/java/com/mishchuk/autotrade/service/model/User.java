@@ -25,4 +25,5 @@ public class User {
     private Status status;
     private Instant createdAt;
     private Instant updatedAt;
+    private UUID token;
 }

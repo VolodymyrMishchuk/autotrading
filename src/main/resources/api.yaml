@@ -321,6 +321,42 @@ components:
         status:
           type: string
 
+    RefreshTokenRequestDto:
+      type: object
+      required:
+        - refresh_token
+      properties:
+        refresh_token:
+          type: string
+          description: Refresh token (UUID)
+
+    AuthTokenResponseDto:
+      type: object
+      required:
+        - access_token
+        - refresh_token
+        - token_type
+      properties:
+        access_token:
+          type: string
+          description: JWT access token
+        refresh_token:
+          type: string
+          description: Refresh token (UUID)
+        token_type:
+          type: string
+          enum: [ bearer ]
+          default: bearer
+
+    ResendVerificationRequestDto:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+
 paths:
   /auth/signup:
     post:
@@ -356,8 +392,8 @@ paths:
 
   /auth/login:
     post:
-      tags: [Auth]
-      summary: Log in and receive JWT token
+      tags: [ Auth ]
+      summary: Log in and receive JWT access and refresh token
       requestBody:
         required: true
         content:
@@ -370,9 +406,63 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AuthToken'
+                $ref: '#/components/schemas/AuthTokenResponseDto'
         '401':
           description: Unauthorized
+
+  /auth/refresh:
+    post:
+      tags: [ Auth ]
+      summary: Refresh JWT access and refresh tokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequestDto'
+      responses:
+        '200':
+          description: Tokens refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokenResponseDto'
+        '401':
+          description: Invalid or expired refresh token
+
+  /auth/logout:
+    post:
+      tags: [ Auth ]
+      summary: Logout and invalidate refresh token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequestDto'
+      responses:
+        '204':
+          description: Successfully logged out
+        '401':
+          description: Invalid refresh token
+
+  /auth/resend-verification:
+    post:
+      tags: [ Auth ]
+      summary: Resend email verification for a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResendVerificationRequestDto'
+      responses:
+        '200':
+          description: Verification email resent (or account already active, or email not found)
+          content:
+            application/json:
+              schema:
+                type: string
 
   /users:
     get:

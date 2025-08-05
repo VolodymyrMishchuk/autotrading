@@ -21,6 +21,7 @@ public class UserMapper {
                 .status(entity.getStatus())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
+                .token(entity.getToken())
                 .build();
     }
 
@@ -37,6 +38,7 @@ public class UserMapper {
                 .status(user.getStatus())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
+                .token(user.getToken())
                 .build();
     }
 
@@ -77,6 +79,17 @@ public class UserMapper {
     public User toUser(UserCompleteRegistrationDto dto) {
         return User.builder()
                 .email(dto.getEmail())
+                .build();
+    }
+
+    public UserEntity toUserEntity(UserCreateDto dto) {
+        return UserEntity.builder()
+                .firstName(dto.getFirstName())
+                .lastName(dto.getLastName())
+                .birthDate(dto.getBirthDate())
+                .phoneNumber(dto.getPhoneNumber())
+                .email(dto.getEmail())
+                .password(dto.getPassword())
                 .build();
     }
 }

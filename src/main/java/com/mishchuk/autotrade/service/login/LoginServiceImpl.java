@@ -1,11 +1,13 @@
 package com.mishchuk.autotrade.service.login;
 
+import com.mishchuk.autotrade.controller.dto.AuthTokenResponseDto;
 import com.mishchuk.autotrade.enums.Status;
 import com.mishchuk.autotrade.exception.PasswordIncorrectException;
 import com.mishchuk.autotrade.exception.UserIsBlockedException;
 import com.mishchuk.autotrade.exception.UserNotFoundException;
 import com.mishchuk.autotrade.mapper.UserMapper;
 import com.mishchuk.autotrade.repository.UserRepository;
+import com.mishchuk.autotrade.service.auth.AuthTokenManager;
 import com.mishchuk.autotrade.service.auth.AuthTokenService;
 import com.mishchuk.autotrade.service.model.User;
 import lombok.RequiredArgsConstructor;
@@ -22,10 +24,10 @@ public class LoginServiceImpl implements LoginService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final AuthTokenService authTokenService;
+    private final AuthTokenManager authTokenManager;
 
     @Override
-    public String login(String email, String password) {
-
+    public AuthTokenResponseDto login(String email, String password) {
         User user = userRepository
                 .findByEmailIgnoreCase(email)
                 .map(userMapper::toUser)
@@ -46,6 +48,16 @@ public class LoginServiceImpl implements LoginService {
             throw new UserIsBlockedException("User account is not activated");
         }
 
-        return authTokenService.createToken(user);
+        String accessToken = authTokenService.createAccessToken(user);
+        String refreshToken = authTokenService.createRefreshToken();
+
+        var userEntity = userRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found: " + email));
+        authTokenManager.create(userEntity, refreshToken);
+
+        return AuthTokenResponseDto.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
     }
 }

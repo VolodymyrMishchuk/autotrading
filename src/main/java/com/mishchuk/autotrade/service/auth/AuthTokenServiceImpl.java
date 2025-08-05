@@ -23,18 +23,15 @@ public class AuthTokenServiceImpl implements AuthTokenService {
     private Long jwtTtlMillis;
 
     @Override
-    public String createToken(User user) {
-
+    public String createAccessToken(User user) {
         Date now = new Date();
         Date expiration = new Date(now.getTime() + jwtTtlMillis);
-
         Claims claims = Jwts.claims()
                 .issuedAt(now)
                 .expiration(expiration)
                 .subject(String.valueOf(user.getId()))
                 .add(CLAIM_ROLE, user.getRole().toString())
                 .build();
-
         return Jwts.builder()
                 .claims(claims)
                 .signWith(getSecretKey())
@@ -42,8 +39,12 @@ public class AuthTokenServiceImpl implements AuthTokenService {
     }
 
     @Override
-    public boolean isValidToken(String token) {
+    public String createRefreshToken() {
+        return java.util.UUID.randomUUID().toString();
+    }
 
+    @Override
+    public boolean isValidAccessToken(String token) {
         try {
             Jwts.parser()
                     .verifyWith(getSecretKey())
@@ -52,7 +53,6 @@ public class AuthTokenServiceImpl implements AuthTokenService {
         } catch (Exception e) {
             return false;
         }
-
         return true;
     }
 

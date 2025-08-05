@@ -18,13 +18,16 @@ public class AuthTokenEntity {
     @GeneratedValue
     private UUID id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
-    @Column
-    private UUID refreshToken;
+    @Column(name = "refresh_token", nullable = false, unique = true, length = 256)
+    private String refreshToken;
 
-    @Column
+    @Column(name = "expiry_date", nullable = false)
     private Instant expiryDate;
+
+    @Column(name = "created_at", nullable = false)
+    private Instant createdAt;
 }

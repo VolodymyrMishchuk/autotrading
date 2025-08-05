@@ -4,8 +4,9 @@ import com.mishchuk.autotrade.service.model.User;
 import com.mishchuk.autotrade.enums.UserRole;
 
 public interface AuthTokenService {
-    String createToken(User user);
-    boolean isValidToken(String token);
+    String createAccessToken(User user);
+    String createRefreshToken();
+    boolean isValidAccessToken(String token);
     String getUserId(String token);
     UserRole getUserRole(String token);
 }

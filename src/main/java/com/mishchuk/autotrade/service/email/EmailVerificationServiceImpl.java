@@ -81,4 +81,12 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
 
         return true;
     }
+
+    @Override
+    @Transactional
+    public void resendVerificationEmail(UserEntity user) {
+        tokenRepository.deleteAllByUser(user);
+
+        sendVerificationEmail(user);
+    }
 }

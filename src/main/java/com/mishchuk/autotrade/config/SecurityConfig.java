@@ -22,7 +22,7 @@ import org.springframework.web.cors.CorsConfiguration;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(securedEnabled = true)
+@EnableMethodSecurity(prePostEnabled = true, securedEnabled = true) // важливо для @PreAuthorize!
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -55,7 +55,8 @@ public class SecurityConfig {
                                                 "/users/registration-complete",
                                                 "/users/passwords/reset",
                                                 "/users/passwords/reset-verify**",
-                                                "/users/passwords/reset-complete"
+                                                "/users/passwords/reset-complete",
+                                                "/auth/**"
                                         )
                                         .permitAll()
                                         .anyRequest()
@@ -66,8 +67,9 @@ public class SecurityConfig {
                                         _ -> {
                                             CorsConfiguration configuration = new CorsConfiguration();
                                             configuration.setAllowedOrigins(List.of("*"));
-                                            configuration.setAllowedMethods(List.of("*"));
+                                            configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
                                             configuration.setAllowedHeaders(List.of("*"));
+                                            configuration.setAllowCredentials(true); // якщо потрібні cookie/JWT через браузер
                                             return configuration;
                                         }))
                 .csrf(AbstractHttpConfigurer::disable)

@@ -27,7 +27,6 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-    private final UserUpdateMapper userUpdateMapper;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
 
@@ -85,7 +84,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateUser(User user) {
-        UUID id = UUID.fromString(user.getId());
+        UUID id = (user.getId());
 
         UserEntity userEntity = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User with id " + user.getId() + " not found"));
@@ -131,7 +130,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updatePhoneNumberOfUser(User user) {
-        UUID id = UUID.fromString(user.getId());
+        UUID id = user.getId();
         UserEntity userEntity = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found: " + user.getId()));
 
@@ -144,7 +143,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateEmailOfUser(User user) {
-        UUID id = UUID.fromString(user.getId());
+        UUID id = user.getId();
         UserEntity userEntity = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found: " + user.getId()));
 
@@ -157,7 +156,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updatePasswordOfUser(User user) {
-        UUID id = UUID.fromString(user.getId());
+        UUID id = user.getId();
         UserEntity userEntity = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found: " + user.getId()));
 
@@ -170,7 +169,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateRoleOfUser(User user) {
-        UUID id = UUID.fromString(user.getId());
+        UUID id = user.getId();
         UserEntity userEntity = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found: " + user.getId()));
 
@@ -183,7 +182,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateStatusOfUser(User user) {
-        UUID id = UUID.fromString(user.getId());
+        UUID id = user.getId();
         UserEntity userEntity = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found: " + user.getId()));
 

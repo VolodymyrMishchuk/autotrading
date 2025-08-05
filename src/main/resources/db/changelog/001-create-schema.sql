@@ -13,6 +13,7 @@ CREATE TABLE "users"
     "password"     VARCHAR(255),
     "role"         VARCHAR(15)  NOT NULL,
     "status"       VARCHAR(10)  NOT NULL,
+    "token"        UUID,                      -- додали поле!
     "created_at"   TIMESTAMPTZ  NOT NULL,
     "updated_at"   TIMESTAMPTZ
 );
@@ -25,6 +26,15 @@ CREATE TABLE "email_verification_tokens"
     "confirmed_at" TIMESTAMPTZ,
     "created_at"   TIMESTAMPTZ  NOT NULL,
     "user_id"      UUID         NOT NULL REFERENCES users (id) ON DELETE CASCADE
+);
+
+CREATE TABLE "auth_tokens"
+(
+    "id"           UUID PRIMARY KEY,
+    "user_id"      UUID         NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    "refresh_token" VARCHAR(255) NOT NULL UNIQUE,
+    "expiry_date"  TIMESTAMPTZ  NOT NULL,
+    "created_at"   TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE "accounts"

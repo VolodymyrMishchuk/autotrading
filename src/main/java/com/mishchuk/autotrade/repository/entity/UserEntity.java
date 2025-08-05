@@ -67,4 +67,7 @@ public class UserEntity {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TransactionEntity> transactions;
+
+    @Column(name = "token", unique = true)
+    private UUID token;
 }

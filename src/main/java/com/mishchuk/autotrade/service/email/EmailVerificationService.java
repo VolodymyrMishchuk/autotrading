@@ -5,4 +5,5 @@ import com.mishchuk.autotrade.repository.entity.UserEntity;
 public interface EmailVerificationService {
     void sendVerificationEmail(UserEntity user);
     boolean confirmToken(String token);
+    public void resendVerificationEmail(UserEntity user);
 }
