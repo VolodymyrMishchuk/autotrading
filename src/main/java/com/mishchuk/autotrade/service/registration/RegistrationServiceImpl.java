@@ -6,12 +6,12 @@ import com.mishchuk.autotrade.enums.UserRole;
 import com.mishchuk.autotrade.mapper.UserMapper;
 import com.mishchuk.autotrade.repository.UserRepository;
 import com.mishchuk.autotrade.repository.entity.UserEntity;
+import com.mishchuk.autotrade.service.account.AccountService;
 import com.mishchuk.autotrade.service.email.EmailVerificationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
@@ -24,6 +24,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final EmailVerificationService emailVerificationService;
+    private final AccountService accountService;
 
     @Override
     @Transactional
@@ -37,6 +38,8 @@ public class RegistrationServiceImpl implements RegistrationService {
         user.setCreatedAt(Instant.now());
 
         userRepository.save(user);
+
+        accountService.createAccountForNewUser(user.getId());
 
         emailVerificationService.sendVerificationEmail(user);
 

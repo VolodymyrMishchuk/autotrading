@@ -140,13 +140,6 @@ components:
           type: string
           enum: [ACTIVE, DEACTIVATED]
 
-    AccountCreate:
-      type: object
-      required: [token_MetaTradeAPI, person_id]
-      properties:
-        token_MetaTradeAPI: { type: string }
-        person_id: { type: string, format: uuid }
-
     AccountUpdate:
       type: object
       properties:
@@ -167,6 +160,14 @@ components:
           format: uuid
         token_meta_trade_api:
           type: string
+
+    AccountStatusUpdate:
+      type: object
+      required: [ status ]
+      properties:
+        status:
+          type: string
+          enum: [ PENDING, ACTIVE, INACTIVE, BLOCKED ]
 
     Source:
       type: object
@@ -470,6 +471,9 @@ paths:
       summary: Get all users
       security:
         - bearerAuth: []
+      x-roles:
+        - ROLE_ADMIN
+        - ROLE_SUPER_ADMIN
       responses:
         '200':
           description: List of users
@@ -551,21 +555,6 @@ paths:
                 items:
                   $ref: '#/components/schemas/Account'
 
-    post:
-      tags: [Accounts]
-      summary: Create new account
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AccountCreate'
-      responses:
-        '201':
-          description: Account created
-
   /accounts/{id}:
     get:
       tags: [Accounts]
@@ -643,6 +632,59 @@ paths:
                 $ref: '#/components/schemas/AccountCredentialsDto'
         '403':
           description: Forbidden
+        '404':
+          description: Account not found
+
+  /accounts/{id}/status:
+    patch:
+      tags: [ Accounts ]
+      summary: Change account status (ADMIN/SUPER_ADMIN only)
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountStatusUpdate'
+      responses:
+        '200':
+          description: Account status updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+
+  /accounts/by-token/{token}:
+    get:
+      tags: [ Accounts ]
+      summary: Get account by MetaTrade API token (admin only)
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Account found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
         '404':
           description: Account not found
 

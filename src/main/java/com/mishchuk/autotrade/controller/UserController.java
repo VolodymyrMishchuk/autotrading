@@ -24,7 +24,7 @@ public class UserController {
     private final UserMapper userMapper;
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER-ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
     public ResponseEntity<List<UserDetailDto>> getUsers() {
         List<User> users = userService.getAllUsers();
         List<UserDetailDto> dtos = users
@@ -35,7 +35,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER-ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
     public ResponseEntity<UserDetailDto> getUser(@PathVariable UUID id) {
         User user = userService.getUserById(id);
         return ResponseEntity.ok(userMapper.toUserDetailDto(user));
@@ -50,7 +50,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("#id == principal.id or hasRole('ADMIN') or hasRole('SUPER-ADMIN')")
+    @PreAuthorize("#id == principal.id or hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
     public ResponseEntity<UserDetailDto> updateUser(@PathVariable UUID id, @RequestBody @Valid UserUpdateDto dto) {
         User user = userService.getUserById(id);
         user.setFirstName(dto.getFirstName());
@@ -61,7 +61,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER-ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
     public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();

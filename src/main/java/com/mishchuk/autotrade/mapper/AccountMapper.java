@@ -1,8 +1,10 @@
 package com.mishchuk.autotrade.mapper;
 
 import com.mishchuk.autotrade.controller.dto.*;
+import com.mishchuk.autotrade.enums.Status;
 import com.mishchuk.autotrade.repository.entity.AccountEntity;
-
+import com.mishchuk.autotrade.repository.entity.UserEntity;
+import com.mishchuk.autotrade.service.model.Account;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -18,19 +20,39 @@ public class AccountMapper {
     private final TransactionMapper transactionMapper;
     private final CabinetMapper cabinetMapper;
 
-    public AccountEntity toAccountEntity(AccountCreateDto dto) {
+    public AccountEntity toAccountEntity(AccountCreateDto dto, UserEntity user) {
         return AccountEntity.builder()
                 .id(UUID.randomUUID())
                 .name(dto.getName())
                 .tokenMetaTradeAPI(dto.getTokenMetaTradeAPI())
+                .status(Status.PENDING)
+                .user(user)
                 .createdAt(Instant.now())
                 .build();
     }
 
+    public Account toAccount(AccountEntity entity) {
+        return Account.builder()
+                .id(entity.getId())
+                .name(entity.getName())
+                .status(entity.getStatus())
+                .balance(entity.getBalance())
+                .tokenMetaTradeAPI(entity.getTokenMetaTradeAPI())
+                .userId(entity.getUser().getId())
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
+                .build();
+    }
+
     public AccountEntity toAccountEntity(AccountUpdateDto dto, AccountEntity entity) {
-        entity.setName(dto.getName());
-        entity.setStatus(dto.getStatus());
-        entity.setTokenMetaTradeAPI(dto.getTokenMetaTradeAPI());
+        if (dto.getName() != null) entity.setName(dto.getName());
+        if (dto.getTokenMetaTradeAPI() != null) entity.setTokenMetaTradeAPI(dto.getTokenMetaTradeAPI());
+        entity.setUpdatedAt(Instant.now());
+        return entity;
+    }
+
+    public AccountEntity toAccountEntity(Status status, AccountEntity entity) {
+        entity.setStatus(status);
         entity.setUpdatedAt(Instant.now());
         return entity;
     }

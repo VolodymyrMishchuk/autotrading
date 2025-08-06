@@ -1,13 +1,18 @@
 package com.mishchuk.autotrade.service.account;
 
-import com.mishchuk.autotrade.service.model.Account;
+import com.mishchuk.autotrade.controller.dto.AccountDetailDto;
+import com.mishchuk.autotrade.controller.dto.AccountUpdateDto;
+import com.mishchuk.autotrade.enums.Status;
 import java.util.List;
+import java.util.UUID;
 
 public interface AccountService {
-    void createAccount(Account account);
-    Account updateAccount(String id, Account account);
-    Account getAccountById(String id);
-    Account getAccountByToken(String token);
-    List<Account> getAllAccounts();
-    void deleteAccount(String id);
+    AccountDetailDto createAccountForNewUser(UUID userId);
+    AccountDetailDto updateAccount(UUID id, AccountUpdateDto dto);
+    AccountDetailDto updateAccountStatus(UUID id, Status status);
+    AccountDetailDto getAccountById(UUID id);
+    AccountDetailDto getAccountByToken(String token);
+    List<AccountDetailDto> getAllAccountDtos();
+    List<AccountDetailDto> getAllAccounts();
+    void deleteAccount(UUID id);
 }
