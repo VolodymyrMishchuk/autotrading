@@ -13,6 +13,5 @@ public interface AccountService {
     AccountDetailDto getAccountById(UUID id);
     AccountDetailDto getAccountByToken(String token);
     List<AccountDetailDto> getAllAccountDtos();
-    List<AccountDetailDto> getAllAccounts();
     void deleteAccount(UUID id);
 }

@@ -774,6 +774,30 @@ paths:
         '204':
           description: Source deleted
 
+  /sources/by-token/{token}:
+    get:
+      tags: [ Sources ]
+      summary: Get source by MetaTrade token (ADMIN/ SUPER_ADMIN only)
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Source found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Source'
+        '404':
+          description: Source not found
+        '403':
+          description: Forbidden
+
   /transactions:
     get:
       tags: [Transactions]

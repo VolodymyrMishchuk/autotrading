@@ -105,14 +105,6 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<AccountDetailDto> getAllAccounts() {
-        return accountRepository.findAll()
-                .stream()
-                .map(accountMapper::toAccountDetailDto)
-                .toList();
-    }
-
-    @Override
     @Transactional
     public void deleteAccount(UUID id) {
         accountRepository.deleteById(id);

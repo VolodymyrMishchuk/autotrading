@@ -18,7 +18,7 @@ public class AccountController {
     private final AccountService accountService;
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN') or @accountSecurity.isAccountOwner(#id, principal.id)")
+    @PreAuthorize("@authHelper.isAccountOwner(#id, principal.username) or hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
     public ResponseEntity<AccountDetailDto> updateAccount(@PathVariable UUID id, @RequestBody AccountUpdateDto dto) {
         return ResponseEntity.ok(accountService.updateAccount(id, dto));
     }
@@ -32,7 +32,7 @@ public class AccountController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN') or @accountSecurity.isAccountOwner(#id, principal.id)")
+    @PreAuthorize("@authHelper.isAccountOwner(#id, principal.username) or hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
     public ResponseEntity<AccountDetailDto> getAccount(@PathVariable UUID id) {
         return ResponseEntity.ok(accountService.getAccountById(id));
     }
@@ -50,7 +50,7 @@ public class AccountController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN') or @accountSecurity.isAccountOwner(#id, principal.id)")
+    @PreAuthorize("@authHelper.isAccountOwner(#id, principal.username) or hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
     public ResponseEntity<Void> deleteAccount(@PathVariable UUID id) {
         accountService.deleteAccount(id);
         return ResponseEntity.noContent().build();

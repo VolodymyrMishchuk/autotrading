@@ -1,17 +1,18 @@
 package com.mishchuk.autotrade.service.source;
 
+import com.mishchuk.autotrade.controller.dto.SourceCreateDto;
+import com.mishchuk.autotrade.controller.dto.SourceDetailDto;
+import com.mishchuk.autotrade.controller.dto.SourceUpdateDto;
 import com.mishchuk.autotrade.exception.SourceNotFoundException;
 import com.mishchuk.autotrade.mapper.SourceMapper;
 import com.mishchuk.autotrade.repository.SourceRepository;
 import com.mishchuk.autotrade.repository.entity.SourceEntity;
-import com.mishchuk.autotrade.service.model.Source;
 import com.mishchuk.autotrade.enums.Status;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -23,88 +24,66 @@ public class SourceServiceImpl implements SourceService {
     private final SourceMapper sourceMapper;
 
     @Override
-    public void createSource(Source source) {
+    public SourceDetailDto createSource(SourceCreateDto dto) {
+        log.info("Creating new source: {}", dto.getName());
+        SourceEntity entity = SourceEntity.builder()
+                .id(UUID.randomUUID())
+                .name(dto.getName())
+                .platform(dto.getPlatform())
+                .status(Status.ACTIVE)
+                .token(dto.getToken())
+                .createdAt(Instant.now())
+                .build();
 
-        log.info("Creating new source");
-
-        source.setName(source.getName());
-        source.setPlatform(source.getPlatform());
-        source.setStatus(Status.ACTIVE);
-        source.setToken(source.getToken());
-        source.setCreatedAt(Instant.now());
-
-        sourceRepository.save(sourceMapper.toSourceEntity(source));
-
-        log.info("Source created: {}", source);
+        sourceRepository.save(entity);
+        log.info("Source created: {}", entity.getId());
+        return sourceMapper.toSourceDetailDto(entity);
     }
 
     @Override
-    public Source getSourceById(String id) {
-
-        Optional<SourceEntity> optionalSourceEntity =
-                sourceRepository.findById(UUID.fromString(id));
-
-        if (optionalSourceEntity.isPresent()) {
-            return  sourceMapper.toSource(optionalSourceEntity.get());
-        }
-
-        throw new SourceNotFoundException("Source with id " + id + " not found");
+    public SourceDetailDto getSourceById(UUID id) {
+        SourceEntity entity = sourceRepository.findById(id)
+                .orElseThrow(() -> new SourceNotFoundException("Source with id " + id + " not found"));
+        return sourceMapper.toSourceDetailDto(entity);
     }
 
     @Override
-    public Source getSourceByToken(String token) {
-        Optional<SourceEntity> optionalSourceEntity =
-                sourceRepository.findById(UUID.fromString(token));
-
-        if (optionalSourceEntity.isPresent()) {
-            return  sourceMapper.toSource(optionalSourceEntity.get());
-        }
-
-        throw new SourceNotFoundException("Source with token " + token + " not found");
+    public SourceDetailDto getSourceByToken(String token) {
+        SourceEntity entity = sourceRepository.findByToken(token)
+                .orElseThrow(() -> new SourceNotFoundException("Source with token " + token + " not found"));
+        return sourceMapper.toSourceDetailDto(entity);
     }
 
     @Override
-    public List<Source> getAllSources() {
-
-        return sourceRepository
-                .findAll()
+    public List<SourceDetailDto> getAllSources() {
+        return sourceRepository.findAll()
                 .stream()
-                .map(sourceMapper::toSource)
+                .map(sourceMapper::toSourceDetailDto)
                 .toList();
     }
 
     @Override
-    public void updateSource(Source source) {
+    public SourceDetailDto updateSource(UUID id, SourceUpdateDto dto) {
+        SourceEntity entity = sourceRepository.findById(id)
+                .orElseThrow(() -> new SourceNotFoundException("Source with id " + id + " not found"));
 
-        log.info("Updating user with id: {}", source.getId());
+        if (dto.getName() != null) entity.setName(dto.getName());
+        if (dto.getPlatform() != null) entity.setPlatform(dto.getPlatform());
+        if (dto.getStatus() != null) entity.setStatus(dto.getStatus());
+        if (dto.getToken() != null) entity.setToken(dto.getToken());
+        entity.setUpdatedAt(Instant.now());
 
-        Optional<SourceEntity> optionalSourceEntity =
-                sourceRepository.findById(UUID.fromString(String.valueOf(source.getId())));
+        sourceRepository.save(entity);
 
-        if (optionalSourceEntity.isPresent()) {
-            SourceEntity sourceEntity = optionalSourceEntity.get();
-
-            sourceEntity.setName(source.getName());
-            sourceEntity.setPlatform(source.getPlatform());
-            // думав добавити як окрему функцію зміну статусу
-            // (активувати/деактивувати), але чи є в тому сенс?
-            sourceEntity.setStatus(source.getStatus());
-            sourceEntity.setToken(source.getToken());
-            sourceEntity.setUpdatedAt(Instant.now());
-
-            sourceRepository.save(sourceEntity);
-
-            log.info("Updated user with id: {}", source.getId());
-        } else {
-            throw new SourceNotFoundException("Source with id " + source.getId() + " not found");
-        }
+        log.info("Updated source: {}", id);
+        return sourceMapper.toSourceDetailDto(entity);
     }
 
     @Override
-    public void deleteSource(String id) {
-
-        if (sourceRepository.existsById(UUID.fromString(id))) {
-            sourceRepository.deleteById(UUID.fromString(id));
+    public void deleteSource(UUID id) {
+        if (sourceRepository.existsById(id)) {
+            sourceRepository.deleteById(id);
+            log.info("Deleted source: {}", id);
         } else {
             throw new SourceNotFoundException("Source with id " + id + " not found");
         }

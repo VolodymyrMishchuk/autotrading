@@ -50,7 +50,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("#id == principal.id or hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
+    @PreAuthorize("@authHelper.isUserSelf(#id, principal.username) or hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
     public ResponseEntity<UserDetailDto> updateUser(@PathVariable UUID id, @RequestBody @Valid UserUpdateDto dto) {
         User user = userService.getUserById(id);
         user.setFirstName(dto.getFirstName());

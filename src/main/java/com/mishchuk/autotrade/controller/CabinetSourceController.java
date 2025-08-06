@@ -14,7 +14,7 @@ import java.util.UUID;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/cabinets/{cabinetId}/sources")
+@RequestMapping("/cabinets/{cabinetId}/sources")
 @RequiredArgsConstructor
 public class CabinetSourceController {
 
@@ -25,7 +25,7 @@ public class CabinetSourceController {
             @PathVariable UUID cabinetId,
             @PathVariable UUID sourceId
     ) {
-        log.info("POST /api/cabinets/{}/sources/{} - add source", cabinetId, sourceId);
+        log.info("POST /cabinets/{}/sources/{} - add source", cabinetId, sourceId);
         CabinetSourceDto result = cabinetSourceService.addSourceToCabinet(cabinetId, sourceId);
         return ResponseEntity.ok(result);
     }
@@ -36,7 +36,7 @@ public class CabinetSourceController {
             @PathVariable UUID sourceId,
             @Valid @RequestBody CabinetSourceStatusUpdateDto dto
     ) {
-        log.info("PATCH /api/cabinets/{}/sources/{} - update status", cabinetId, sourceId);
+        log.info("PATCH /cabinets/{}/sources/{} - update status", cabinetId, sourceId);
         CabinetSourceDto updated = cabinetSourceService.updateSourceStatus(cabinetId, sourceId, dto);
         return ResponseEntity.ok(updated);
     }
@@ -46,7 +46,7 @@ public class CabinetSourceController {
             @PathVariable UUID cabinetId,
             @PathVariable UUID sourceId
     ) {
-        log.info("DELETE /api/cabinets/{}/sources/{} - remove source", cabinetId, sourceId);
+        log.info("DELETE /cabinets/{}/sources/{} - remove source", cabinetId, sourceId);
         cabinetSourceService.removeSourceFromCabinet(cabinetId, sourceId);
         return ResponseEntity.noContent().build();
     }
@@ -55,7 +55,7 @@ public class CabinetSourceController {
     public ResponseEntity<List<CabinetSourceDto>> getSources(
             @PathVariable UUID cabinetId
     ) {
-        log.info("GET /api/cabinets/{}/sources - fetch all", cabinetId);
+        log.info("GET /cabinets/{}/sources - fetch all", cabinetId);
         List<CabinetSourceDto> sources = cabinetSourceService.getSourcesByCabinet(cabinetId);
         return ResponseEntity.ok(sources);
     }
