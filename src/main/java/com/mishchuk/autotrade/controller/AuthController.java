@@ -33,7 +33,7 @@ public class AuthController {
     private final UserRepository userRepository;
     private final EmailVerificationService emailVerificationService;
 
-    @Value("${frontend.base-url}")
+    @Value("${spring.frontend.base-url}")
     private String frontendBaseUrl;
 
     @PostMapping("/signup")

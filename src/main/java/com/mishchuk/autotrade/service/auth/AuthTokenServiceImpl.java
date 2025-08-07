@@ -17,9 +17,9 @@ import java.util.Date;
 public class AuthTokenServiceImpl implements AuthTokenService {
 
     private static final String CLAIM_ROLE = "role";
-    @Value("${jwt.secret}")
+    @Value("${spring.jwt.secret}")
     private String jwtSecret;
-    @Value("${jwt.ttl-millis}")
+    @Value("${spring.jwt.ttl-millis}")
     private Long jwtTtlMillis;
 
     @Override

@@ -30,7 +30,7 @@ public class UserServiceImpl implements UserService {
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
 
-    @Value("${frontend.base-url}")
+    @Value("${spring.frontend.base-url}")
     private String frontendBaseUrl;
 
     @Override

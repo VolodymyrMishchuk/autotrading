@@ -22,10 +22,10 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
     private final UserRepository userRepository;
     private final EmailService emailService;
 
-    @Value("${app.email.verification.expiry-minutes:60}")
+    @Value("${spring.email.verification.expiry-minutes:60}")
     private long tokenExpiryMinutes;
 
-    @Value("${app.email.verification.base-url}")
+    @Value("${spring.email.verification.base-url}")
     private String baseVerificationUrl;
 
     @Override

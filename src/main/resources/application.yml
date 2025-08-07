@@ -29,3 +29,8 @@ spring:
 
   frontend:
     base-url: ${FRONTEND_BASE_URL:http://localhost:3000/}
+
+  email:
+    verification:
+      expiry-minutes: 60
+      base-url: ${FRONTEND_BASE_URL:http://localhost:3000/}
