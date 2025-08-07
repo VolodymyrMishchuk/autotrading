@@ -91,9 +91,33 @@ public class TransactionMapper {
                 .build();
     }
 
+    public TransactionDetailDto toTransactionDetailDto(TransactionEntity entity) {
+        return toTransactionDetailDto(toTransaction(entity));
+    }
+    /*
+    логіка мапінгу з TransactionEntity до TransactionDetailDto вже реалізована через проміжний обʼєкт Transaction
+    public TransactionDetailDto toTransactionDetailDto(TransactionEntity entity) {
+        return TransactionDetailDto.builder()
+                .id(entity.getId())
+                .symbol(entity.getSymbol())
+                .amount(entity.getAmount())
+                .direction(entity.getDirection())
+                .openedAt(entity.getOpenedAt())
+                .closedAt(entity.getClosedAt())
+                .balanceAfter(entity.getBalanceAfter())
+                .isProfitable(entity.getIsProfitable())
+                .userId(entity.getUser().getId())
+                .accountId(entity.getAccount().getId())
+                .cabinetId(entity.getCabinet().getId())
+                .sourceId(entity.getSource().getId())
+                .createdAt(entity.getCreatedAt())
+                .build();
+    }
+    */
+
+
     public List<TransactionDetailDto> toDtoList(List<TransactionEntity> entities) {
         return entities.stream()
-                .map(this::toTransaction)
                 .map(this::toTransactionDetailDto)
                 .collect(Collectors.toList());
     }

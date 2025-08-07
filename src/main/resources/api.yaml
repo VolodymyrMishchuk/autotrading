@@ -799,26 +799,14 @@ paths:
           description: Forbidden
 
   /transactions:
-    get:
-      tags: [Transactions]
-      summary: Get all transactions
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: List of transactions
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Transaction'
-
     post:
       tags: [Transactions]
       summary: Create transaction
       security:
         - bearerAuth: []
+      x-roles:
+        - ROLE_CUSTOMER  # власник
+        - ROLE_SUPER_ADMIN
       requestBody:
         required: true
         content:
@@ -828,6 +816,32 @@ paths:
       responses:
         '201':
           description: Transaction created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '403':
+          description: Forbidden
+
+    get:
+      tags: [Transactions]
+      summary: Get all transactions
+      security:
+        - bearerAuth: []
+      x-roles:
+        - ROLE_ADMIN
+        - ROLE_SUPER_ADMIN
+      responses:
+        '200':
+          description: List of transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transaction'
+        '403':
+          description: Forbidden
 
   /transactions/{id}:
     get:
@@ -840,6 +854,10 @@ paths:
           in: path
           required: true
           schema: { type: string, format: uuid }
+      x-roles:
+        - ROLE_CUSTOMER
+        - ROLE_ADMIN
+        - ROLE_SUPER_ADMIN
       responses:
         '200':
           description: Transaction found
@@ -849,6 +867,35 @@ paths:
                 $ref: '#/components/schemas/Transaction'
         '404':
           description: Transaction not found
+        '403':
+          description: Forbidden
+
+  /transactions/by-token/{token}:
+    get:
+      tags: [Transactions]
+      summary: Get transaction by token
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+      x-roles:
+        - ROLE_ADMIN
+        - ROLE_SUPER_ADMIN
+      responses:
+        '200':
+          description: Transaction found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '404':
+          description: Transaction not found
+        '403':
+          description: Forbidden
 
   /cabinets:
     post:

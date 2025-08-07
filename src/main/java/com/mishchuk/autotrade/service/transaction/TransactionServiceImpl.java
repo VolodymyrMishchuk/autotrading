@@ -1,5 +1,7 @@
 package com.mishchuk.autotrade.service.transaction;
 
+import com.mishchuk.autotrade.controller.dto.TransactionCreateDto;
+import com.mishchuk.autotrade.controller.dto.TransactionDetailDto;
 import com.mishchuk.autotrade.exception.*;
 import com.mishchuk.autotrade.mapper.TransactionMapper;
 import com.mishchuk.autotrade.repository.*;
@@ -8,10 +10,9 @@ import com.mishchuk.autotrade.service.model.Transaction;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -25,65 +26,88 @@ public class TransactionServiceImpl implements TransactionService {
     private final CabinetRepository cabinetRepository;
     private final SourceRepository sourceRepository;
 
-    public void createTransaction(Transaction transaction) {
+    @Override
+    public TransactionDetailDto createTransaction(TransactionCreateDto dto) {
         log.info("Creating new transaction");
 
-        UserEntity user = userRepository.findById(transaction.getUserId())
-                .orElseThrow(() -> new UserNotFoundException("User with id " + transaction.getUserId() + " not found"));
+        UserEntity user = userRepository.findById(dto.getUserId())
+                .orElseThrow(() -> new UserNotFoundException("User with id " + dto.getUserId() + " not found"));
 
-        AccountEntity account = accountRepository.findById(transaction.getAccountId())
-                .orElseThrow(() -> new AccountNotFoundException("Account with id " + transaction.getAccountId() + " not found"));
+        AccountEntity account = accountRepository.findById(dto.getAccountId())
+                .orElseThrow(() -> new AccountNotFoundException("Account with id " + dto.getAccountId() + " not found"));
 
-        CabinetEntity cabinet = cabinetRepository.findById(transaction.getCabinetId())
-                .orElseThrow(() -> new CabinetNotFoundException("Cabinet with id " + transaction.getCabinetId() + " not found"));
+        CabinetEntity cabinet = cabinetRepository.findById(dto.getCabinetId())
+                .orElseThrow(() -> new CabinetNotFoundException("Cabinet with id " + dto.getCabinetId() + " not found"));
 
-        SourceEntity source = sourceRepository.findById(transaction.getSourceId())
-                .orElseThrow(() -> new SourceNotFoundException("Source with id " + transaction.getSourceId() + " not found"));
+        SourceEntity source = sourceRepository.findById(dto.getSourceId())
+                .orElseThrow(() -> new SourceNotFoundException("Source with id " + dto.getSourceId() + " not found"));
 
-        transaction.setCreatedAt(Instant.now());
+        Transaction tx = transactionMapper.toTransaction(dto);
 
         TransactionEntity entity = transactionMapper.toTransactionEntity(
-                transaction, user, account, cabinet, source
+                tx, user, account, cabinet, source
         );
 
         transactionRepository.save(entity);
 
-        log.info("Transaction created successfully: {}", transaction);
+        log.info("Transaction created successfully: {}", entity);
+
+        return transactionMapper.toTransactionDetailDto(entity);
     }
 
     @Override
-    public Transaction getTransactionById(String id) {
+    public TransactionDetailDto getTransactionById(UUID id) {
 
-        Optional<TransactionEntity> optionalTransactionEntity =
-                transactionRepository.findById(UUID.fromString(id));
-
-        if (optionalTransactionEntity.isPresent()) {
-            return  transactionMapper.toTransaction(optionalTransactionEntity.get());
-        }
-
-        throw new TransactionNotFoundException("Transaction with id " + id + " not found");
+        return transactionRepository.findById(id)
+                .map(transactionMapper::toTransactionDetailDto)
+                .orElseThrow(() -> new TransactionNotFoundException("Transaction with id " + id + " not found"));
     }
 
     @Override
-    public Transaction getTransactionByToken(String token) {
+    public TransactionDetailDto getTransactionByToken(String token) {
 
-        Optional<TransactionEntity> optionalTransactionEntity =
-                transactionRepository.findByToken(UUID.fromString(token));
-
-        if (optionalTransactionEntity.isPresent()) {
-            return  transactionMapper.toTransaction(optionalTransactionEntity.get());
-        }
-
-        throw new TransactionNotFoundException("Transaction with token " + token + " not found");
+        return transactionRepository.findByToken(UUID.fromString(token))
+                .map(transactionMapper::toTransactionDetailDto)
+                .orElseThrow(() -> new TransactionNotFoundException("Transaction with token " + token + " not found"));
     }
 
     @Override
-    public List<Transaction> getAllTransactions() {
+    public List<TransactionDetailDto> getTransactionsByUser(UUID userId) {
 
-        return transactionRepository
-                .findAll()
-                .stream()
-                .map(transactionMapper::toTransaction)
-                .toList();
+        return transactionRepository.findAllByUser_Id(userId).stream()
+                .map(transactionMapper::toTransactionDetailDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TransactionDetailDto> getTransactionsByCabinet(UUID cabinetId) {
+
+        return transactionRepository.findAllByCabinet_Id(cabinetId).stream()
+                .map(transactionMapper::toTransactionDetailDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TransactionDetailDto> getTransactionsBySource(UUID sourceId) {
+
+        return transactionRepository.findAllBySource_Id(sourceId).stream()
+                .map(transactionMapper::toTransactionDetailDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TransactionDetailDto> getTransactionsByCabinetAndSource(UUID cabinetId, UUID sourceId) {
+
+        return transactionRepository.findAllByCabinet_IdAndSource_Id(cabinetId, sourceId).stream()
+                .map(transactionMapper::toTransactionDetailDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TransactionDetailDto> getAllTransactions() {
+
+        return transactionRepository.findAll().stream()
+                .map(transactionMapper::toTransactionDetailDto)
+                .collect(Collectors.toList());
     }
 }
