@@ -870,33 +870,6 @@ paths:
         '403':
           description: Forbidden
 
-  /transactions/by-token/{token}:
-    get:
-      tags: [Transactions]
-      summary: Get transaction by token
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: token
-          in: path
-          required: true
-          schema:
-            type: string
-      x-roles:
-        - ROLE_ADMIN
-        - ROLE_SUPER_ADMIN
-      responses:
-        '200':
-          description: Transaction found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Transaction'
-        '404':
-          description: Transaction not found
-        '403':
-          description: Forbidden
-
   /cabinets:
     post:
       tags: [Cabinets]

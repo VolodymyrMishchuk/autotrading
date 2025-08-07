@@ -36,12 +36,6 @@ public class TransactionController {
         return ResponseEntity.ok(transactionService.getTransactionsByUser(userId));
     }
 
-    @GetMapping("/by-token/{token}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
-    public ResponseEntity<TransactionDetailDto> getTransactionByToken(@PathVariable String token) {
-        return ResponseEntity.ok(transactionService.getTransactionByToken(token));
-    }
-
     @GetMapping("/by-cabinet/{cabinetId}")
     @PreAuthorize("@authHelper.isCabinetOwner(#cabinetId, principal.username) or hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
     public ResponseEntity<List<TransactionDetailDto>> getTransactionsByCabinet(@PathVariable UUID cabinetId) {

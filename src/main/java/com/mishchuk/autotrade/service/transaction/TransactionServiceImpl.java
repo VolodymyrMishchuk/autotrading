@@ -64,14 +64,6 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public TransactionDetailDto getTransactionByToken(String token) {
-
-        return transactionRepository.findByToken(UUID.fromString(token))
-                .map(transactionMapper::toTransactionDetailDto)
-                .orElseThrow(() -> new TransactionNotFoundException("Transaction with token " + token + " not found"));
-    }
-
-    @Override
     public List<TransactionDetailDto> getTransactionsByUser(UUID userId) {
 
         return transactionRepository.findAllByUser_Id(userId).stream()

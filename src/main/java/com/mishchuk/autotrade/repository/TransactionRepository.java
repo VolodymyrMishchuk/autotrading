@@ -11,7 +11,6 @@ import java.util.UUID;
 @Repository
 public interface TransactionRepository extends JpaRepository<TransactionEntity, UUID> {
 
-    Optional<TransactionEntity> findByToken(UUID token);
     List<TransactionEntity> findAllByUser_Id(UUID userId);
     List<TransactionEntity> findAllByCabinet_Id(UUID cabinetId);
     List<TransactionEntity> findAllBySource_Id(UUID sourceId);

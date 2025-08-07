@@ -8,7 +8,6 @@ import java.util.UUID;
 public interface TransactionService {
     TransactionDetailDto createTransaction(TransactionCreateDto dto);
     TransactionDetailDto getTransactionById(UUID id);
-    TransactionDetailDto getTransactionByToken(String token);
     List<TransactionDetailDto> getTransactionsByUser(UUID userId);
     List<TransactionDetailDto> getTransactionsByCabinet(UUID cabinetId);
     List<TransactionDetailDto> getTransactionsBySource(UUID sourceId);
