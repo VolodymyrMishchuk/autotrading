@@ -13,7 +13,7 @@ CREATE TABLE "users"
     "password"     VARCHAR(255),
     "role"         VARCHAR(15)  NOT NULL,
     "status"       VARCHAR(10)  NOT NULL,
-    "token"        UUID,                      -- додали поле!
+    "token"        UUID,
     "created_at"   TIMESTAMPTZ  NOT NULL,
     "updated_at"   TIMESTAMPTZ
 );

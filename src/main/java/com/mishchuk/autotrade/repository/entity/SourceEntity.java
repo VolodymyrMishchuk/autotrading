@@ -38,4 +38,8 @@ public class SourceEntity {
 
     @Column(name = "updated_at")
     private Instant updatedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "account_id", nullable = false)
+    private AccountEntity account;
 }

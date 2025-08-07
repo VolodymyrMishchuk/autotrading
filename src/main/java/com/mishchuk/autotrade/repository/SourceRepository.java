@@ -10,7 +10,7 @@ import java.util.UUID;
 @Repository
 public interface SourceRepository extends JpaRepository<SourceEntity, UUID> {
 
-    List<SourceEntity> findByAccountId(UUID accountId);
+    List<SourceEntity> findByAccount_Id(UUID accountId);
     Optional<SourceEntity> findByToken(String token);
 
 
