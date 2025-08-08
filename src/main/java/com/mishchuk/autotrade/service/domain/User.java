@@ -29,9 +29,9 @@ public class User {
     private String phoneNumber;
     private String email;
     private String password;
-    private String role;
-    private String status;
-    private Boolean emailConfirmed = false;
+    private Role role;
+    private Status status;
+    private String token;
 
     @CreationTimestamp
     @Column(updatable = false)

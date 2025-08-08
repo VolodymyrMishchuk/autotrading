@@ -1,8 +1,10 @@
 package com.mishchuk.autotrade.mapper;
 
 import com.mishchuk.autotrade.controller.dto.*;
-import com.mishchuk.autotrade.service.domain.User;
+import com.mishchuk.autotrade.service.domain.*;
 import com.mishchuk.autotrade.repository.entity.UserEntity;
+import com.mishchuk.autotrade.service.domain.Role;
+import com.mishchuk.autotrade.controller.dto.Role;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
@@ -20,8 +22,8 @@ public class UserMapper {
                 .birthDate(user.getBirthDate())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
-                .role(Role.valueOf(user.getRole()))
-                .status(Status.valueOf(user.getStatus()))
+                .role(user.getRole())
+                .status(user.getStatus())
                 .build();
     }
 
@@ -44,8 +46,8 @@ public class UserMapper {
                 .phoneNumber(dto.getPhoneNumber())
                 .email(dto.getEmail())
                 .password(dto.getPassword())
-                .role(String.valueOf(dto.getRole()))
-                .status(String.valueOf(dto.getStatus()))
+                .role(dto.getRole())
+                .status(dto.getStatus())
                 .build();
     }
 
@@ -64,7 +66,7 @@ public class UserMapper {
                 .birthDate(entity.getBirthDay())
                 .phoneNumber(entity.getPhoneNumber())
                 .email(entity.getEmail())
-                .role(String.valueOf(entity.getRole()))
+                .role(entity.getRole())
                 .status(String.valueOf(entity.getStatus()))
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())

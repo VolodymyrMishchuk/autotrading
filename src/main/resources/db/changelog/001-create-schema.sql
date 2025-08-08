@@ -12,6 +12,7 @@ CREATE TABLE "users" (
     "password" VARCHAR(255),
     "role" VARCHAR(15) NOT NULL,
     "status" VARCHAR(10) NOT NULL,
+    "token" VARCHAR(255) NOT NULL UNIQUE,
     "created_at" TIMESTAMPTZ NOT NULL,
     "updated_at" TIMESTAMPTZ
 );
@@ -20,12 +21,12 @@ CREATE TABLE "accounts" (
     "id" UUID PRIMARY KEY,
     "number" BIGINT NOT NULL UNIQUE,
     "status" VARCHAR(10) NOT NULL,
-    "balance" MONEY NOT NULL NOT NULL DEFAULT 0::money CHECK (balance >= 0::money),
+    "balance" MONEY NOT NULL DEFAULT 0::money CHECK (balance >= 0::money),
     "currency" CHAR(3) NOT NULL,
     "token_MetaTradeAPI" TEXT NOT NULL,
     "created_at" TIMESTAMPTZ NOT NULL,
     "updated_at" TIMESTAMPTZ,
-    "user_id" UUID NOT NULL REFERENCES Persons(id)
+    "user_id" UUID NOT NULL REFERENCES users(id)
 );
 
 CREATE TABLE "sources" (
@@ -43,6 +44,6 @@ CREATE TABLE "transactions" (
     "amount" MONEY NOT NULL DEFAULT 0::money CHECK (amount >= 0::money),
     "direction" VARCHAR(15) NOT NULL,
     "created_at" TIMESTAMPTZ NOT NULL,
-    "account_id" UUID NOT NULL REFERENCES Accounts(id),
-    "source_id" UUID NOT NULL REFERENCES Sources(id)
+    "account_id" UUID NOT NULL REFERENCES accounts(id),
+    "source_id" UUID NOT NULL REFERENCES sources(id)
 );
