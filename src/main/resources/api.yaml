@@ -666,28 +666,6 @@ paths:
         '404':
           description: Not found
 
-  /accounts/by-token/{token}:
-    get:
-      tags: [ Accounts ]
-      summary: Get account by MetaTrade API token (admin only)
-      security:
-        - bearerAuth: [ ]
-      parameters:
-        - name: token
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Account found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Account'
-        '404':
-          description: Account not found
-
   /sources:
     get:
       tags: [Sources]

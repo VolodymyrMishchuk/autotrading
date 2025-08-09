@@ -27,7 +27,6 @@ public class SourceServiceImpl implements SourceService {
     public SourceDetailDto createSource(SourceCreateDto dto) {
         log.info("Creating new source: {}", dto.getName());
         SourceEntity entity = SourceEntity.builder()
-                .id(UUID.randomUUID())
                 .name(dto.getName())
                 .platform(dto.getPlatform())
                 .status(Status.ACTIVE)

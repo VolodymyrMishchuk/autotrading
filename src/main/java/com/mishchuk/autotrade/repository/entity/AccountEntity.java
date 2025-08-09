@@ -34,9 +34,6 @@ public class AccountEntity {
     @Column(name = "balance", nullable = false)
     private BigDecimal balance;
 
-    @Column(name = "token_MetaTradeAPI", nullable = false)
-    private String tokenMetaTradeAPI;
-
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 

@@ -31,7 +31,6 @@ public class RegistrationServiceImpl implements RegistrationService {
     public UUID register(UserCreateDto dto) {
         UserEntity user = userMapper.toUserEntity(dto);
 
-        user.setId(UUID.randomUUID());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setRole(UserRole.ROLE_USER);
         user.setStatus(Status.PENDING);

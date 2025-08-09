@@ -34,3 +34,8 @@ spring:
     verification:
       expiry-minutes: 60
       base-url: ${FRONTEND_BASE_URL:http://localhost:3000/}
+
+  logging:
+    level:
+      com.mishchuk.autotrade.config.TokenAuthFilter: DEBUG
+      org.springframework.security: INFO

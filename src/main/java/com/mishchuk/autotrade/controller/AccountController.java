@@ -37,12 +37,6 @@ public class AccountController {
         return ResponseEntity.ok(accountService.getAccountById(id));
     }
 
-    @GetMapping("/by-token/{token}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
-    public ResponseEntity<AccountDetailDto> getAccountByToken(@PathVariable String token) {
-        return ResponseEntity.ok(accountService.getAccountByToken(token));
-    }
-
     @GetMapping
     @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
     public ResponseEntity<List<AccountDetailDto>> getAllAccounts() {

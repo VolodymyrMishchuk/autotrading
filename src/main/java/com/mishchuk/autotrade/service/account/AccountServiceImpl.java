@@ -34,7 +34,6 @@ public class AccountServiceImpl implements AccountService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         AccountEntity account = AccountEntity.builder()
-                .id(UUID.randomUUID())
                 .name("Account for " + user.getEmail())
                 .user(user)
                 .status(Status.PENDING)
@@ -80,20 +79,6 @@ public class AccountServiceImpl implements AccountService {
         AccountEntity account = accountRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Account not found"));
         return accountMapper.toAccountDetailDto(account);
-    }
-
-    @Override
-    public AccountDetailDto getAccountByToken(String token) {
-        var entityOpt = accountRepository.findAll()
-                .stream()
-                .filter(a -> token.equals(a.getTokenMetaTradeAPI()))
-                .findFirst();
-
-        if (entityOpt.isEmpty()) {
-            throw new EntityNotFoundException("Account not found for token: " + token);
-        }
-
-        return accountMapper.toAccountDetailDto(entityOpt.get());
     }
 
     @Override

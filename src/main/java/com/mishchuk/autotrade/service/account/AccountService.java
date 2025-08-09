@@ -11,7 +11,6 @@ public interface AccountService {
     AccountDetailDto updateAccount(UUID id, AccountUpdateDto dto);
     AccountDetailDto updateAccountStatus(UUID id, Status status);
     AccountDetailDto getAccountById(UUID id);
-    AccountDetailDto getAccountByToken(String token);
     List<AccountDetailDto> getAllAccountDtos();
     void deleteAccount(UUID id);
 }

@@ -6,3 +6,11 @@ databaseChangeLog:
   - include:
       file: 002-add-accountid-to-sources.sql
       relativeToChangelogFile: true
+
+  - include:
+      file: 003-fix-token-meta-column.sql
+      relativeToChangelogFile: true
+
+  - include:
+      file: 004-drop-token-from-accounts.sql
+      relativeToChangelogFile: true

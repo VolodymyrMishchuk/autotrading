@@ -24,7 +24,6 @@ public class AccountMapper {
         return AccountEntity.builder()
                 .id(UUID.randomUUID())
                 .name(dto.getName())
-                .tokenMetaTradeAPI(dto.getTokenMetaTradeAPI())
                 .status(Status.PENDING)
                 .user(user)
                 .createdAt(Instant.now())
@@ -37,7 +36,6 @@ public class AccountMapper {
                 .name(entity.getName())
                 .status(entity.getStatus())
                 .balance(entity.getBalance())
-                .tokenMetaTradeAPI(entity.getTokenMetaTradeAPI())
                 .userId(entity.getUser().getId())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
@@ -46,7 +44,6 @@ public class AccountMapper {
 
     public AccountEntity toAccountEntity(AccountUpdateDto dto, AccountEntity entity) {
         if (dto.getName() != null) entity.setName(dto.getName());
-        if (dto.getTokenMetaTradeAPI() != null) entity.setTokenMetaTradeAPI(dto.getTokenMetaTradeAPI());
         entity.setUpdatedAt(Instant.now());
         return entity;
     }
