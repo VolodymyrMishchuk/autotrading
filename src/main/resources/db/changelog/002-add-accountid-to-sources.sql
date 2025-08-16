@@ -4,3 +4,5 @@
 
 ALTER TABLE "sources"
     ADD COLUMN "account_id" UUID NOT NULL REFERENCES accounts (id) ON DELETE CASCADE;
+
+--rollback ALTER TABLE "sources" DROP COLUMN IF EXISTS "account_id";
