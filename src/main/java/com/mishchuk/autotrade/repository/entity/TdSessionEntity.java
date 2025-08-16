@@ -24,17 +24,17 @@ public class TdSessionEntity {
     private String name;
 
     @Column(name = "api_id", nullable = false)
-    private Integer apiId; // Telegram app id (int)
+    private Integer apiId;
 
     @Column(name = "api_hash", nullable = false)
-    private String apiHash; // зберігай безпечно (secret manager/шифрування)
+    private String apiHash;
 
     @Column(name = "db_dir", nullable = false, unique = true)
-    private String dbDir; // каталог TDLib для цієї сесії
+    private String dbDir;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Status status; // ACTIVE / INACTIVE
+    private Status status;
 
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
