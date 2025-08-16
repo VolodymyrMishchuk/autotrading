@@ -3,7 +3,6 @@ package com.mishchuk.autotrade.service.account;
 import com.mishchuk.autotrade.controller.dto.AccountDetailDto;
 import com.mishchuk.autotrade.controller.dto.AccountUpdateDto;
 import com.mishchuk.autotrade.enums.Status;
-import com.mishchuk.autotrade.exception.EntityNotFoundException;
 import com.mishchuk.autotrade.mapper.AccountMapper;
 import com.mishchuk.autotrade.repository.AccountRepository;
 import com.mishchuk.autotrade.repository.UserRepository;
@@ -36,7 +35,7 @@ public class AccountServiceImpl implements AccountService {
         AccountEntity account = AccountEntity.builder()
                 .name("Account for " + user.getEmail())
                 .user(user)
-                .status(Status.PENDING)
+                .status(Status.ACTIVE)
                 .balance(BigDecimal.ZERO)
                 .createdAt(Instant.now())
                 .build();

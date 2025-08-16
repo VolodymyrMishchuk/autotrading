@@ -14,7 +14,7 @@ tags:
   - name: Auth
     description: Operations for sign up/in and registration flow
   - name: Users
-    description: Operations for managing users (ROLE_CUSTOMER/ROLE_ADMIN/ROLE_SUPER-ADMIN)
+    description: Operations for managing users (ROLE_CUSTOMER/ROLE_ADMIN/ROLE_SUPER_ADMIN)
   - name: Accounts
     description: Operations with user accounts
   - name: Sources

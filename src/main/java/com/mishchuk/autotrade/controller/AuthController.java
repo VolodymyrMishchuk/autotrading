@@ -2,6 +2,7 @@ package com.mishchuk.autotrade.controller;
 
 import com.mishchuk.autotrade.controller.dto.*;
 import com.mishchuk.autotrade.enums.Status;
+import com.mishchuk.autotrade.exception.UserIsBlockedException;
 import com.mishchuk.autotrade.mapper.UserMapper;
 import com.mishchuk.autotrade.repository.UserRepository;
 import com.mishchuk.autotrade.service.auth.AuthTokenManager;
@@ -79,19 +80,20 @@ public class AuthController {
 
     @PostMapping("/refresh")
     public ResponseEntity<AuthTokenResponseDto> refresh(@RequestBody RefreshTokenRequestDto dto) {
-        // 1. Перевіряємо refresh token (чи існує у БД, чи не expired)
+
         var tokenOpt = authTokenManager.findByToken(dto.getRefreshToken());
+
         if (tokenOpt.isEmpty() || tokenOpt.get().getExpiryDate().isBefore(Instant.now())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         var user = tokenOpt.get().getUser();
-        // 2. Створюємо нові access і refresh
+
         String newAccess = authTokenService.createAccessToken(userMapper.toUser(user));
         String newRefresh = authTokenService.createRefreshToken();
-        // 3. Видаляємо старий, зберігаємо новий refresh
+
         authTokenManager.deleteByToken(dto.getRefreshToken());
         authTokenManager.create(user, newRefresh);
-        // 4. Повертаємо access + refresh
+
         return ResponseEntity.ok(
                 AuthTokenResponseDto.builder()
                         .accessToken(newAccess)
@@ -110,7 +112,6 @@ public class AuthController {
     public ResponseEntity<?> resendVerification(@RequestBody ResendVerificationRequestDto dto) {
         var userOpt = userRepository.findByEmailIgnoreCase(dto.getEmail());
         if (userOpt.isEmpty()) {
-            // Навмисно повертаємо 200, щоб не підказувати наявність email у системі
             return ResponseEntity.ok().build();
         }
         var user = userOpt.get();

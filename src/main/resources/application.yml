@@ -28,12 +28,12 @@ spring:
     ttl-millis: ${JWT_TTL:43200000}
 
   frontend:
-    base-url: ${FRONTEND_BASE_URL:http://localhost:3000/}
+    base-url: ${FRONTEND_BASE_URL:http://localhost:3000}
 
   email:
     verification:
       expiry-minutes: 60
-      base-url: ${FRONTEND_BASE_URL:http://localhost:3000/}
+      base-url: ${BACKEND_CONFIRM_URL:http://localhost:8080/auth/confirm}
 
   logging:
     level:

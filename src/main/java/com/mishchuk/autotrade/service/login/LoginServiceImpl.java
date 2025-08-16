@@ -45,7 +45,7 @@ public class LoginServiceImpl implements LoginService {
 
         if (user.getStatus() != Status.ACTIVE) {
             log.warn("User with email {} is not activated", email);
-            throw new UserIsBlockedException("User account is not activated");
+            throw new UserIsBlockedException();
         }
 
         String accessToken = authTokenService.createAccessToken(user);
