@@ -14,3 +14,15 @@ databaseChangeLog:
   - include:
       file: 004-drop-token-from-accounts.sql
       relativeToChangelogFile: true
+
+  - include:
+      file: 005-create-td-session.sql
+      relativeToChangelogFile: true
+
+  - include:
+      file: 006-alter-sources-td.sql
+      relativeToChangelogFile: true
+
+  - include:
+      file: 007-sources-token-nullable.sql
+      relativeToChangelogFile: true
