@@ -1,18 +1,105 @@
+version: "3.9"
+
 services:
   db:
-    image: postgres
+    image: postgres:16-alpine
+    container_name: autotrade-db
     restart: always
-    shm_size: 128mb
-    ports:
-      - "5432:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres_password
       POSTGRES_DB: autotrade
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d autotrade"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    networks: [appnet]
 
   adminer:
-    image: adminer
+    image: adminer:4
+    container_name: adminer
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    restart: always
     ports:
       - "8082:8080"
+    networks: [appnet]
+
+  kafka:
+    image: bitnami/kafka:3.7
+    container_name: kafka
+    environment:
+      - KAFKA_ENABLE_KRAFT=yes
+      - KAFKA_CFG_NODE_ID=1
+      - KAFKA_CFG_PROCESS_ROLES=broker,controller
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
+      - KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+      - KAFKA_CFG_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1
+      - KAFKA_CFG_TRANSACTION_STATE_LOG_MIN_ISR=1
+    ports:
+      - "9092:9092"
+    volumes:
+      - kafka_data:/bitnami/kafka
+    healthcheck:
+      test: ["CMD", "bash", "-c", "kafka-topics.sh --bootstrap-server kafka:9092 --list >/dev/null 2>&1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    networks: [appnet]
+
+  telethon-ingest:
+    build: ./telethon-ingest
+    container_name: telethon-ingest
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      - LOG_LEVEL=INFO
+      - SESSIONS_DIR=/data/sessions
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - KAFKA_TOPIC=signals.raw
+      # для проду тут додамо SASL/TLS змінні
+    volumes:
+      - telethon_sessions:/data/sessions
+    ports:
+      - "8000:8000"
+    networks: [appnet]
+
+  # ==== (Опційно) Запуск Spring API в Docker ====
+  # api:
+  #   build: .
+  #   container_name: autotrade-api
+  #   depends_on:
+  #     kafka:
+  #       condition: service_healthy
+  #     db:
+  #       condition: service_healthy
+  #   environment:
+  #     - SPRING_PROFILES_ACTIVE=local
+  #     - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+  #     - APP_KAFKA_TOPIC=signals.raw
+  #     - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/autotrade
+  #     - SPRING_DATASOURCE_USERNAME=postgres
+  #     - SPRING_DATASOURCE_PASSWORD=postgres_password
+  #   ports:
+  #     - "8080:8080"
+  #   networks: [appnet]
+
+networks:
+  appnet:
+
+volumes:
+  pgdata:
+  kafka_data:
+  telethon_sessions:
