@@ -30,3 +30,7 @@ databaseChangeLog:
   - include:
       file: 008-drop-tdlib-session.sql
       relativeToChangelogFile: true
+
+  - include:
+      file: seed/dev-seed.yaml
+      relativeToChangelogFile: true

@@ -43,6 +43,9 @@ spring:
   frontend:
     base-url: ${FRONTEND_BASE_URL:http://localhost:3000}
 
+  liquibase:
+    contexts: dev-seed
+
 logging:
   level:
     com.mishchuk.autotrade.config.TokenAuthFilter: DEBUG
