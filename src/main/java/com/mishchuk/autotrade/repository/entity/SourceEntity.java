@@ -1,10 +1,11 @@
 package com.mishchuk.autotrade.repository.entity;
 
-
 import com.mishchuk.autotrade.enums.Status;
+import com.mishchuk.autotrade.config.JsonMapConverter;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.Instant;
+import java.util.Map;
 import java.util.UUID;
 
 @Builder
@@ -32,6 +33,13 @@ public class SourceEntity {
 
     @Column(nullable = false)
     private String token;
+
+    @Column(name = "chat_id")
+    private Long chatId;
+
+    @Convert(converter = JsonMapConverter.class)
+    @Column(name = "settings", columnDefinition = "jsonb")
+    private Map<String, Object> settings;
 
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;

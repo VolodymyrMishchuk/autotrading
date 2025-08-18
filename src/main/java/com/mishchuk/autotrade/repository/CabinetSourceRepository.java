@@ -12,7 +12,7 @@ public interface CabinetSourceRepository extends JpaRepository<CabinetSourceEnti
 
     List<CabinetSourceEntity> findByCabinetId(UUID cabinetId);
 
-    List<CabinetSourceEntity> findBySourceId(UUID sourceId);
+    List<CabinetSourceEntity> findAllBySourceId(UUID sourceId);
 
     Optional<CabinetSourceEntity> findByCabinetIdAndSourceId(UUID cabinetId, UUID sourceId);
 
