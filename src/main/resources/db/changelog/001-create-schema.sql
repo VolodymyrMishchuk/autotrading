@@ -97,3 +97,12 @@ CREATE TABLE "transactions"
     "source_id"     UUID           NOT NULL REFERENCES sources (id) ON DELETE CASCADE,
     "created_at"    TIMESTAMPTZ    NOT NULL DEFAULT NOW()
 );
+
+--rollback DROP TABLE IF EXISTS "transactions";
+--rollback DROP TABLE IF EXISTS "cabinet_sources";
+--rollback DROP TABLE IF EXISTS "cabinets";
+--rollback DROP TABLE IF EXISTS "sources";
+--rollback DROP TABLE IF EXISTS "accounts";
+--rollback DROP TABLE IF EXISTS "auth_tokens";
+--rollback DROP TABLE IF EXISTS "email_verification_tokens";
+--rollback DROP TABLE IF EXISTS "users";
