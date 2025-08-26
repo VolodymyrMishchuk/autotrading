@@ -32,5 +32,13 @@ databaseChangeLog:
       relativeToChangelogFile: true
 
   - include:
+      file: 009-alter-role-length.sql
+      relativeToChangelogFile: true
+
+  - include:
+      file: 010-add-account-type-to-accounts.sql
+      relativeToChangelogFile: true
+
+  - include:
       file: seed/dev-seed.yaml
       relativeToChangelogFile: true

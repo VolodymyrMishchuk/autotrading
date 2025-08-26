@@ -10,5 +10,4 @@ import lombok.Data;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class AccountUpdateDto {
     private final String name;
-    private final String tokenMetaTradeAPI;
 }

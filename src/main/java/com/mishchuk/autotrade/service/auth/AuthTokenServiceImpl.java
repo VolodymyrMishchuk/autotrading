@@ -16,6 +16,9 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class AuthTokenServiceImpl implements AuthTokenService {
 
+    private static final String CLAIM_EMAIL = "email";
+    private static final String CLAIM_FIRST_NAME = "first_name";
+    private static final String CLAIM_LAST_NAME = "last_name";
     private static final String CLAIM_ROLE = "role";
     @Value("${spring.jwt.secret}")
     private String jwtSecret;
@@ -26,12 +29,17 @@ public class AuthTokenServiceImpl implements AuthTokenService {
     public String createAccessToken(User user) {
         Date now = new Date();
         Date expiration = new Date(now.getTime() + jwtTtlMillis);
+
         Claims claims = Jwts.claims()
                 .issuedAt(now)
                 .expiration(expiration)
                 .subject(String.valueOf(user.getId()))
-                .add(CLAIM_ROLE, user.getRole().toString())
+                .add(CLAIM_ROLE, user.getRole().name())
+                .add(CLAIM_EMAIL, user.getEmail())
+                .add(CLAIM_FIRST_NAME, user.getFirstName())
+                .add(CLAIM_LAST_NAME, user.getLastName())
                 .build();
+
         return Jwts.builder()
                 .claims(claims)
                 .signWith(getSecretKey())

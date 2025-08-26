@@ -1,5 +1,5 @@
 databaseChangeLog:
-  # Увімкнути pgcrypto для bcrypt у Postgres
+  # 0) Ensure pgcrypto is enabled (for bcrypt via crypt())
   - changeSet:
       id: dev-seed-ext-pgcrypto
       author: dev
@@ -9,11 +9,12 @@ databaseChangeLog:
             sql: |
               CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
-  # USER (SUPER_ADMIN) з bcrypt паролем, який рахується на SQL боці
+  # 1) SUPER_ADMIN (як у твоєму прикладі)
   - changeSet:
       id: dev-seed-user-superadmin
       author: dev
       context: dev-seed
+      runOnChange: true
       changes:
         - sql:
             sql: |
@@ -26,16 +27,63 @@ databaseChangeLog:
                 'Test', 'Superadmin', '1990-01-01',
                 '+380000000000', 'admin@autotrade.local',
                 '{bcrypt}' || crypt('Admin123!', gen_salt('bf')),
-                'SUPER_ADMIN', 'ACTIVE', now(), now(),
+                'ROLE_SUPER_ADMIN', 'ACTIVE', now(), now(),
                 'aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa'
               )
               ON CONFLICT (id) DO NOTHING;
 
-  # ACCOUNT -> USER
+  # 2) ADMIN
   - changeSet:
-      id: dev-seed-account
+      id: dev-seed-user-admin
       author: dev
       context: dev-seed
+      runOnChange: true
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO users (
+                id, first_name, last_name, birth_day, phone_number, email,
+                password, role, status, created_at, updated_at, token
+              )
+              VALUES (
+                '11111111-1111-1111-1111-222222222222',
+                'Alice', 'Admin', '1991-02-02',
+                '+380000000001', 'admin2@autotrade.local',
+                '{bcrypt}' || crypt('Admin123!', gen_salt('bf')),
+                'ROLE_ADMIN', 'ACTIVE', now(), now(),
+                'bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbbbb'
+              )
+              ON CONFLICT (id) DO NOTHING;
+
+  # 3) USER (звичайний користувач)
+  - changeSet:
+      id: dev-seed-user-customer
+      author: dev
+      context: dev-seed
+      runOnChange: true
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO users (
+                id, first_name, last_name, birth_day, phone_number, email,
+                password, role, status, created_at, updated_at, token
+              )
+              VALUES (
+                '11111111-1111-1111-1111-333333333333',
+                'Bob', 'User', '1992-03-03',
+                '+380000000002', 'user@autotrade.local',
+                '{bcrypt}' || crypt('User123!', gen_salt('bf')),
+                'ROLE_USER', 'ACTIVE', now(), now(),
+                'cccccccc-cccc-4ccc-cccc-cccccccccccc'
+              )
+              ON CONFLICT (id) DO NOTHING;
+
+  # 4) ACCOUNT -> SUPER_ADMIN (як у тебе)
+  - changeSet:
+      id: dev-seed-account-sa
+      author: dev
+      context: dev-seed
+      runOnChange: true
       changes:
         - sql:
             sql: |
@@ -49,9 +97,62 @@ databaseChangeLog:
               )
               ON CONFLICT (id) DO NOTHING;
 
-  # CABINET -> USER, ACCOUNT
+  # 5) ACCOUNT -> ADMIN (простий стенд акаунт)
   - changeSet:
-      id: dev-seed-cabinet
+      id: dev-seed-account-admin
+      author: dev
+      context: dev-seed
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO accounts (
+                id, name, status, balance, created_at, updated_at, user_id
+              )
+              VALUES (
+                '22222222-2222-2222-2222-666666666666',
+                'Admin Account', 'ACTIVE', 50000.00, now(), now(),
+                '11111111-1111-1111-1111-222222222222'
+              )
+              ON CONFLICT (id) DO NOTHING;
+
+  # 6) ACCOUNTs -> USER (два акаунти, по одному на кабінет)
+  - changeSet:
+      id: dev-seed-account-user-1
+      author: dev
+      context: dev-seed
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO accounts (
+                id, name, status, balance, created_at, updated_at, user_id
+              )
+              VALUES (
+                '22222222-2222-2222-2222-333333333333',
+                'User Account A', 'ACTIVE', 12000.00, now(), now(),
+                '11111111-1111-1111-1111-333333333333'
+              )
+              ON CONFLICT (id) DO NOTHING;
+
+  - changeSet:
+      id: dev-seed-account-user-2
+      author: dev
+      context: dev-seed
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO accounts (
+                id, name, status, balance, created_at, updated_at, user_id
+              )
+              VALUES (
+                '22222222-2222-2222-2222-444444444444',
+                'User Account B', 'ACTIVE', 14000.00, now(), now(),
+                '11111111-1111-1111-1111-333333333333'
+              )
+              ON CONFLICT (id) DO NOTHING;
+
+  # 7) CABINET -> SUPER_ADMIN (як у тебе)
+  - changeSet:
+      id: dev-seed-cabinet-sa
       author: dev
       context: dev-seed
       changes:
@@ -68,9 +169,46 @@ databaseChangeLog:
               )
               ON CONFLICT (id) DO NOTHING;
 
-  # SOURCE -> ACCOUNT (id збігається з тим, що ти кидав у Kafka)
+  # 8) CABINETs -> USER (два кабінети)
   - changeSet:
-      id: dev-seed-source
+      id: dev-seed-cabinet-user-1
+      author: dev
+      context: dev-seed
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO cabinets (
+                id, name, meta_trade_token, status, created_at, updated_at, user_id, account_id
+              )
+              VALUES (
+                '33333333-3333-3333-3333-444444444444',
+                'User Cabinet A', 'user-mt-token-A', 'ACTIVE', now(), now(),
+                '11111111-1111-1111-1111-333333333333',
+                '22222222-2222-2222-2222-333333333333'
+              )
+              ON CONFLICT (id) DO NOTHING;
+
+  - changeSet:
+      id: dev-seed-cabinet-user-2
+      author: dev
+      context: dev-seed
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO cabinets (
+                id, name, meta_trade_token, status, created_at, updated_at, user_id, account_id
+              )
+              VALUES (
+                '33333333-3333-3333-3333-555555555555',
+                'User Cabinet B', 'user-mt-token-B', 'ACTIVE', now(), now(),
+                '11111111-1111-1111-1111-333333333333',
+                '22222222-2222-2222-2222-444444444444'
+              )
+              ON CONFLICT (id) DO NOTHING;
+
+  # 9) SOURCE -> SA account (як у тебе)
+  - changeSet:
+      id: dev-seed-source-sa
       author: dev
       context: dev-seed
       changes:
@@ -88,9 +226,26 @@ databaseChangeLog:
               )
               ON CONFLICT (id) DO NOTHING;
 
-  # LINK CABINET <-> SOURCE
+  # 10) 3 джерела для USER (привʼязані до Account A)
   - changeSet:
-      id: dev-seed-cabinet-source
+      id: dev-seed-source-user-1
+      author: dev
+      context: dev-seed
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO sources (
+                id, name, platform, status, token, chat_id, settings, created_at, updated_at, account_id
+              )
+              VALUES
+              ('55555555-1111-4111-8111-111111111111','TG Signals A','TELEGRAM','ACTIVE','user-src-token-1',100001,'{"tier":"basic"}'::jsonb,now(),now(),'22222222-2222-2222-2222-333333333333'),
+              ('55555555-2222-4222-8222-222222222222','Discord Alpha','DISCORD','ACTIVE','user-src-token-2',200002,'{"tier":"pro"}'::jsonb,now(),now(),'22222222-2222-2222-2222-333333333333'),
+              ('55555555-3333-4333-8333-333333333333','Webhook Bot','WEBHOOK','ACTIVE','user-src-token-3',NULL,'{"version":"1"}'::jsonb,now(),now(),'22222222-2222-2222-2222-333333333333')
+              ON CONFLICT (id) DO NOTHING;
+
+  # 11) Link SA cabinet <-> SA source (як у тебе)
+  - changeSet:
+      id: dev-seed-cabinet-source-sa
       author: dev
       context: dev-seed
       changes:
@@ -105,67 +260,105 @@ databaseChangeLog:
               )
               ON CONFLICT (id) DO NOTHING;
 
-  # EMAIL VERIFICATION TOKEN -> USER (помічений як підтверджений)
+  # 12) Link USER cabinets <-> three sources (по 3 посилання на кожен кабінет)
   - changeSet:
-      id: dev-seed-email-token
+      id: dev-seed-cabinet-source-user-A
       author: dev
       context: dev-seed
       changes:
         - sql:
             sql: |
-              INSERT INTO email_verification_tokens (
-                id, token, expires_at, confirmed_at, created_at, user_id
-              )
-              VALUES (
-                '66666666-6666-6666-6666-666666666666',
-                'verify-dev-token',
-                now() + interval '1 day',
-                now(), -- відразу підтверджений, щоб логін не блокувався
-                now(),
-                '11111111-1111-1111-1111-111111111111'
-              )
+              INSERT INTO cabinet_sources (id, cabinet_id, source_id, status) VALUES
+              ('44444444-aaaa-4aaa-8aaa-000000000001','33333333-3333-3333-3333-444444444444','55555555-1111-4111-8111-111111111111','ACTIVE'),
+              ('44444444-aaaa-4aaa-8aaa-000000000002','33333333-3333-3333-3333-444444444444','55555555-2222-4222-8222-222222222222','ACTIVE'),
+              ('44444444-aaaa-4aaa-8aaa-000000000003','33333333-3333-3333-3333-444444444444','55555555-3333-4333-8333-333333333333','ACTIVE')
               ON CONFLICT (id) DO NOTHING;
 
-  # AUTH REFRESH TOKEN -> USER
   - changeSet:
-      id: dev-seed-auth-token
+      id: dev-seed-cabinet-source-user-B
       author: dev
       context: dev-seed
       changes:
         - sql:
             sql: |
-              INSERT INTO auth_tokens (
-                id, user_id, refresh_token, expiry_date, created_at
-              )
-              VALUES (
-                '77777777-7777-7777-7777-777777777777',
-                '11111111-1111-1111-1111-111111111111',
-                'dev-refresh-token-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-                now() + interval '30 days',
-                now()
-              )
+              INSERT INTO cabinet_sources (id, cabinet_id, source_id, status) VALUES
+              ('44444444-bbbb-4bbb-8bbb-000000000001','33333333-3333-3333-3333-555555555555','55555555-1111-4111-8111-111111111111','ACTIVE'),
+              ('44444444-bbbb-4bbb-8bbb-000000000002','33333333-3333-3333-3333-555555555555','55555555-2222-4222-8222-222222222222','ACTIVE'),
+              ('44444444-bbbb-4bbb-8bbb-000000000003','33333333-3333-3333-3333-555555555555','55555555-3333-4333-8333-333333333333','ACTIVE')
               ON CONFLICT (id) DO NOTHING;
 
-  # SAMPLE TRANSACTION -> USER, ACCOUNT, CABINET, SOURCE
+  # 13) Email verification tokens (вже підтверджені) для всіх трьох
   - changeSet:
-      id: dev-seed-transaction
+      id: dev-seed-email-tokens
+      author: dev
+      context: dev-seed
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO email_verification_tokens (id, token, expires_at, confirmed_at, created_at, user_id) VALUES
+              ('66666666-6666-6666-6666-666666666666','verify-dev-token', now()+interval '1 day', now(), now(), '11111111-1111-1111-1111-111111111111'),
+              ('66666666-6666-6666-6666-777777777777','verify-admin-token', now()+interval '1 day', now(), now(), '11111111-1111-1111-1111-222222222222'),
+              ('66666666-6666-6666-6666-888888888888','verify-user-token',  now()+interval '1 day', now(), now(), '11111111-1111-1111-1111-333333333333')
+              ON CONFLICT (id) DO NOTHING;
+
+  # 14) Auth refresh tokens (демо)
+  - changeSet:
+      id: dev-seed-auth-tokens
+      author: dev
+      context: dev-seed
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO auth_tokens (id, user_id, refresh_token, expiry_date, created_at) VALUES
+              ('77777777-7777-7777-7777-777777777777','11111111-1111-1111-1111-111111111111','dev-refresh-token-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', now()+interval '30 days', now()),
+              ('77777777-7777-7777-7777-888888888888','11111111-1111-1111-1111-222222222222','dev-refresh-token-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', now()+interval '30 days', now()),
+              ('77777777-7777-7777-7777-999999999999','11111111-1111-1111-1111-333333333333','dev-refresh-token-cccccccccccccccccccccccccccccccc', now()+interval '30 days', now())
+              ON CONFLICT (id) DO NOTHING;
+
+  # 15) 5 транзакцій для кожного USER-кабінету (A та B) — всього 10.
+  #     Ціни й баланси умовні; source_id розподілено по колу.
+  - changeSet:
+      id: dev-seed-tx-user-cabinet-A
       author: dev
       context: dev-seed
       changes:
         - sql:
             sql: |
               INSERT INTO transactions (
-                id, symbol, amount, direction,
-                opened_at, closed_at, balance_after, is_profitable, created_at,
+                id, symbol, amount, direction, opened_at, closed_at, balance_after, is_profitable, created_at,
                 user_id, account_id, cabinet_id, source_id
-              )
-              VALUES (
-                '55555555-5555-5555-5555-555555555555',
-                'BTCUSDT', 1.0, 'BUY',
-                now(), NULL, 10000.00, NULL, now(),
-                '11111111-1111-1111-1111-111111111111',
-                '22222222-2222-2222-2222-222222222222',
-                '33333333-3333-3333-3333-333333333333',
-                'ace6bc1c-c94c-40c3-8146-c0bda8381863'
-              )
+              ) VALUES
+              ('55555555-aaaa-4aaa-8aaa-000000000001','BTCUSDT',0.10,'BUY',  now()-interval '9 min', NULL, 11950.00, NULL, now(),
+                '11111111-1111-1111-1111-333333333333','22222222-2222-2222-2222-333333333333','33333333-3333-3333-3333-444444444444','55555555-1111-4111-8111-111111111111'),
+              ('55555555-aaaa-4aaa-8aaa-000000000002','ETHUSDT',1.50,'SELL', now()-interval '8 min', NULL, 11980.00, NULL, now(),
+                '11111111-1111-1111-1111-333333333333','22222222-2222-2222-2222-333333333333','33333333-3333-3333-3333-444444444444','55555555-2222-4222-8222-222222222222'),
+              ('55555555-aaaa-4aaa-8aaa-000000000003','SOLUSDT',12.0,'BUY',  now()-interval '7 min', NULL, 12030.00, NULL, now(),
+                '11111111-1111-1111-1111-333333333333','22222222-2222-2222-2222-333333333333','33333333-3333-3333-3333-444444444444','55555555-3333-4333-8333-333333333333'),
+              ('55555555-aaaa-4aaa-8aaa-000000000004','BTCUSDT',0.05,'SELL', now()-interval '6 min', NULL, 12010.00, NULL, now(),
+                '11111111-1111-1111-1111-333333333333','22222222-2222-2222-2222-333333333333','33333333-3333-3333-3333-444444444444','55555555-1111-4111-8111-111111111111'),
+              ('55555555-aaaa-4aaa-8aaa-000000000005','ETHUSDT',0.80,'BUY',  now()-interval '5 min', NULL, 12050.00, NULL, now(),
+                '11111111-1111-1111-1111-333333333333','22222222-2222-2222-2222-333333333333','33333333-3333-3333-3333-444444444444','55555555-2222-4222-8222-222222222222')
+              ON CONFLICT (id) DO NOTHING;
+
+  - changeSet:
+      id: dev-seed-tx-user-cabinet-B
+      author: dev
+      context: dev-seed
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO transactions (
+                id, symbol, amount, direction, opened_at, closed_at, balance_after, is_profitable, created_at,
+                user_id, account_id, cabinet_id, source_id
+              ) VALUES
+              ('55555555-bbbb-4bbb-8bbb-000000000001','BTCUSDT',0.12,'BUY',  now()-interval '9 min', NULL, 13920.00, NULL, now(),
+                '11111111-1111-1111-1111-333333333333','22222222-2222-2222-2222-444444444444','33333333-3333-3333-3333-555555555555','55555555-1111-4111-8111-111111111111'),
+              ('55555555-bbbb-4bbb-8bbb-000000000002','ETHUSDT',1.10,'SELL', now()-interval '8 min', NULL, 13940.00, NULL, now(),
+                '11111111-1111-1111-1111-333333333333','22222222-2222-2222-2222-444444444444','33333333-3333-3333-3333-555555555555','55555555-2222-4222-8222-222222222222'),
+              ('55555555-bbbb-4bbb-8bbb-000000000003','SOLUSDT',10.0,'BUY',  now()-interval '7 min', NULL, 13990.00, NULL, now(),
+                '11111111-1111-1111-1111-333333333333','22222222-2222-2222-2222-444444444444','33333333-3333-3333-3333-555555555555','55555555-3333-4333-8333-333333333333'),
+              ('55555555-bbbb-4bbb-8bbb-000000000004','BTCUSDT',0.07,'SELL', now()-interval '6 min', NULL, 13960.00, NULL, now(),
+                '11111111-1111-1111-1111-333333333333','22222222-2222-2222-2222-444444444444','33333333-3333-3333-3333-555555555555','55555555-1111-4111-8111-111111111111'),
+              ('55555555-bbbb-4bbb-8bbb-000000000005','ETHUSDT',0.70,'BUY',  now()-interval '5 min', NULL, 14010.00, NULL, now(),
+                '11111111-1111-1111-1111-333333333333','22222222-2222-2222-2222-444444444444','33333333-3333-3333-3333-555555555555','55555555-2222-4222-8222-222222222222')
               ON CONFLICT (id) DO NOTHING;

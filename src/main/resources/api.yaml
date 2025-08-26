@@ -48,7 +48,7 @@ components:
           enum: [ROLE_CUSTOMER, ROLE_ADMIN, ROLE_SUPER-ADMIN]
         status:
           type: string
-          enum: [ACTIVE, DEACTIVATED, PENDING_CONFIRMATION]
+          enum: [PENDING, ACTIVE, INACTIVE, BLOCKED]
 
     UserCreateDto:
       type: object
@@ -105,7 +105,7 @@ components:
           enum: [ROLE_CUSTOMER, ROLE_ADMIN, ROLE_SUPER-ADMIN]
         status:
           type: string
-          enum: [ACTIVE, DEACTIVATED]
+          enum: [PENDING, ACTIVE, INACTIVE, BLOCKED]
         password: { type: string, format: password }
 
     AuthLogin:
@@ -128,38 +128,60 @@ components:
       type: object
       properties:
         id: { type: string, format: uuid }
-        balance: { type: number, format: double }
-        currency: { type: string }
-        number:
+        name: { type: string }
+        account_type:
           type: string
-          description: Unique account number (e.g. MetaTrader ID)
-        created_at: { type: string, format: date-time }
-        updated_at: { type: string, format: date-time }
-        person_id: { type: string, format: uuid }
+          enum: [ PERSONAL, BUSINESS ]
         status:
           type: string
-          enum: [ACTIVE, DEACTIVATED]
+          enum: [ PENDING, ACTIVE, INACTIVE, BLOCKED ]
+        balance:
+          type: number
+          format: double
+        user_id:
+          type: string
+          format: uuid
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    AccountCreateDto:
+      type: object
+      required: [ name, account_type ]
+      properties:
+        name:
+          type: string
+        account_type:
+          type: string
+          enum: [ PERSONAL, BUSINESS ]
+        user_id:
+          type: string
+          format: uuid
+          description: Optional; admin-only if creating for another user
 
     AccountUpdate:
       type: object
       properties:
-        currency: { type: string }
-        token_MetaTradeAPI: { type: string }
+        name: { type: string }
         status:
           type: string
-          enum: [ACTIVE, DEACTIVATED]
+          enum: [ ACTIVE, INACTIVE, DEACTIVATED, BLOCKED ]
 
     AccountCredentialsDto:
       type: object
       required:
         - account_id
-        - token_meta_trade_api
       properties:
         account_id:
           type: string
           format: uuid
-        token_meta_trade_api:
+        name:
           type: string
+        account_type:
+          type: string
+          enum: [ PERSONAL, BUSINESS ]
+        user_id:
+          type: string
+          format: uuid
 
     AccountStatusUpdate:
       type: object
@@ -168,6 +190,27 @@ components:
         status:
           type: string
           enum: [ PENDING, ACTIVE, INACTIVE, BLOCKED ]
+
+    AccountCreateSelfDto:
+      type: object
+      required: [ name, account_type ]
+      properties:
+        name: { type: string }
+        account_type:
+          type: string
+          enum: [ PERSONAL, BUSINESS ]
+
+    AccountCreateAdminDto:
+      type: object
+      required: [ name, account_type, user_id ]
+      properties:
+        name: { type: string }
+        account_type:
+          type: string
+          enum: [ PERSONAL, BUSINESS ]
+        user_id:
+          type: string
+          format: uuid
 
     Source:
       type: object
@@ -540,14 +583,68 @@ paths:
           description: User deleted
 
   /accounts:
-    get:
-      tags: [Accounts]
-      summary: Get all accounts
+    post:
+      tags: [ Accounts ]
+      summary: Create account for current user (self)
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountCreateSelfDto'
+      responses:
+        '201':
+          description: Account created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+    get:
+      tags: [ Accounts ]
+      summary: Get all accounts (admin only)
+      security:
+        - bearerAuth: [ ]
       responses:
         '200':
           description: List of accounts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Account'
+
+  /accounts/admin:
+    post:
+      tags: [ Accounts ]
+      summary: Create account for specific user (admin)
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountCreateAdminDto'
+      responses:
+        '201':
+          description: Account created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+
+  /accounts/my:
+    get:
+      tags: [ Accounts ]
+      summary: List accounts of current user
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: List of accounts for current user
           content:
             application/json:
               schema:

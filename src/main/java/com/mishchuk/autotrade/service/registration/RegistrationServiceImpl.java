@@ -30,15 +30,15 @@ public class RegistrationServiceImpl implements RegistrationService {
     @Transactional
     public UUID register(UserCreateDto dto) {
         UserEntity user = userMapper.toUserEntity(dto);
-
+        if (user.getEmail() != null) {
+            user.setEmail(user.getEmail().trim().toLowerCase());
+        }
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setRole(UserRole.ROLE_USER);
         user.setStatus(Status.PENDING);
         user.setCreatedAt(Instant.now());
 
         userRepository.save(user);
-
-        accountService.createAccountForNewUser(user.getId());
 
         emailVerificationService.sendVerificationEmail(user);
 

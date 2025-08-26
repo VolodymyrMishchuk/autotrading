@@ -55,21 +55,18 @@ public class TokenAuthFilter extends OncePerRequestFilter {
 
         log.info("🔐 Incoming request: {} {}", method, path);
 
-        // 🟢 Пропускаємо preflight OPTIONS
         if ("OPTIONS".equalsIgnoreCase(method)) {
             log.info("🟢 OPTIONS preflight — skipping");
             filterChain.doFilter(request, response);
             return;
         }
 
-        // 🟢 Пропускаємо публічні маршрути
         if (isPublicPath(path)) {
             log.info("✅ Public path detected — skipping");
             filterChain.doFilter(request, response);
             return;
         }
 
-        // 🔒 Перевіряємо JWT
         String jwt = getJwtFromRequest(request);
         if (!StringUtils.hasText(jwt) || !authTokenService.isValidAccessToken(jwt)) {
             log.warn("⛔ Invalid or missing token — returning 401");
@@ -77,7 +74,6 @@ public class TokenAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        // ✅ Створення контексту безпеки
         String userId = authTokenService.getUserId(jwt);
         UserRole userRole = authTokenService.getUserRole(jwt);
 

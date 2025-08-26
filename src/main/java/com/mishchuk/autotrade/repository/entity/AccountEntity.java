@@ -1,5 +1,6 @@
 package com.mishchuk.autotrade.repository.entity;
 
+import com.mishchuk.autotrade.enums.AccountType;
 import com.mishchuk.autotrade.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
@@ -33,6 +34,10 @@ public class AccountEntity {
 
     @Column(name = "balance", nullable = false)
     private BigDecimal balance;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "account_type", nullable = false, length = 32)
+    private AccountType accountType;
 
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;

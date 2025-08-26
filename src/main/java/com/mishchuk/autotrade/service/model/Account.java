@@ -1,5 +1,6 @@
 package com.mishchuk.autotrade.service.model;
 
+import com.mishchuk.autotrade.enums.AccountType;
 import com.mishchuk.autotrade.enums.Status;
 import lombok.*;
 import java.math.BigDecimal;
@@ -18,6 +19,7 @@ public class Account {
     private String tokenMetaTradeAPI;
     private Status status;
     private BigDecimal balance;
+    private AccountType accountType;
 
     private UUID userId;
     private List<UUID> cabinetIds;

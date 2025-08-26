@@ -28,7 +28,7 @@ services:
         condition: service_healthy
     restart: always
     ports:
-      - "8082:8080"
+      - "8083:8080"
     networks: [appnet]
 
   kafka:
@@ -77,24 +77,24 @@ services:
     networks: [appnet]
 
   # ==== (Опційно) Запуск Spring API в Docker ====
-  # api:
-  #   build: .
-  #   container_name: autotrade-api
-  #   depends_on:
-  #     kafka:
-  #       condition: service_healthy
-  #     db:
-  #       condition: service_healthy
-  #   environment:
-  #     - SPRING_PROFILES_ACTIVE=local
-  #     - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-  #     - APP_KAFKA_TOPIC=signals.raw
-  #     - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/autotrade
-  #     - SPRING_DATASOURCE_USERNAME=postgres
-  #     - SPRING_DATASOURCE_PASSWORD=postgres_password
-  #   ports:
-  #     - "8080:8080"
-  #   networks: [appnet]
+      #api:
+      #build: .
+      #container_name: autotrade-api
+      #depends_on:
+      #kafka:
+       #  condition: service_healthy
+       #db:
+       # condition: service_healthy
+       #environment:
+       #- SPRING_PROFILES_ACTIVE=local
+       #- SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+       #- APP_KAFKA_TOPIC=signals.raw
+       #- SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/autotrade
+       #- SPRING_DATASOURCE_USERNAME=postgres
+       #- SPRING_DATASOURCE_PASSWORD=postgres_password
+       #ports:
+      #- "8080:8080"
+      #networks: [appnet]
 
 networks:
   appnet:

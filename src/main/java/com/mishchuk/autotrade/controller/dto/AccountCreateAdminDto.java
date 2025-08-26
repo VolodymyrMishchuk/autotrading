@@ -3,27 +3,26 @@ package com.mishchuk.autotrade.controller.dto;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.mishchuk.autotrade.enums.AccountType;
-import com.mishchuk.autotrade.enums.Status;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
 
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.List;
 import java.util.UUID;
 
 @Data
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class AccountDetailDto {
-    private final UUID id;
+public class AccountCreateAdminDto {
+
+    @NotBlank
+    @Size(max = 100)
     private final String name;
-    private final Status status;
-    private final BigDecimal balance;
+
+    @NotNull
     private final AccountType accountType;
-    private final Instant createdAt;
-    private final Instant updatedAt;
+
+    @NotNull
     private final UUID userId;
-    private final List<CabinetDetailDto> cabinets;
-    private final List<TransactionDetailDto> transactions;
 }

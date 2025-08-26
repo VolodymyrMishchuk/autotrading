@@ -4,11 +4,14 @@ import com.mishchuk.autotrade.controller.dto.*;
 import com.mishchuk.autotrade.service.account.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import java.util.UUID;
-import java.util.List;
-
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
+import jakarta.validation.Valid;
+import java.net.URI;
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/accounts")
@@ -17,18 +20,37 @@ public class AccountController {
 
     private final AccountService accountService;
 
-    @PutMapping("/{id}")
-    @PreAuthorize("@authHelper.isAccountOwner(#id, principal.username) or hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
-    public ResponseEntity<AccountDetailDto> updateAccount(@PathVariable UUID id, @RequestBody AccountUpdateDto dto) {
-        return ResponseEntity.ok(accountService.updateAccount(id, dto));
+    // ---------- створення ----------
+    @PostMapping
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<AccountDetailDto> createAccount(
+            @Valid @RequestBody AccountCreateDto body,
+            Authentication auth
+    ) {
+        UUID requesterId = UUID.fromString(auth.getName()); // subject з JWT
+        AccountDetailDto created = accountService.create(body, requesterId, false);
+        return ResponseEntity
+                .created(URI.create("/accounts/" + created.getId()))
+                .body(created);
     }
 
-    @PatchMapping("/{id}/status")
+    @PostMapping("/admin")
     @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
-    public ResponseEntity<AccountDetailDto> updateAccountStatus(
-            @PathVariable UUID id,
-            @RequestBody AccountStatusUpdateDto dto) {
-        return ResponseEntity.ok(accountService.updateAccountStatus(id, dto.getStatus()));
+    public ResponseEntity<AccountDetailDto> createAccountByAdmin(@Valid @RequestBody AccountCreateDto body,
+                                                                 Authentication auth) {
+        UUID requesterId = UUID.fromString(auth.getName());
+        AccountDetailDto created = accountService.create(body, requesterId, true);
+        return ResponseEntity
+                .created(URI.create("/accounts/" + created.getId()))
+                .body(created);
+    }
+
+    // ---------- читання ----------
+    @GetMapping("/my")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<AccountDetailDto>> myAccounts(Authentication auth) {
+        UUID userId = UUID.fromString(auth.getName());
+        return ResponseEntity.ok(accountService.getUserAccounts(userId));
     }
 
     @GetMapping("/{id}")
@@ -43,6 +65,22 @@ public class AccountController {
         return ResponseEntity.ok(accountService.getAllAccountDtos());
     }
 
+    // ---------- зміни ----------
+    @PutMapping("/{id}")
+    @PreAuthorize("@authHelper.isAccountOwner(#id, principal.username) or hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
+    public ResponseEntity<AccountDetailDto> updateAccount(@PathVariable UUID id,
+                                                          @RequestBody AccountUpdateDto dto) {
+        return ResponseEntity.ok(accountService.updateAccount(id, dto));
+    }
+
+    @PatchMapping("/{id}/status")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
+    public ResponseEntity<AccountDetailDto> updateAccountStatus(@PathVariable UUID id,
+                                                                @RequestBody AccountStatusUpdateDto dto) {
+        return ResponseEntity.ok(accountService.updateAccountStatus(id, dto.getStatus()));
+    }
+
+    // ---------- видалення ----------
     @DeleteMapping("/{id}")
     @PreAuthorize("@authHelper.isAccountOwner(#id, principal.username) or hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
     public ResponseEntity<Void> deleteAccount(@PathVariable UUID id) {

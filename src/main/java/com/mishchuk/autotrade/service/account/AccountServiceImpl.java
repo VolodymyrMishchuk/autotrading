@@ -1,5 +1,6 @@
 package com.mishchuk.autotrade.service.account;
 
+import com.mishchuk.autotrade.controller.dto.AccountCreateDto;
 import com.mishchuk.autotrade.controller.dto.AccountDetailDto;
 import com.mishchuk.autotrade.controller.dto.AccountUpdateDto;
 import com.mishchuk.autotrade.enums.Status;
@@ -10,8 +11,11 @@ import com.mishchuk.autotrade.repository.entity.AccountEntity;
 import com.mishchuk.autotrade.repository.entity.UserEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
@@ -28,21 +32,44 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public AccountDetailDto createAccountForNewUser(UUID userId) {
-        UserEntity user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+    public AccountDetailDto create(AccountCreateDto dto, UUID requesterId, boolean requesterIsAdmin) {
+        if (dto == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Body is required");
+        }
+        if (dto.getName() == null || dto.getName().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Account name is required");
+        }
+        if (dto.getAccountType() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Account type is required");
+        }
 
-        AccountEntity account = AccountEntity.builder()
-                .name("Account for " + user.getEmail())
+        // якщо користувач створює сам — змушуємо userId = requesterId
+        UUID ownerId = requesterIsAdmin
+                ? (dto.getUserId() == null
+                ? throwBad("user_id is required for admin creation")
+                : dto.getUserId())
+                : requesterId;
+
+        UserEntity user = userRepository.findById(ownerId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        AccountEntity entity = AccountEntity.builder()
+                .name(dto.getName().trim())
                 .user(user)
                 .status(Status.ACTIVE)
                 .balance(BigDecimal.ZERO)
+                .accountType(dto.getAccountType())
                 .createdAt(Instant.now())
+                .updatedAt(Instant.now())
                 .build();
 
-        accountRepository.save(account);
-        log.info("Account created for user: {}", user.getEmail());
-        return accountMapper.toAccountDetailDto(account);
+        entity = accountRepository.save(entity);
+        log.info("Account '{}' ({}) created for user {}", entity.getName(), entity.getId(), user.getEmail());
+        return accountMapper.toAccountDetailDto(entity);
+    }
+
+    private UUID throwBad(String msg) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, msg);
     }
 
     @Override
@@ -81,8 +108,18 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AccountDetailDto> getAllAccountDtos() {
         return accountRepository.findAll()
+                .stream()
+                .map(accountMapper::toAccountDetailDto)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AccountDetailDto> getUserAccounts(UUID userId) {
+        return accountRepository.findAllByUser_Id(userId)
                 .stream()
                 .map(accountMapper::toAccountDetailDto)
                 .toList();
