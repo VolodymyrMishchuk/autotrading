@@ -1,14 +1,17 @@
 package com.mishchuk.autotrade.service.email;
 
 import com.mishchuk.autotrade.enums.Status;
-import com.mishchuk.autotrade.repository.EmailVerificationTokenRepository;
+import com.mishchuk.autotrade.enums.TokenChannel;
+import com.mishchuk.autotrade.enums.TokenPurpose;
+import com.mishchuk.autotrade.repository.UserActionTokenRepository;
 import com.mishchuk.autotrade.repository.UserRepository;
-import com.mishchuk.autotrade.repository.entity.EmailVerificationTokenEntity;
+import com.mishchuk.autotrade.repository.entity.UserActionTokenEntity;
 import com.mishchuk.autotrade.repository.entity.UserEntity;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
@@ -18,7 +21,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class EmailVerificationServiceImpl implements EmailVerificationService {
 
-    private final EmailVerificationTokenRepository tokenRepository;
+    private final UserActionTokenRepository tokenRepository;
     private final UserRepository userRepository;
     private final EmailService emailService;
 
@@ -30,11 +33,15 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
 
     @Override
     public void sendVerificationEmail(UserEntity user) {
+        tokenRepository.deleteAllByUserAndPurpose(user, TokenPurpose.EMAIL_VERIFICATION);
+
         String token = UUID.randomUUID().toString();
         Instant now = Instant.now();
 
-        EmailVerificationTokenEntity entity = EmailVerificationTokenEntity.builder()
+        UserActionTokenEntity entity = UserActionTokenEntity.builder()
                 .token(token)
+                .purpose(TokenPurpose.EMAIL_VERIFICATION)
+                .channel(TokenChannel.EMAIL)
                 .createdAt(now)
                 .expiresAt(now.plus(tokenExpiryMinutes, ChronoUnit.MINUTES))
                 .user(user)
@@ -43,7 +50,6 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
         tokenRepository.save(entity);
 
         String confirmationLink = baseVerificationUrl + "?token=" + token;
-
         String body = String.format("""
                 Welcome to AutoTrading!
 
@@ -53,23 +59,20 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
                 This link will expire in %d minutes.
                 """, confirmationLink, tokenExpiryMinutes);
 
-        emailService.sendEmail(
-                user.getEmail(),
-                "Confirm your registration",
-                body
-        );
+        emailService.sendEmail(user.getEmail(), "Confirm your registration", body);
     }
 
     @Override
     @Transactional
     public boolean confirmToken(String token) {
-        Optional<EmailVerificationTokenEntity> optional = tokenRepository.findByToken(token);
+        Optional<UserActionTokenEntity> optional =
+                tokenRepository.findByTokenAndPurpose(token, TokenPurpose.EMAIL_VERIFICATION);
 
         if (optional.isEmpty()) return false;
 
-        EmailVerificationTokenEntity entity = optional.get();
+        UserActionTokenEntity entity = optional.get();
 
-        if (entity.getConfirmedAt() != null || entity.getExpiresAt().isBefore(Instant.now())) {
+        if (entity.getConsumedAt() != null || entity.getExpiresAt().isBefore(Instant.now())) {
             return false;
         }
 
@@ -78,15 +81,13 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
         userRepository.save(user);
 
         tokenRepository.delete(entity);
-
         return true;
     }
 
     @Override
     @Transactional
     public void resendVerificationEmail(UserEntity user) {
-        tokenRepository.deleteAllByUser(user);
-
+        tokenRepository.deleteAllByUserAndPurpose(user, TokenPurpose.EMAIL_VERIFICATION);
         sendVerificationEmail(user);
     }
 }

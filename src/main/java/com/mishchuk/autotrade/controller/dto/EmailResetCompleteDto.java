@@ -9,6 +9,6 @@ import lombok.Data;
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class EmailResetCompleteDto {
-    private String token;
+    private String verificationCodeBySMS;
     private String email;
 }

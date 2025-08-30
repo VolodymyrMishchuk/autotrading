@@ -7,15 +7,25 @@ import java.util.UUID;
 public interface UserService {
     void createUser(User user);
     User getUserById(UUID id);
-    User getUserByToken(String token);
     List<User> getAllUsers();
     void updateUser(User user);
     void deleteUser(UUID id);
-    void completeRegistration(String token);
-    User getAuthenticatedUser();
-    void updatePhoneNumberOfUser(User user);
-    void updateEmailOfUser(User user);
-    void updatePasswordOfUser(User user);
+
     void updateRoleOfUser(User user);
     void updateStatusOfUser(User user);
+
+    // PASSWORD
+    void changePassword(UUID userId, String oldPassword, String newPassword);
+    void requestPasswordReset(String email);
+    void completePasswordReset(String token, String newPassword);
+
+    // PHONE
+    void changePhoneNumber(UUID userId, String oldPhone, String newPhone);
+    void requestPhoneNumberReset(String email);
+    void completePhoneNumberReset(String token, String newPhone);
+
+    // EMAIL
+    void changeEmail(UUID userId, String oldEmail, String newEmail);
+    void requestEmailResetByPhone(String phoneNumber);
+    void completeEmailResetBySms(String verificationCodeBySMS, String newEmail);
 }

@@ -80,6 +80,82 @@ components:
           format: password
           minLength: 8
 
+    PhoneNumberChangeDto:
+      type: object
+      required: [ old_phone_number, new_phone_number ]
+      properties:
+        old_phone_number: { type: string, pattern: '^\+?[0-9]{7,15}$' }
+        new_phone_number: { type: string, pattern: '^\+?[0-9]{7,15}$' }
+
+    PhoneNumberResetRequestDto:
+      type: object
+      required: [ email ]
+      properties:
+        email: { type: string, format: email }
+
+    PhoneNumberResetCompleteDto:
+      type: object
+      required: [ token, phone_number ]
+      properties:
+        token: { type: string }
+        phone_number: { type: string, pattern: '^\+?[0-9]{7,15}$' }
+
+    PasswordChangeDto:
+      type: object
+      required: [ old_password, new_password ]
+      properties:
+        old_password: { type: string, format: password, minLength: 8 }
+        new_password: { type: string, format: password, minLength: 8 }
+
+    PasswordResetRequestDto:
+      type: object
+      required: [ email ]
+      properties:
+        email: { type: string, format: email }
+
+    PasswordResetCompleteDto:
+      type: object
+      required: [ token, password ]
+      properties:
+        token: { type: string }
+        password: { type: string, format: password, minLength: 8 }
+
+    EmailChangeDto:
+      type: object
+      required: [ old_email, new_email ]
+      properties:
+        old_email: { type: string, format: email }
+        new_email: { type: string, format: email }
+
+    EmailResetRequestDto:
+      type: object
+      required: [ phone_number ]
+      properties:
+        phone_number: { type: string, pattern: '^\+?[0-9]{7,15}$' }
+
+    EmailResetCompleteDto:
+      type: object
+      required: [ verification_code_by_sms, email ]
+      properties:
+        verification_code_by_sms: { type: string }
+        email: { type: string, format: email }
+
+    StatusChangeDto:
+      type: object
+      required: [ new_status ]
+      properties:
+        new_status:
+          type: string
+          enum: [ PENDING, ACTIVE, INACTIVE, BLOCKED ]
+
+    RoleChangeDto:
+      type: object
+      required: [ new_role ]
+      properties:
+        new_role:
+          type: string
+          enum: [ ROLE_CUSTOMER, ROLE_ADMIN, ROLE_SUPER_ADMIN ]
+
     UserCompleteRegistrationDto:
       type: object
       required:
@@ -582,6 +658,197 @@ paths:
         '204':
           description: User deleted
 
+  /users/{id}/phone/change:
+    patch:
+      tags: [ Users ]
+      summary: Change phone number (old -> new)
+      security: [ { bearerAuth: [ ] } ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PhoneNumberChangeDto' }
+      responses:
+        '200':
+          description: Phone updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+        '403': { description: Forbidden }
+        '404': { description: User not found }
+
+  /users/phone/reset/request:
+    post:
+      tags: [ Users ]
+      summary: Request phone reset when old phone is unknown (verify via email)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PhoneNumberResetRequestDto' }
+      responses:
+        '202': { description: If email exists, a reset link is sent }
+
+  /users/phone/reset/complete:
+    post:
+      tags: [ Users ]
+      summary: Complete phone reset with token from email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PhoneNumberResetCompleteDto' }
+      responses:
+        '204': { description: Phone reset completed }
+        '400': { description: Invalid or expired token }
+
+  /users/{id}/password/change:
+    patch:
+      tags: [ Users ]
+      summary: Change password (old -> new)
+      security: [ { bearerAuth: [ ] } ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PasswordChangeDto' }
+      responses:
+        '204': { description: Password changed }
+        '403': { description: Forbidden }
+        '404': { description: User not found }
+
+  /users/password/reset/request:
+    post:
+      tags: [ Users ]
+      summary: Request password reset (forgot password)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PasswordResetRequestDto' }
+      responses:
+        '202': { description: If email exists, a reset link is sent }
+
+  /users/password/reset/complete:
+    post:
+      tags: [ Users ]
+      summary: Complete password reset with token from email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PasswordResetCompleteDto' }
+      responses:
+        '204': { description: Password reset completed }
+        '400': { description: Invalid or expired token }
+
+  /users/{id}/email/change:
+    patch:
+      tags: [ Users ]
+      summary: Change email (old -> new)
+      security: [ { bearerAuth: [ ] } ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EmailChangeDto' }
+      responses:
+        '200':
+          description: Email updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+        '403': { description: Forbidden }
+        '404': { description: User not found }
+
+  /users/email/reset/request:
+    post:
+      tags: [ Users ]
+      summary: Request email reset when email is unknown (verify via SMS to phone)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EmailResetRequestDto' }
+      responses:
+        '202': { description: If phone exists, an SMS with code is sent }
+
+  /users/email/reset/complete:
+    post:
+      tags: [ Users ]
+      summary: Complete email reset with SMS verification code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EmailResetCompleteDto' }
+      responses:
+        '204': { description: Email reset completed }
+        '400': { description: Invalid or expired verification }
+
+  /users/{id}/status:
+    patch:
+      tags: [ Users ]
+      summary: Change user status (ADMIN/SUPER_ADMIN)
+      security: [ { bearerAuth: [ ] } ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/StatusChangeDto' }
+      responses:
+        '200':
+          description: Status updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+        '403': { description: Forbidden }
+        '404': { description: User not found }
+
+  /users/{id}/role:
+    patch:
+      tags: [ Users ]
+      summary: Change user role (ADMIN/SUPER_ADMIN)
+      security: [ { bearerAuth: [ ] } ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RoleChangeDto' }
+      responses:
+        '200':
+          description: Role updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+        '403': { description: Forbidden }
+        '404': { description: User not found }
+
   /accounts:
     post:
       tags: [ Accounts ]
@@ -639,7 +906,7 @@ paths:
   /accounts/my:
     get:
       tags: [ Accounts ]
-      summary: List accounts of current user
+      summary: Get current user's accounts
       security:
         - bearerAuth: [ ]
       responses:

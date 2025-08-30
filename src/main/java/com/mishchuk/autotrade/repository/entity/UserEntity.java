@@ -57,7 +57,7 @@ public class UserEntity {
     private Instant updatedAt;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<EmailVerificationTokenEntity> emailTokens;
+    private List<UserActionTokenEntity> actionTokens;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AccountEntity> accounts;

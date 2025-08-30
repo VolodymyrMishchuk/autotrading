@@ -40,5 +40,17 @@ databaseChangeLog:
       relativeToChangelogFile: true
 
   - include:
+      file: 011-create-user-action-tokens.sql
+      relativeToChangelogFile: true
+
+  - include:
+      file: 012-migrate-email-verification-tokens.sql
+      relativeToChangelogFile: true
+
+  - include:
+      file: 013-drop-users-token.sql
+      relativeToChangelogFile: true
+
+  - include:
       file: seed/dev-seed.yaml
       relativeToChangelogFile: true

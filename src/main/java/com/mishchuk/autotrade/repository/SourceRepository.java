@@ -13,5 +13,4 @@ public interface SourceRepository extends JpaRepository<SourceEntity, UUID> {
     List<SourceEntity> findByAccount_Id(UUID accountId);
     Optional<SourceEntity> findByToken(String token);
 
-
 }
