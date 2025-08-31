@@ -4,6 +4,7 @@ import com.mishchuk.autotrade.controller.dto.UserCreateDto;
 import com.mishchuk.autotrade.enums.Status;
 import com.mishchuk.autotrade.enums.UserRole;
 import com.mishchuk.autotrade.enums.TokenPurpose;
+import com.mishchuk.autotrade.exception.DuplicateFieldException;
 import com.mishchuk.autotrade.mapper.UserMapper;
 import com.mishchuk.autotrade.repository.UserActionTokenRepository;
 import com.mishchuk.autotrade.repository.UserRepository;
@@ -32,6 +33,13 @@ public class RegistrationServiceImpl implements RegistrationService {
     @Override
     @Transactional
     public UUID register(UserCreateDto dto) {
+
+        if (userRepository.existsByEmailIgnoreCase(dto.getEmail())) {
+            throw new DuplicateFieldException("Email is already in use");
+        }
+        if (userRepository.existsByPhoneNumber(dto.getPhoneNumber())) {
+            throw new DuplicateFieldException("Phone number is already in use");
+        }
         UserEntity user = userMapper.toUserEntity(dto);
 
         if (user.getEmail() != null) {

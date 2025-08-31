@@ -11,8 +11,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${GMAIL_USERNAME:musterman@gmail.com}
-    password: ${GMAIL_PASSWORD:my-secret-password}
+    username: ${GMAIL_USERNAME:placeholder}
+    password: ${GMAIL_PASSWORD:placeholder}
     properties:
       mail:
         smtp:
@@ -32,7 +32,7 @@ spring:
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
   jwt:
-    secret: ${JWT_SECRET:ace6bc1c-c94c-40c3-8146-c0bda8381863}
+    secret: ${JWT_SECRET:placeholder}
     ttl-millis: ${JWT_TTL:43200000}
 
   email:
@@ -48,6 +48,19 @@ spring:
 
   liquibase:
     contexts: dev-seed
+
+  sms:
+    verify:
+      provider: twilio
+      twilio:
+        account-sid: ${TWILIO_ACCOUNT_SID:placeholder}
+        auth-token: ${TWILIO_AUTH_TOKEN:placeholder}
+        service-sid: ${TWILIO_VERIFY_SERVICE_SID:placeholder}
+
+  captcha:
+    recaptcha:
+      site: ${RECAPTCHA_SITE_KEY:}
+      secret: ${RECAPTCHA_SECRET_KEY:}
 
 logging:
   level:
