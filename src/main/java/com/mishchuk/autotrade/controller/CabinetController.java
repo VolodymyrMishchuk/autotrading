@@ -1,8 +1,8 @@
 package com.mishchuk.autotrade.controller;
 
-import com.mishchuk.autotrade.controller.dto.CabinetCreateDto;
-import com.mishchuk.autotrade.controller.dto.CabinetDetailDto;
-import com.mishchuk.autotrade.controller.dto.CabinetUpdateDto;
+import com.mishchuk.autotrade.controller.dto.cabinet.CabinetCreateDto;
+import com.mishchuk.autotrade.controller.dto.cabinet.CabinetDetailDto;
+import com.mishchuk.autotrade.controller.dto.cabinet.CabinetUpdateDto;
 import com.mishchuk.autotrade.service.cabinet.CabinetService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

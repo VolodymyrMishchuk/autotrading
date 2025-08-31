@@ -1,6 +1,6 @@
 package com.mishchuk.autotrade.service.login;
 
-import com.mishchuk.autotrade.controller.dto.AuthTokenResponseDto;
+import com.mishchuk.autotrade.controller.dto.auth.AuthTokenResponseDto;
 import com.mishchuk.autotrade.enums.Status;
 import com.mishchuk.autotrade.exception.PasswordIncorrectException;
 import com.mishchuk.autotrade.exception.UserIsBlockedException;

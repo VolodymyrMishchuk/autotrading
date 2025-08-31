@@ -1,6 +1,6 @@
 package com.mishchuk.autotrade.service.registration;
 
-import com.mishchuk.autotrade.controller.dto.UserCreateDto;
+import com.mishchuk.autotrade.controller.dto.user.UserCreateDto;
 import com.mishchuk.autotrade.enums.Status;
 import com.mishchuk.autotrade.enums.UserRole;
 import com.mishchuk.autotrade.enums.TokenPurpose;

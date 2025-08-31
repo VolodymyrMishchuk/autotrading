@@ -1,8 +1,8 @@
 package com.mishchuk.autotrade.service.source;
 
-import com.mishchuk.autotrade.controller.dto.SourceCreateDto;
-import com.mishchuk.autotrade.controller.dto.SourceDetailDto;
-import com.mishchuk.autotrade.controller.dto.SourceUpdateDto;
+import com.mishchuk.autotrade.controller.dto.source.SourceCreateDto;
+import com.mishchuk.autotrade.controller.dto.source.SourceDetailDto;
+import com.mishchuk.autotrade.controller.dto.source.SourceUpdateDto;
 import com.mishchuk.autotrade.exception.SourceNotFoundException;
 import com.mishchuk.autotrade.mapper.SourceMapper;
 import com.mishchuk.autotrade.repository.SourceRepository;

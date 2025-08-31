@@ -1,6 +1,6 @@
 package com.mishchuk.autotrade.controller;
 
-import com.mishchuk.autotrade.controller.dto.*;
+import com.mishchuk.autotrade.controller.dto.user.*;
 import com.mishchuk.autotrade.mapper.UserMapper;
 import com.mishchuk.autotrade.service.user.UserService;
 import jakarta.validation.Valid;

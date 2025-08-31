@@ -1,8 +1,8 @@
 package com.mishchuk.autotrade.service.cabinet;
 
-import com.mishchuk.autotrade.controller.dto.CabinetCreateDto;
-import com.mishchuk.autotrade.controller.dto.CabinetDetailDto;
-import com.mishchuk.autotrade.controller.dto.CabinetUpdateDto;
+import com.mishchuk.autotrade.controller.dto.cabinet.CabinetCreateDto;
+import com.mishchuk.autotrade.controller.dto.cabinet.CabinetDetailDto;
+import com.mishchuk.autotrade.controller.dto.cabinet.CabinetUpdateDto;
 import com.mishchuk.autotrade.exception.AccountNotFoundException;
 import com.mishchuk.autotrade.exception.CabinetNotFoundException;
 import com.mishchuk.autotrade.exception.UserNotFoundException;

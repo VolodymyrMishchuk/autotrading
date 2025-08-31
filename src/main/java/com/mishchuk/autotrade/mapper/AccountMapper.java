@@ -1,6 +1,8 @@
 package com.mishchuk.autotrade.mapper;
 
-import com.mishchuk.autotrade.controller.dto.*;
+import com.mishchuk.autotrade.controller.dto.account.AccountCreateDto;
+import com.mishchuk.autotrade.controller.dto.account.AccountDetailDto;
+import com.mishchuk.autotrade.controller.dto.account.AccountUpdateDto;
 import com.mishchuk.autotrade.enums.Status;
 import com.mishchuk.autotrade.repository.entity.AccountEntity;
 import com.mishchuk.autotrade.repository.entity.UserEntity;

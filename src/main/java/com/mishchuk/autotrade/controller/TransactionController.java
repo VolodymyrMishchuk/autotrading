@@ -1,6 +1,7 @@
 package com.mishchuk.autotrade.controller;
 
-import com.mishchuk.autotrade.controller.dto.*;
+import com.mishchuk.autotrade.controller.dto.transaction.TransactionCreateDto;
+import com.mishchuk.autotrade.controller.dto.transaction.TransactionDetailDto;
 import com.mishchuk.autotrade.service.transaction.TransactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

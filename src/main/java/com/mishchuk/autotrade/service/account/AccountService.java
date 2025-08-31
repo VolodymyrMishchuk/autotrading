@@ -1,8 +1,8 @@
 package com.mishchuk.autotrade.service.account;
 
-import com.mishchuk.autotrade.controller.dto.AccountCreateDto;
-import com.mishchuk.autotrade.controller.dto.AccountDetailDto;
-import com.mishchuk.autotrade.controller.dto.AccountUpdateDto;
+import com.mishchuk.autotrade.controller.dto.account.AccountCreateDto;
+import com.mishchuk.autotrade.controller.dto.account.AccountDetailDto;
+import com.mishchuk.autotrade.controller.dto.account.AccountUpdateDto;
 import com.mishchuk.autotrade.enums.Status;
 import java.util.List;
 import java.util.UUID;

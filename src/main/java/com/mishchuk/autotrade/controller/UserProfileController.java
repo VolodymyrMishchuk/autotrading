@@ -1,7 +1,7 @@
 package com.mishchuk.autotrade.controller;
 
-import com.mishchuk.autotrade.controller.dto.UserDetailDto;
-import com.mishchuk.autotrade.controller.dto.UserUpdateDto;
+import com.mishchuk.autotrade.controller.dto.user.UserDetailDto;
+import com.mishchuk.autotrade.controller.dto.user.UserUpdateDto;
 import com.mishchuk.autotrade.mapper.UserMapper;
 import com.mishchuk.autotrade.service.model.User;
 import com.mishchuk.autotrade.service.user.UserService;

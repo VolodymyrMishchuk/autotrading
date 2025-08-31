@@ -1,6 +1,6 @@
 package com.mishchuk.autotrade.mapper;
 
-import com.mishchuk.autotrade.controller.dto.CabinetSourceDto;
+import com.mishchuk.autotrade.controller.dto.cabinet.CabinetSourceDto;
 import com.mishchuk.autotrade.repository.entity.CabinetSourceEntity;
 import org.springframework.stereotype.Component;
 

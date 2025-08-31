@@ -1,8 +1,8 @@
 package com.mishchuk.autotrade.security;
 
-import com.mishchuk.autotrade.controller.dto.AccountDetailDto;
-import com.mishchuk.autotrade.controller.dto.CabinetDetailDto;
-import com.mishchuk.autotrade.controller.dto.TransactionDetailDto;
+import com.mishchuk.autotrade.controller.dto.account.AccountDetailDto;
+import com.mishchuk.autotrade.controller.dto.cabinet.CabinetDetailDto;
+import com.mishchuk.autotrade.controller.dto.transaction.TransactionDetailDto;
 import com.mishchuk.autotrade.service.account.AccountService;
 import com.mishchuk.autotrade.service.cabinet.CabinetService;
 import com.mishchuk.autotrade.service.transaction.TransactionService;

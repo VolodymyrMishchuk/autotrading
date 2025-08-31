@@ -1,10 +1,8 @@
 package com.mishchuk.autotrade.mapper;
 
-import com.mishchuk.autotrade.controller.dto.*;
+import com.mishchuk.autotrade.controller.dto.user.*;
 import com.mishchuk.autotrade.service.model.User;
 import org.springframework.stereotype.Component;
-
-import java.util.UUID;
 
 @Component
 public class UserUpdateMapper {

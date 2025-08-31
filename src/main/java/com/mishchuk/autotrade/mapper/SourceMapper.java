@@ -1,6 +1,8 @@
 package com.mishchuk.autotrade.mapper;
 
-import com.mishchuk.autotrade.controller.dto.*;
+import com.mishchuk.autotrade.controller.dto.source.SourceCreateDto;
+import com.mishchuk.autotrade.controller.dto.source.SourceDetailDto;
+import com.mishchuk.autotrade.controller.dto.source.SourceUpdateDto;
 import com.mishchuk.autotrade.enums.Status;
 import com.mishchuk.autotrade.repository.entity.SourceEntity;
 import com.mishchuk.autotrade.service.model.Source;

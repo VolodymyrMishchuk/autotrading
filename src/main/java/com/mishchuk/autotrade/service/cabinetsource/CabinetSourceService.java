@@ -1,7 +1,7 @@
 package com.mishchuk.autotrade.service.cabinetsource;
 
-import com.mishchuk.autotrade.controller.dto.CabinetSourceDto;
-import com.mishchuk.autotrade.controller.dto.CabinetSourceStatusUpdateDto;
+import com.mishchuk.autotrade.controller.dto.cabinet.CabinetSourceDto;
+import com.mishchuk.autotrade.controller.dto.cabinet.CabinetSourceStatusUpdateDto;
 
 import java.util.List;
 import java.util.UUID;

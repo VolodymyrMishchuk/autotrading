@@ -1,7 +1,7 @@
 package com.mishchuk.autotrade.service.transaction;
 
-import com.mishchuk.autotrade.controller.dto.TransactionCreateDto;
-import com.mishchuk.autotrade.controller.dto.TransactionDetailDto;
+import com.mishchuk.autotrade.controller.dto.transaction.TransactionCreateDto;
+import com.mishchuk.autotrade.controller.dto.transaction.TransactionDetailDto;
 import java.util.List;
 import java.util.UUID;
 

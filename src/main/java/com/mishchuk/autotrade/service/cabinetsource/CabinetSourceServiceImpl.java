@@ -1,7 +1,7 @@
 package com.mishchuk.autotrade.service.cabinetsource;
 
-import com.mishchuk.autotrade.controller.dto.CabinetSourceDto;
-import com.mishchuk.autotrade.controller.dto.CabinetSourceStatusUpdateDto;
+import com.mishchuk.autotrade.controller.dto.cabinet.CabinetSourceDto;
+import com.mishchuk.autotrade.controller.dto.cabinet.CabinetSourceStatusUpdateDto;
 import com.mishchuk.autotrade.enums.Status;
 import com.mishchuk.autotrade.exception.CabinetNotFoundException;
 import com.mishchuk.autotrade.exception.CabinetSourceNotFoundException;

@@ -1,8 +1,12 @@
 package com.mishchuk.autotrade.controller;
 
-import com.mishchuk.autotrade.controller.dto.*;
+import com.mishchuk.autotrade.controller.dto.auth.AuthLoginDto;
+import com.mishchuk.autotrade.controller.dto.auth.AuthTokenResponseDto;
+import com.mishchuk.autotrade.controller.dto.user.RefreshTokenRequestDto;
+import com.mishchuk.autotrade.controller.dto.user.ResendVerificationRequestDto;
+import com.mishchuk.autotrade.controller.dto.user.UserCompleteRegistrationDto;
+import com.mishchuk.autotrade.controller.dto.user.UserCreateDto;
 import com.mishchuk.autotrade.enums.Status;
-import com.mishchuk.autotrade.exception.UserIsBlockedException;
 import com.mishchuk.autotrade.mapper.UserMapper;
 import com.mishchuk.autotrade.repository.UserRepository;
 import com.mishchuk.autotrade.service.auth.AuthTokenManager;

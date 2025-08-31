@@ -1,6 +1,6 @@
 package com.mishchuk.autotrade.service.registration;
 
-import com.mishchuk.autotrade.controller.dto.UserCreateDto;
+import com.mishchuk.autotrade.controller.dto.user.UserCreateDto;
 
 import java.util.UUID;
 

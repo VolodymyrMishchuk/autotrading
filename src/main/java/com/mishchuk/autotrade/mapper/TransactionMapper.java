@@ -1,7 +1,7 @@
 package com.mishchuk.autotrade.mapper;
 
-import com.mishchuk.autotrade.controller.dto.TransactionCreateDto;
-import com.mishchuk.autotrade.controller.dto.TransactionDetailDto;
+import com.mishchuk.autotrade.controller.dto.transaction.TransactionCreateDto;
+import com.mishchuk.autotrade.controller.dto.transaction.TransactionDetailDto;
 import com.mishchuk.autotrade.repository.entity.*;
 import com.mishchuk.autotrade.service.model.Transaction;
 import lombok.RequiredArgsConstructor;

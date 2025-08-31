@@ -1,7 +1,7 @@
 package com.mishchuk.autotrade.ingest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mishchuk.autotrade.controller.dto.TransactionCreateDto;
+import com.mishchuk.autotrade.controller.dto.transaction.TransactionCreateDto;
 import com.mishchuk.autotrade.enums.Direction;
 import com.mishchuk.autotrade.enums.Status;
 import com.mishchuk.autotrade.repository.CabinetSourceRepository;
