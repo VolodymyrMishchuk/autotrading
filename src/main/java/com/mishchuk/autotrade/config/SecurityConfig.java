@@ -104,7 +104,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/signup", "/auth/login",
                                 "/auth/signup/confirm", "/auth/resend-verification", "/auth/confirm").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/auth/confirm", "/auth/signup/confirm").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/auth/login", "/auth/signup", "/auth/confirm", "/auth/signup/confirm").permitAll()
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(tokenAuthFilter, UsernamePasswordAuthenticationFilter.class)

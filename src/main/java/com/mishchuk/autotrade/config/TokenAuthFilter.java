@@ -87,6 +87,10 @@ public class TokenAuthFilter extends OncePerRequestFilter {
         // preflight
         if ("OPTIONS".equalsIgnoreCase(method)) return true;
 
+        // сторінки (роути) фронта
+        if ("GET".equals(method) && "/auth/login".equals(path)) return true;
+        if ("GET".equals(method) && "/auth/signup".equals(path)) return true;
+
         // auth flow
         if ("POST".equals(method) && "/auth/signup".equals(path)) return true;
         if ("POST".equals(method) && "/auth/login".equals(path)) return true;
@@ -98,8 +102,6 @@ public class TokenAuthFilter extends OncePerRequestFilter {
 
         // ресенд підтвердження
         if ("POST".equals(method) && "/auth/resend-verification".equals(path)) return true;
-
-        // якщо маєш інші публічні сторінки — додай тут
 
         return false;
     }

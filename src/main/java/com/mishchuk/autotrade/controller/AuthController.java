@@ -80,7 +80,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthTokenResponseDto> login(@Valid @RequestBody AuthLoginDto dto) {
-        log.info("Login request: email={}, password={}", dto.getEmail(), dto.getPassword());
+        log.info("Login request: email={}, email={}", dto.getEmail(), dto.getEmail());
         AuthTokenResponseDto tokens = loginService.login(dto.getEmail(), dto.getPassword());
         return ResponseEntity.ok(tokens);
     }
