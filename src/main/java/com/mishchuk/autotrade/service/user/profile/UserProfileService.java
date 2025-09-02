@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.UUID;
 
 public interface UserProfileService {
-    void createUser(User user);
     User getUserById(UUID id);
     List<User> getAllUsers();
     void updateUser(User user);

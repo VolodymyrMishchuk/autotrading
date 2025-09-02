@@ -1,6 +1,5 @@
 package com.mishchuk.autotrade.service.user.profile;
 
-import com.mishchuk.autotrade.enums.Status;
 import com.mishchuk.autotrade.exception.UserNotFoundException;
 import com.mishchuk.autotrade.mapper.UserMapper;
 import com.mishchuk.autotrade.repository.UserRepository;

@@ -24,7 +24,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.time.Instant;
 import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -78,6 +80,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthTokenResponseDto> login(@Valid @RequestBody AuthLoginDto dto) {
+        log.info("Login request: email={}, password={}", dto.getEmail(), dto.getPassword());
         AuthTokenResponseDto tokens = loginService.login(dto.getEmail(), dto.getPassword());
         return ResponseEntity.ok(tokens);
     }

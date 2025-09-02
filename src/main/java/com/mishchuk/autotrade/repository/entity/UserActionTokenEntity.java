@@ -2,11 +2,15 @@ package com.mishchuk.autotrade.repository.entity;
 
 import com.mishchuk.autotrade.enums.TokenChannel;
 import com.mishchuk.autotrade.enums.TokenPurpose;
+import com.mishchuk.autotrade.repository.jpa.JsonbMapConverter;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.Instant;
+import java.util.Map;
 import java.util.UUID;
 
 @Getter
@@ -40,8 +44,9 @@ public class UserActionTokenEntity {
     @Column(name = "channel", nullable = false)
     private TokenChannel channel;
 
+    @Type(JsonBinaryType.class)
     @Column(name = "data", columnDefinition = "jsonb")
-    private String data;
+    private Map<String, Object> data = Map.of();
 
     @Column(name = "expires_at", nullable = false)
     private Instant expiresAt;

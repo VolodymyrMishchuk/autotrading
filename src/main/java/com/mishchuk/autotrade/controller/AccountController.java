@@ -30,7 +30,7 @@ public class AccountController {
             @Valid @RequestBody AccountCreateDto body,
             Authentication auth
     ) {
-        UUID requesterId = UUID.fromString(auth.getName()); // subject з JWT
+        UUID requesterId = UUID.fromString(auth.getName());
         AccountDetailDto created = accountService.create(body, requesterId, false);
         return ResponseEntity
                 .created(URI.create("/accounts/" + created.getId()))

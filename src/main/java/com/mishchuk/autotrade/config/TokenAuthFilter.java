@@ -35,47 +35,32 @@ public class TokenAuthFilter extends OncePerRequestFilter {
     private static final String BEARER_TOKEN_PREFIX = "Bearer ";
     private final AuthTokenService authTokenService;
 
-    private static final List<String> PUBLIC_PATH_PREFIXES = List.of(
-            "/auth/signup",
-            "/auth/login",
-            "/auth/signup/confirm",
-            "/auth/resend-verification",
-            "/auth/confirm"
-    );
-
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain)
-            throws ServletException, IOException {
+            @NonNull FilterChain filterChain) throws ServletException, IOException {
 
-        String path = request.getRequestURI();
-        String method = request.getMethod();
+        final String path = request.getRequestURI();
+        final String method = request.getMethod();
 
         log.info("🔐 Incoming request: {} {}", method, path);
 
-        if ("OPTIONS".equalsIgnoreCase(method)) {
-            log.info("🟢 OPTIONS preflight — skipping");
+        if (isPublic(method, path)) {
+            log.info("✅ Public route — skip auth: {} {}", method, path);
             filterChain.doFilter(request, response);
             return;
         }
 
-        if (isPublicPath(path)) {
-            log.info("✅ Public path detected — skipping");
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        String jwt = getJwtFromRequest(request);
+        final String jwt = getJwtFromRequest(request);
         if (!StringUtils.hasText(jwt) || !authTokenService.isValidAccessToken(jwt)) {
-            log.warn("⛔ Invalid or missing token — returning 401");
+            log.warn("⛔ Invalid or missing token — 401 for {} {}", method, path);
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
-        String userId = authTokenService.getUserId(jwt);
-        UserRole userRole = authTokenService.getUserRole(jwt);
+        final String userId = authTokenService.getUserId(jwt);
+        final UserRole userRole = authTokenService.getUserRole(jwt);
 
         List<GrantedAuthority> authorities = new ArrayList<>();
         for (UserRole role : UserRole.values()) {
@@ -86,32 +71,38 @@ public class TokenAuthFilter extends OncePerRequestFilter {
         UserDetails userDetails = new User(userId, jwt, authorities);
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(userDetails, jwt, userDetails.getAuthorities());
-
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
         SecurityContext context = SecurityContextHolder.getContext();
         context.setAuthentication(authentication);
-
-        RequestAttributeSecurityContextRepository contextRepo = new RequestAttributeSecurityContextRepository();
-        contextRepo.saveContext(context, request, response);
+        new RequestAttributeSecurityContextRepository().saveContext(context, request, response);
 
         log.info("🔓 User {} authenticated", userId);
         filterChain.doFilter(request, response);
     }
 
-    private boolean isPublicPath(String path) {
-        log.info("🔍 Checking if '{}' is public", path);
+    // ---- helpers ----
 
-        for (String publicPath : PUBLIC_PATH_PREFIXES) {
-            if (path.startsWith(publicPath)) {
-                log.info("✅ Allowed public path matched: {}", publicPath);
-                return true;
-            }
+    private boolean isPublic(String method, String path) {
+        // preflight
+        if ("OPTIONS".equalsIgnoreCase(method)) return true;
+
+        // auth flow
+        if ("POST".equals(method) && "/auth/signup".equals(path)) return true;
+        if ("POST".equals(method) && "/auth/login".equals(path)) return true;
+
+        // email verification links (GET з листа) + можливий POST із фронта
+        if (("/auth/confirm".equals(path) || "/auth/signup/confirm".equals(path))) {
+            return "GET".equals(method) || "POST".equals(method);
         }
 
-        log.warn("⛔ Path '{}' is not public", path);
+        // ресенд підтвердження
+        if ("POST".equals(method) && "/auth/resend-verification".equals(path)) return true;
+
+        // якщо маєш інші публічні сторінки — додай тут
+
         return false;
     }
-
 
     private String getJwtFromRequest(HttpServletRequest request) {
         String bearer = request.getHeader(HttpHeaders.AUTHORIZATION);

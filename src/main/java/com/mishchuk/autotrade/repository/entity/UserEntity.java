@@ -5,6 +5,7 @@ import com.mishchuk.autotrade.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
@@ -67,7 +68,4 @@ public class UserEntity {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TransactionEntity> transactions;
-
-    @Column(name = "token", unique = true)
-    private UUID token;
 }
