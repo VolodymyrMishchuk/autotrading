@@ -1,8 +1,10 @@
 package com.mishchuk.autotrade.config;
 
+import java.util.Arrays;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -37,6 +39,9 @@ public class SecurityConfig {
 
     private final TokenAuthFilter tokenAuthFilter;
 
+    @Value("${app.cors.allowed-origins:http://localhost:3000}")
+    private String allowedOrigins;
+
     @Bean
     UserDetailsService emptyDetailsService() {
         return username -> { throw new UsernameNotFoundException("No local users, only JWT tokens allowed!"); };
@@ -49,15 +54,15 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        var cfg = new CorsConfiguration();
-        cfg.setAllowedOriginPatterns(List.of("http://localhost:3000"));
+        CorsConfiguration cfg = new CorsConfiguration();
+        cfg.setAllowedOriginPatterns(Arrays.asList(allowedOrigins.split("\\s*,\\s*")));
         cfg.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
-        cfg.setAllowedHeaders(List.of("*"));
+        cfg.setAllowedHeaders(List.of("Authorization","Content-Type","Accept","X-Requested-With"));
         cfg.setExposedHeaders(List.of("Authorization"));
         cfg.setAllowCredentials(true);
         cfg.setMaxAge(3600L);
 
-        var source = new UrlBasedCorsConfigurationSource();
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", cfg);
         return source;
     }
@@ -103,10 +108,23 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/auth/signup", "/auth/login",
-                                "/auth/signup/confirm", "/auth/resend-verification", "/auth/confirm").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/auth/login", "/auth/signup", "/auth/confirm", "/auth/signup/confirm").permitAll()
-                        .anyRequest().permitAll()
+                        // Публічні auth-ендпоїнти:
+                        .requestMatchers(HttpMethod.POST,
+                                "/auth/signup",
+                                "/auth/login",
+                                "/auth/refresh",
+                                "/auth/logout",
+                                "/auth/signup/confirm",
+                                "/auth/resend-verification",
+                                "/auth/confirm"
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.GET,
+                                "/auth/login",
+                                "/auth/signup",
+                                "/auth/confirm",
+                                "/auth/signup/confirm"
+                        ).permitAll()
+                        .anyRequest().authenticated()
                 )
                 .addFilterBefore(tokenAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(e -> e.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)));

@@ -28,7 +28,7 @@ public class LoginServiceImpl implements LoginService {
     private final AuthTokenManager authTokenManager;
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public AuthTokenResponseDto login(String email, String rawPassword) {
         UserEntity userEntity = userRepository.findByEmailIgnoreCase(email)
                 .orElseThrow(() -> new UserNotFoundException("User with " + email + " not found"));
