@@ -103,6 +103,8 @@ public class TokenAuthFilter extends OncePerRequestFilter {
         // ресенд підтвердження
         if ("POST".equals(method) && "/auth/resend-verification".equals(path)) return true;
 
+        if ("POST".equals(method) && "/auth/refresh".equals(path)) return true;
+
         return false;
     }
 
