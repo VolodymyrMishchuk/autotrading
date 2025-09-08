@@ -27,6 +27,7 @@ public class AccountMapper {
                 .id(UUID.randomUUID())
                 .name(dto.getName())
                 .status(Status.PENDING)
+                .accountType(dto.getAccountType())
                 .user(user)
                 .createdAt(Instant.now())
                 .build();
@@ -41,6 +42,7 @@ public class AccountMapper {
                 .userId(entity.getUser().getId())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
+                .accountType(entity.getAccountType())
                 .build();
     }
 
@@ -65,6 +67,7 @@ public class AccountMapper {
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .userId(entity.getUser().getId())
+                .accountType(entity.getAccountType())
                 .cabinets(
                         entity.getCabinets() != null
                                 ? entity.getCabinets().stream()
