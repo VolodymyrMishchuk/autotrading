@@ -66,6 +66,8 @@ public class AuthController {
                 .buildAndExpand(userId)
                 .toUri();
 
+        log.info(">>> AuthController.signup() called with {}", dto.getEmail());
+
         return ResponseEntity.created(location).build();
     }
 

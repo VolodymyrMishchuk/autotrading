@@ -9,8 +9,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app ./app
 
-RUN mkdir -p /data/sessions
-VOLUME ["/data/sessions"]
+RUN mkdir -p /data/sessions /data/logs
+VOLUME ["/data/sessions", "/data/logs"]
 
 ENV SESSIONS_DIR=/data/sessions \
     KAFKA_BOOTSTRAP_SERVERS=kafka:9092 \

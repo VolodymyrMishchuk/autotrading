@@ -1,191 +1,223 @@
+from __future__ import annotations
+
+import os
 import json
 import logging
-from pathlib import Path
-from typing import Any
+import asyncio
+import threading
 
 from aiokafka import AIOKafkaProducer
 from telethon import TelegramClient, events
-from telethon.errors import SessionPasswordNeededError
+from telethon.network.connection import (
+    ConnectionTcpFull,
+    ConnectionTcpAbridged,
+    ConnectionTcpObfuscated,
+    ConnectionTcpIntermediate,
+)
 
-from .parser import SignalParser
+log = logging.getLogger("app.manager")
 
-log = logging.getLogger(__name__)
 
 class TelethonManager:
-    def __init__(
-            self,
-            sessions_dir: Path,
-            kafka_bootstrap: str,
-            kafka_topic: str,
-            kafka_sasl: dict[str, Any] | None = None,
-    ):
+    def __init__(self, sessions_dir, kafka_bootstrap, kafka_topic, kafka_sasl=None):
         self.sessions_dir = sessions_dir
-        self.sessions_dir.mkdir(parents=True, exist_ok=True)
-
         self.kafka_bootstrap = kafka_bootstrap
         self.kafka_topic = kafka_topic
-        self.kafka_sasl = kafka_sasl or {}
+        self.kafka_sasl = kafka_sasl
 
-        self.clients: dict[str, TelegramClient] = {}
-        self.sources: dict[str, dict[str, Any]] = {}
+        self.session_path = os.getenv("SESSION_PATH", f"{sessions_dir}/mysession.session")
+        self.api_id = int(os.getenv("TELEGRAM_API_ID"))
+        self.api_hash = os.getenv("TELEGRAM_API_HASH")
 
-        self._producer: AIOKafkaProducer | None = None
-        self._producer_started = False
+        self.group_ids = [
+            int(os.getenv("GROUP_1_ID", "0")),
+            int(os.getenv("GROUP_2_ID", "0")),
+        ]
 
-    async def startup(self) -> None:
-        try:
-            await self.start_kafka()
-        except Exception:
-            log.warning("Kafka is not ready yet, will lazy-start on first publish", exc_info=True)
+        self.client: TelegramClient | None = None
+        self.producer: AIOKafkaProducer | None = None
+        self._loop: asyncio.AbstractEventLoop | None = None
+        self._thread: threading.Thread | None = None
 
-    async def shutdown(self) -> None:
-        await self.stop_kafka()
-        for name, client in list(self.clients.items()):
-            try:
-                await client.disconnect()
-            except Exception:
-                pass
-        self.clients.clear()
+    # === Public lifecycle ===
+    async def startup(self):
+        """Старт Kafka producer та Telethon listener у фоновому потоці"""
+        # Ретраї на випадок, якщо Kafka ще не повністю готова (після healthcheck)
+        max_attempts = int(os.getenv("KAFKA_BOOTSTRAP_RETRIES", "10"))
+        delay_sec = float(os.getenv("KAFKA_BOOTSTRAP_DELAY", "2"))
 
-    async def start_kafka(self) -> None:
-        if self._producer_started:
-            return
-
-        kwargs: dict[str, Any] = {"bootstrap_servers": self.kafka_bootstrap}
-        mech = self.kafka_sasl.get("mechanism")
-        if mech:
-            kwargs.update(
-                security_protocol=self.kafka_sasl.get("security_protocol", "SASL_SSL"),
-                sasl_mechanism=mech,
-                sasl_plain_username=self.kafka_sasl.get("username"),
-                sasl_plain_password=self.kafka_sasl.get("password"),
-                ssl_cafile=self.kafka_sasl.get("ssl_cafile"),
-            )
-
-        self._producer = AIOKafkaProducer(
+        self.producer = AIOKafkaProducer(
+            bootstrap_servers=self.kafka_bootstrap,
             value_serializer=lambda v: json.dumps(v, ensure_ascii=False).encode("utf-8"),
-            **kwargs,
         )
-        await self._producer.start()
-        self._producer_started = True
-        log.info("Kafka producer started (%s)", self.kafka_bootstrap)
 
-    async def stop_kafka(self) -> None:
-        if self._producer and self._producer_started:
-            await self._producer.stop()
-            self._producer_started = False
-            log.info("Kafka producer stopped")
-
-    async def _publish(self, payload: dict[str, Any]) -> None:
-        if not self._producer_started:
-            await self.start_kafka()
-        assert self._producer
-        await self._producer.send_and_wait(self.kafka_topic, payload)
-
-    async def start_session(self, name: str, api_id: int, api_hash: str, phone: str) -> str:
-        if name in self.clients:
-            return "already-running"
-
-        session_path = self.sessions_dir / f"{name}.session"
-        client = TelegramClient(str(session_path), api_id, api_hash)
-
-        await client.connect()
-        if not await client.is_user_authorized():
+        for attempt in range(1, max_attempts + 1):
             try:
-                await client.send_code_request(phone)
-                self.clients[name] = client
-                return "code-sent"
+                await self.producer.start()
+                log.info(f"✅ Kafka producer started ({self.kafka_bootstrap})")
+                break
             except Exception as e:
-                await client.disconnect()
-                raise e
-        else:
-            self.clients[name] = client
-            return "ready"
+                log.warning(f"Kafka bootstrap failed (try {attempt}/{max_attempts}): {e}")
+                if attempt == max_attempts:
+                    raise
+                await asyncio.sleep(delay_sec)
 
-    async def confirm_code(self, name: str, phone: str | None, code: str) -> str:
-        client = self.clients.get(name)
-        if not client:
-            raise RuntimeError("session not started")
-        try:
-            await client.sign_in(phone=phone, code=code)
-            return "ready"
-        except SessionPasswordNeededError:
-            return "password-required"
+        # Запускаємо окремий event loop у фоні
+        self._thread = threading.Thread(target=self._run_telethon_loop, daemon=True)
+        self._thread.start()
+        log.info("🚀 Telethon background loop started")
 
-    async def confirm_password(self, name: str, password: str) -> str:
-        client = self.clients.get(name)
-        if not client:
-            raise RuntimeError("session not started")
-        await client.sign_in(password=password)
-        return "ready"
+    async def shutdown(self):
+        if self.producer:
+            await self.producer.stop()
+            log.info("🧹 Kafka producer stopped")
+        if self.client and self.client.is_connected():
+            await self.client.disconnect()
+            log.info("🧹 Telegram client disconnected")
 
-    async def stop_session(self, name: str) -> None:
-        client = self.clients.pop(name, None)
-        if client:
-            await client.disconnect()
+    # === Internal ===
+    def _run_telethon_loop(self):
+        """Окремий asyncio loop для Telethon"""
+        self._loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self._loop)
+        self._loop.run_until_complete(self._telethon_main())
 
-    async def _resolve_chat_id(self, client: TelegramClient, chat: str | int) -> int:
-        if isinstance(chat, int):
-            return chat
-        entity = await client.get_entity(chat)
-        return int(getattr(entity, "id"))
-
-    async def add_source(
-            self,
-            source_id: str,
-            session: str,
-            chat: str | int,
-            settings: dict[str, Any] | None,
-    ) -> dict[str, Any]:
-        if source_id in self.sources:
-            raise RuntimeError("source already exists")
-
-        client = self.clients.get(session)
-        if not client:
-            raise RuntimeError("session not running")
-
-        await self.start_kafka()
-
-        chat_id = await self._resolve_chat_id(client, chat)
-        parser = SignalParser(settings)
-
-        async def _handler(event):
-            try:
-                text: str = event.message.message or ""
-                parsed = parser.parse(text)
-                if not parsed:
-                    return
-
-                payload: dict[str, Any] = {
-                    "source_id": source_id,
-                    "type": parsed["type"],
-                    "symbol": parsed.get("symbol"),
-                    "direction": parsed.get("direction"),
-                    "amount": parsed.get("amount"),
-                    "chat_id": chat_id,
-                    "message_id": event.message.id,
-                    "date_ts": int(event.message.date.timestamp()),
-                    "raw_text": text,
-                }
-                await self._publish(payload)
-            except Exception:
-                log.exception("Source %s handler error", source_id)
-
-        client.add_event_handler(_handler, events.NewMessage(chats=[chat_id]))
-
-        self.sources[source_id] = {
-            "session": session,
-            "chat_id": chat_id,
-            "handler": _handler,
-            "parser": parser,
+    def _build_telegram_client(self) -> TelegramClient:
+        """
+        Створює TelegramClient із параметрами з ENV:
+        - TELETHON_CONNECTION = full|abridged|obfuscated|intermediate  (default: obfuscated)
+        - TELETHON_PORT       = <int> (default: 443; можна 80)
+        - TELETHON_USE_IPV6   = true|false (default: false)
+        - TELETHON_CONN_RETRIES = <int> (default: 5)
+        - TELETHON_RETRY_DELAY  = <int seconds> (default: 1)
+        - PROXY_TYPE = socks5|http
+        - PROXY_HOST = <host>
+        - PROXY_PORT = <port>
+        """
+        CONNECTION_MAP = {
+            "full": ConnectionTcpFull,
+            "abridged": ConnectionTcpAbridged,
+            "obfuscated": ConnectionTcpObfuscated,
+            "intermediate": ConnectionTcpIntermediate,
         }
-        return {"source_id": source_id, "chat_id": chat_id}
 
-    async def remove_source(self, source_id: str) -> str:
-        src = self.sources.pop(source_id, None)
-        if not src:
-            return "not-found"
-        client = self.clients.get(src["session"])
-        if client:
-            client.remove_event_handler(src["handler"], events.NewMessage(chats=[src["chat_id"]]))
-        return "removed"
+        conn_name = os.getenv("TELETHON_CONNECTION", "obfuscated").lower()
+        base_conn = CONNECTION_MAP.get(conn_name, ConnectionTcpObfuscated)
+
+        port_env = int(os.getenv("TELETHON_PORT", "443"))
+        # Динамічно задаємо порт для обраного типу конекшену
+        CustomConn = type("CustomConn", (base_conn,), {"default_port": port_env})
+
+        use_ipv6 = os.getenv("TELETHON_USE_IPV6", "false").lower() == "true"
+        conn_retries = int(os.getenv("TELETHON_CONN_RETRIES", "5"))
+        retry_delay = int(os.getenv("TELETHON_RETRY_DELAY", "1"))
+
+        # Опційний простий проксі (Telethon розуміє ('socks5'|'http', host, port))
+        proxy = None
+        ptype = os.getenv("PROXY_TYPE")
+        phost = os.getenv("PROXY_HOST")
+        pport = os.getenv("PROXY_PORT")
+        if ptype and phost and pport:
+            proxy = (ptype, phost, int(pport))
+
+        log.info(
+            f"🔧 Telethon connection='{conn_name}' port={port_env} ipv6={use_ipv6} "
+            f"retries={conn_retries} retry_delay={retry_delay}s proxy={'on' if proxy else 'off'}"
+        )
+
+        return TelegramClient(
+            self.session_path,
+            self.api_id,
+            self.api_hash,
+            connection=CustomConn,
+            proxy=proxy,
+            use_ipv6=use_ipv6,
+            connection_retries=conn_retries,
+            retry_delay=retry_delay,
+            system_version="Linux",
+            device_model="Docker",
+        )
+
+    async def _telethon_main(self):
+        try:
+            self.client = self._build_telegram_client()
+            await self.client.connect()
+
+            if not await self.client.is_user_authorized():
+                log.error("❌ Telegram session not authorized. Run create_session.py inside container.")
+                return
+
+            me = await self.client.get_me()
+            log.info(f"✅ Connected as {getattr(me, 'first_name', '')} (@{getattr(me, 'username', '')})")
+
+            # Підписка на групи
+            any_groups = False
+            for gid in self.group_ids:
+                if gid != 0:
+                    self.client.add_event_handler(self._on_message, events.NewMessage(chats=gid))
+                    self.client.add_event_handler(self._on_message_edit, events.MessageEdited(chats=gid))
+                    log.info(f"📡 Listening to group ID: {gid}")
+                    any_groups = True
+
+            if not any_groups:
+                log.warning("⚠️ No GROUP_*_ID provided; nothing to subscribe to.")
+
+            log.info("💤 Waiting for new messages...")
+            await self.client.run_until_disconnected()
+
+        except Exception as e:
+            log.exception(f"💥 Telethon fatal error: {e}")
+
+    # ---- helpers ----
+    async def _serialize_message(self, event):
+        """Повертає уніфікований payload для нового/зміненного повідомлення."""
+        msg = event.message
+        chat = await event.get_chat()
+
+        # Назва: для каналів/груп title, для приватних чатів може бути first_name/username
+        chat_title = getattr(chat, "title", None)
+        if not chat_title:
+            chat_title = getattr(chat, "first_name", None) or getattr(chat, "username", None)
+
+        payload = {
+            "chat_id": event.chat_id,
+            "chat_title": chat_title,
+            "message_id": getattr(msg, "id", None),
+            "sender_id": event.sender_id,
+            "text": (msg.message or "").strip() if msg and msg.message else "",
+            "date": str(msg.date) if getattr(msg, "date", None) else None,
+            "edit_date": str(getattr(msg, "edit_date", None)) if getattr(msg, "edit_date", None) else None,
+        }
+        return payload
+
+    async def _send_to_kafka(self, payload: dict):
+        if not payload.get("text"):
+            return
+        if self.producer:
+            await self.producer.send_and_wait(self.kafka_topic, payload)
+            log.info(
+                "💬 [%s] #%s %s → Kafka(%s)",
+                payload.get("chat_id"),
+                payload.get("message_id"),
+                "edit" if payload.get("edit_date") else "new",
+                self.kafka_topic,
+            )
+        else:
+            log.warning("⚠️ Kafka producer not initialized yet")
+
+    # ---- handlers ----
+    async def _on_message(self, event):
+        """Нове повідомлення з Telegram → Kafka"""
+        try:
+            payload = await self._serialize_message(event)
+            await self._send_to_kafka(payload)
+        except Exception as e:
+            log.error(f"⚠️ Error sending NEW to Kafka: {e}")
+
+    async def _on_message_edit(self, event):
+        """Редаговане повідомлення з Telegram → Kafka"""
+        try:
+            payload = await self._serialize_message(event)
+            await self._send_to_kafka(payload)
+        except Exception as e:
+            log.error(f"⚠️ Error sending EDIT to Kafka: {e}")

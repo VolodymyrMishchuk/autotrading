@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 import logging
 from pathlib import Path
@@ -16,6 +18,7 @@ logging.basicConfig(
 )
 log = logging.getLogger("telethon-ingest")
 
+# === Environment setup ===
 SESSIONS_DIR = Path(os.getenv("SESSIONS_DIR", "./sessions"))
 KAFKA_BOOTSTRAP = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "kafka:9092")
 KAFKA_TOPIC = os.getenv("KAFKA_TOPIC", "signals.raw")
@@ -43,19 +46,53 @@ mgr = TelethonManager(
     kafka_sasl=kafka_sasl,
 )
 
+
+# === Application lifecycle ===
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     SESSIONS_DIR.mkdir(parents=True, exist_ok=True)
+
     if hasattr(mgr, "startup"):
         await mgr.startup()
-    log.info("Telethon ingest service started")
+
+    log.info("🚀 Telethon ingest service started")
+
+    # --- Added: Connection and group subscription logs ---
+    try:
+        if getattr(mgr, "client", None):
+            me = await mgr.client.get_me()
+            log.info(f"✅ Connected as {me.first_name} {me.last_name or ''} (username: @{me.username})")
+
+            group1 = os.getenv("GROUP_1_ID")
+            group2 = os.getenv("GROUP_2_ID")
+
+            if group1 or group2:
+                log.info("📡 Subscribing to groups:")
+                for gid in [group1, group2]:
+                    if gid:
+                        log.info(f"   • Group ID: {gid}")
+
+                if hasattr(mgr, "subscribe_default_groups"):
+                    await mgr.subscribe_default_groups([gid for gid in [group1, group2] if gid])
+                    log.info("✅ Successfully subscribed to target groups.")
+                else:
+                    log.warning("⚠️ Manager does not implement 'subscribe_default_groups'. Skipping subscription.")
+            else:
+                log.warning("⚠️ No group IDs defined in environment variables.")
+        else:
+            log.warning("⚠️ Telethon client not initialized yet.")
+    except Exception as e:
+        log.error(f"❌ Failed to subscribe or fetch user info: {e}")
+
     try:
         yield
     finally:
         if hasattr(mgr, "shutdown"):
             await mgr.shutdown()
-        log.info("Telethon ingest service stopped")
+        log.info("🛑 Telethon ingest service stopped")
 
+
+# === FastAPI app ===
 app = FastAPI(title="Telegram Ingest (Telethon + Kafka)", lifespan=lifespan)
 
 app.add_middleware(
@@ -66,14 +103,18 @@ app.add_middleware(
     allow_credentials=True,
 )
 
+
+# === Routes ===
 @app.get("/health")
 async def health() -> dict[str, bool]:
     return {"ok": True}
+
 
 @app.post("/sessions/start")
 async def sessions_start(body: SessionStartReq) -> dict[str, str]:
     status = await mgr.start_session(body.name, body.api_id, body.api_hash, body.phone)
     return {"status": status}
+
 
 @app.post("/sessions/confirm")
 async def sessions_confirm(body: dict) -> dict[str, str]:
@@ -97,14 +138,17 @@ async def sessions_confirm(body: dict) -> dict[str, str]:
 
     raise HTTPException(400, "Need 'code' or 'password'")
 
+
 @app.post("/sessions/stop/{name}")
 async def sessions_stop(name: str) -> dict[str, str]:
     await mgr.stop_session(name)
     return {"status": "stopped"}
 
+
 @app.post("/sources")
 async def sources_add(body: SourceCreateReq) -> dict[str, int] | dict[str, str]:
     return await mgr.add_source(body.source_id, body.session, body.chat, body.settings or {})
+
 
 @app.delete("/sources")
 async def sources_delete(body: SourceDeleteReq) -> dict[str, str]:

@@ -6,6 +6,7 @@ import java.time.LocalDate;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
@@ -19,7 +20,7 @@ public class UserCreateDto {
 
     private final String lastName;
 
-    @NotBlank(message = "Birth date must not be blank")
+    @NotNull(message = "Birth date is required")
     private final LocalDate birthDate;
 
     @NotBlank(message = "Phone number must not be blank")

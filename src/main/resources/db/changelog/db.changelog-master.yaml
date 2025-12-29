@@ -56,5 +56,13 @@ databaseChangeLog:
       relativeToChangelogFile: true
 
   - include:
+      file: 015-raw-signals.sql
+      relativeToChangelogFile: true
+
+  - include:
+      file: 016-extend-raw-signals.sql
+      relativeToChangelogFile: true
+
+  - include:
       file: seed/dev-seed.yaml
       relativeToChangelogFile: true

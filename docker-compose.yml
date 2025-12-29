@@ -1,6 +1,7 @@
 version: "3.9"
 
 services:
+  # === PostgreSQL ===
   db:
     image: postgres:16-alpine
     container_name: autotrade-db
@@ -20,6 +21,7 @@ services:
       retries: 20
     networks: [appnet]
 
+  # === Adminer (DB GUI) ===
   adminer:
     image: adminer:4
     container_name: adminer
@@ -28,12 +30,15 @@ services:
         condition: service_healthy
     restart: always
     ports:
+      # Adminer слухає 8080 всередині контейнера
       - "8083:8080"
     networks: [appnet]
 
+  # === Kafka (Bitnami Kraft mode, no Zookeeper) ===
   kafka:
     image: bitnami/kafka:3.7
     container_name: kafka
+    restart: always
     environment:
       - KAFKA_ENABLE_KRAFT=yes
       - KAFKA_CFG_NODE_ID=1
@@ -59,47 +64,56 @@ services:
       retries: 20
     networks: [appnet]
 
+  # === Telethon Telegram → Kafka Ingestor ===
   telethon-ingest:
     build: ./telethon-ingest
     container_name: telethon-ingest
     depends_on:
       kafka:
         condition: service_healthy
+    restart: always
     environment:
-      - LOG_LEVEL=INFO
+      # --- Telegram credentials ---
+      - TELEGRAM_API_ID=26644885
+      - TELEGRAM_API_HASH=fa9fa42ac92fb807910e7b6005b9aed9
+
+      # --- Telethon connection tuning ---
+      - TELETHON_CONNECTION=obfuscated   # або abridged / intermediate / full
+      - TELETHON_PORT=80                 # ключове: з 443 на 80
+      - TELETHON_USE_IPV6=false
+      - TELETHON_CONN_RETRIES=5
+      - TELETHON_RETRY_DELAY=1
+
+      # --- Session paths ---
       - SESSIONS_DIR=/data/sessions
+      # 🔥 повна назва з розширенням .session
+      - SESSION_PATH=/data/sessions/mysession.session
+
+      # --- Kafka ---
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - KAFKA_TOPIC=signals.raw
+      # ретраї для старту продюсера (використовуються у manager.py)
+      - KAFKA_BOOTSTRAP_RETRIES=10
+      - KAFKA_BOOTSTRAP_DELAY=2
+
+      # --- Logging ---
+      - LOG_LEVEL=INFO
+
+      # --- Groups to listen ---
+      - GROUP_1_ID=-1001536630827      # Лачен пише
+      - GROUP_2_ID=-1002837752222      # Forex Fabric FREE Signals 🇩🇪
     volumes:
-      - telethon_sessions:/data/sessions
+      # Локальна тека (Mac) → контейнер
+      - ./telethon-ingest/data/sessions:/data/sessions
+      - ./telethon-ingest/data/logs:/data/logs
     ports:
       - "8000:8000"
     networks: [appnet]
 
-  # ==== (Опційно) Запуск Spring API в Docker ====
-      #api:
-      #build: .
-      #container_name: autotrade-api
-      #depends_on:
-      #kafka:
-       #  condition: service_healthy
-       #db:
-       # condition: service_healthy
-       #environment:
-       #- SPRING_PROFILES_ACTIVE=local
-       #- SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-       #- APP_KAFKA_TOPIC=signals.raw
-       #- SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/autotrade
-       #- SPRING_DATASOURCE_USERNAME=postgres
-       #- SPRING_DATASOURCE_PASSWORD=postgres_password
-       #ports:
-      #- "8080:8080"
-      #networks: [appnet]
-
+# === Shared network & volumes ===
 networks:
   appnet:
 
 volumes:
   pgdata:
   kafka_data:
-  telethon_sessions:
