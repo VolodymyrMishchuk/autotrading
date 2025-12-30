@@ -50,16 +50,17 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
         tokenRepository.save(entity);
 
         String confirmationLink = baseVerificationUrl + "?token=" + token;
-        String body = String.format("""
-                Welcome to AutoTrading!
+        String userName = (user.getFirstName() != null && !user.getFirstName().isBlank())
+                ? user.getFirstName()
+                : "User";
 
-                To activate your account, click the link below:
-                %s
-
-                This link will expire in %d minutes.
-                """, confirmationLink, tokenExpiryMinutes);
-
-        emailService.sendEmail(user.getEmail(), "Confirm your registration", body);
+        emailService.sendVerificationEmailHtml(
+                user.getEmail(),
+                "Підтвердіть реєстрацію в AutoTrading",
+                userName,
+                confirmationLink,
+                tokenExpiryMinutes
+        );
     }
 
     @Override
